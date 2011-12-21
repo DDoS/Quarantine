@@ -3,8 +3,6 @@ package me.DDoS.Quarantine.listener;
 import java.util.Collection;
 import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.zone.QZone;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerListener;

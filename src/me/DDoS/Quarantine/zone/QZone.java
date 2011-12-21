@@ -36,6 +36,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
 
 /**
  *
@@ -373,6 +374,24 @@ public class QZone {
 
         return false;
 
+    }
+    
+    public boolean passChunkUnloadEvent(ChunkUnloadEvent event) {
+        
+        if (!isInZone(event.getChunk())) {
+            
+            return false;
+            
+        }
+        
+        if (!players.isEmpty()) {
+            
+            event.setCancelled(true);
+            
+        }
+
+        return true;
+        
     }
 
     public boolean passPlayerInteractEvent(PlayerInteractEvent event) {

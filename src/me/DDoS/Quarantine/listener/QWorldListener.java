@@ -15,24 +15,23 @@ public class QWorldListener extends WorldListener {
     private Quarantine plugin;
 
     public QWorldListener(Quarantine plugin) {
-        
+
         this.plugin = plugin;
-    
+
     }
-    
+
     @Override
     public void onChunkUnload(ChunkUnloadEvent event) {
 
         Collection<QZone> zones = plugin.getZones();
-        
+
         for (QZone zone : zones) {
-            
-            if (zone.isInZone(event.getChunk())) {
-                
-                event.setCancelled(true);
+
+            if (zone.passChunkUnloadEvent(event)) {
+
                 return;
-                
-            }           
-        }        
+
+            }
+        }
     }
 }
