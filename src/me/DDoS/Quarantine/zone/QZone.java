@@ -81,7 +81,7 @@ public class QZone {
 
         }
 
-        startMobCheckTask(plugin, world, interval);
+        startMobCheckTask(plugin, interval);
 
     }
 
@@ -285,22 +285,22 @@ public class QZone {
 
                     }
 
-                    QZonePlayer qzPlayer = null;
-
-                    if (qPlayer.isZonePlayer()) {
-
-                        qzPlayer = (QZonePlayer) qPlayer;
-
-                    } else {
+                    if (!qPlayer.isZonePlayer()) {
 
                         return true;
 
                     }
 
-                    QRewards rew = mobRewards.get(QUtil.getEntityCreatureType(entity));
-                    qzPlayer.addMoney(rew.getRandomMoneyAmount());
-                    qzPlayer.addScore(rew.getScoreReward());
+                    QZonePlayer qzPlayer = (QZonePlayer) qPlayer;
+                    CreatureType creature = QUtil.getEntityCreatureType(entity);
 
+                    if (creature != null) {
+
+                        QRewards rew = mobRewards.get(creature);
+                        qzPlayer.addMoney(rew.getRandomMoneyAmount());
+                        qzPlayer.addScore(rew.getScoreReward());
+
+                    }
                 }
 
                 return true;
@@ -382,6 +382,12 @@ public class QZone {
             return false;
 
         }
+        
+        if (!event.hasBlock()) {
+            
+            return true;
+            
+        }
 
         QPlayer qPlayer = players.get(event.getPlayer().getName());
 
@@ -393,60 +399,104 @@ public class QZone {
 
         QZonePlayer qzPlayer = (QZonePlayer) qPlayer;
 
-        if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+        if (!checkForSign(event.getClickedBlock())) {
 
-            if (checkForSign(event.getClickedBlock())) {
+            if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)
+                    && !event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
 
-                Sign sign = (Sign) event.getClickedBlock().getState();
+                return true;
 
-                if (sign.getLine(0).equalsIgnoreCase("[Quarantine]") && sign.getLine(1).equalsIgnoreCase("Buy Item")) {
-
-                    String[] sa = sign.getLine(2).split("-");
-                    qzPlayer.buyItem(Integer.parseInt(sa[0]), Integer.parseInt(sa[1]), Integer.parseInt(sa[2]));
-                    return true;
-
-                }
-
-                if (sign.getLine(0).equalsIgnoreCase("[Quarantine]") && sign.getLine(1).equalsIgnoreCase("Sell Item")) {
-
-                    String[] sa = sign.getLine(2).split("-");
-                    qzPlayer.sellItem(Integer.parseInt(sa[0]), Integer.parseInt(sa[1]), Integer.parseInt(sa[2]));
-                    return true;
-
-                }
-
-                if (sign.getLine(0).equalsIgnoreCase("[Quarantine]") && sign.getLine(1).equalsIgnoreCase("Buy Key")) {
-
-                    qzPlayer.addKey(sign.getLine(2), Integer.parseInt(sign.getLine(3)));
-                    return true;
-
-                }
             }
+
+            if (event.getClickedBlock().getType() != Material.STONE_BUTTON) {
+
+                return true;
+
+            }
+
+            if (!handleLock(qzPlayer, event.getClickedBlock())) {
+
+                event.setCancelled(true);
+
+            }
+
+            return true;
+
         }
 
-        if (event.getAction().equals(Action.LEFT_CLICK_BLOCK) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+        Sign sign = (Sign) event.getClickedBlock().getState();
 
-            if (event.getClickedBlock().getType() == Material.STONE_BUTTON) {
+        if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
 
-                Sign sign = getSignNextTo(event.getClickedBlock());
+            return true;
 
-                if (sign != null) {
+        }
 
-                    if (sign.getLine(0).equalsIgnoreCase("[Quarantine]") && sign.getLine(1).equalsIgnoreCase("Key Lock")) {
+        if (sign.getLine(0).equalsIgnoreCase("[Quarantine]")) {
 
-                        if (!qzPlayer.useKey(sign.getLine(2), oneTimeKeys)) {
+            handleZoneSign(qzPlayer, sign);
 
-                            QUtil.tell(event.getPlayer(), "You need to purchase the key '" + sign.getLine(2) + "' to open this door.");
-                            event.setCancelled(true);
+        }
 
-                        }
-                    }
-                }
+        return true;
+
+    }
+
+    private boolean handleLock(QZonePlayer player, Block block) {
+
+        Sign sign = getSignNextTo(block);
+
+        if (sign != null) {
+
+            return true;
+
+        }
+
+        if (sign.getLine(0).equalsIgnoreCase("[Quarantine]") && sign.getLine(1).equalsIgnoreCase("Key Lock")) {
+
+            if (!player.useKey(sign.getLine(2), oneTimeKeys)) {
+
+                QUtil.tell(player.getPlayer(), "You need to purchase the key '" + sign.getLine(2) + "' to open this door.");
+                return false;
+
             }
         }
 
         return true;
 
+    }
+
+    private void handleZoneSign(QZonePlayer player, Sign sign) {
+
+        if (sign.getLine(1).equalsIgnoreCase("Buy Item")) {
+
+            String[] sa = sign.getLine(2).split("-");
+            player.buyItem(Integer.parseInt(sa[0]), Integer.parseInt(sa[1]), Integer.parseInt(sa[2]));
+            return;
+
+        }
+
+        if (sign.getLine(1).equalsIgnoreCase("Sell Item")) {
+
+            String[] sa = sign.getLine(2).split("-");
+            player.sellItem(Integer.parseInt(sa[0]), Integer.parseInt(sa[1]), Integer.parseInt(sa[2]));
+            return;
+
+        }
+
+        if (sign.getLine(1).equalsIgnoreCase("Buy Key")) {
+
+            player.addKey(sign.getLine(2), Integer.parseInt(sign.getLine(3)));
+            return;
+
+        }
+        
+        if (sign.getLine(1).equalsIgnoreCase("Enchantment")) {
+
+            String[] sa = sign.getLine(2).split("-");
+            player.addEnchantment(Integer.parseInt(sa[0]), Integer.parseInt(sa[1]), Integer.parseInt(sa[2]));
+
+        }
     }
 
     private QPlayer getPlayer(Player player) {
@@ -615,9 +665,9 @@ public class QZone {
         }
     }
 
-    private void startMobCheckTask(Quarantine plugin, final World world, long interval) {
+    private void startMobCheckTask(Quarantine plugin, long interval) {
 
-        mobCheckTaskID = plugin.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, new Runnable() {
+        mobCheckTaskID = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
 
             @Override
             public void run() {

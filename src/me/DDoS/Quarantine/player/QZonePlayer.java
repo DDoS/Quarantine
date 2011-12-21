@@ -3,6 +3,8 @@ package me.DDoS.Quarantine.player;
 import me.DDoS.Quarantine.util.QUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.enchantments.EnchantmentWrapper;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
@@ -130,6 +132,44 @@ public class QZonePlayer extends QPlayer {
         player.getInventory().removeItem(item);
         player.updateInventory();
 
+    }
+    
+    public void addEnchantment(int ID, int level, int cost) {
+        
+        if (Enchantment.getById(ID) == null) {
+            
+            QUtil.tell(player, "Invalid enchantment ID");
+            return;
+            
+        }
+        
+        if (cost > money) {
+
+            QUtil.tell(player, "You don't have enough money to buy this enchantment.");
+            return;
+
+        }
+        
+        ItemStack item = player.getItemInHand();
+        Enchantment enchantment = new EnchantmentWrapper(ID);
+        
+        if (!enchantment.canEnchantItem(item)) {
+            
+            QUtil.tell(player, "This enchantment can not be applied to this item.");
+            return;
+            
+        }
+        
+        if (item.containsEnchantment(enchantment)) {
+            
+            QUtil.tell(player, "This enchantment has already been applied.");
+            return;
+            
+        }
+        
+        item.addEnchantment(enchantment, level);
+        QUtil.tell(player, "Enchantment added.");
+        
     }
 
     private void removeMoney(int amount) {

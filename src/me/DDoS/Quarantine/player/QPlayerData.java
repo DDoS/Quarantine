@@ -305,8 +305,7 @@ public class QPlayerData {
 
             }
 
-            FileInputStream fis = new FileInputStream(backupFile);
-            ObjectInputStream ois = new ObjectInputStream(fis);
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(backupFile));
             QInventoryItem[] fromFile = (QInventoryItem[]) ois.readObject();
             ois.close();
 
@@ -315,13 +314,13 @@ public class QPlayerData {
 
             for (int i = 0; i < 4; i++) {
 
-                armor[i] = QUtil.itemToStack(fromFile[i]);
+                armor[i] = fromFile[i].getItem();
 
             }
 
             for (int i = 4; i < fromFile.length; i++) {
 
-                items[i - 4] = QUtil.itemToStack(fromFile[i]);
+                items[i - 4] = fromFile[i].getItem();
 
             }
 
@@ -377,19 +376,19 @@ public class QPlayerData {
 
             for (int i = 0; i < armor.length; i++) {
 
-                inv[i] = QUtil.stackToItem(armor[i]);
+                inv[i] = new QInventoryItem(armor[i]);
 
             }
 
             for (int i = 0; i < items.length; i++) {
 
-                inv[armor.length + i] = QUtil.stackToItem(items[i]);
+                inv[armor.length + i] = new QInventoryItem(items[i]);
 
             }
 
-            FileOutputStream fos = new FileOutputStream(backupFile);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(backupFile));
             oos.writeObject(inv);
+            oos.flush();
             oos.close();
 
         } catch (Exception ex) {

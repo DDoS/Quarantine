@@ -1,7 +1,6 @@
 package me.DDoS.Quarantine.zone;
 
 import com.sk89q.worldedit.Vector;
-import me.DDoS.Quarantine.Quarantine;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -48,25 +47,6 @@ public class QMainRegion {
                 && z >= min.getBlockZ() && z <= max.getBlockZ());
 
     }
-
- /**public boolean containsChunk(Chunk chunk) {
-
-        if (!chunk.getWorld().equals(world)) {
-            
-            return false;
-            
-        }
-        
-        int minChunkX = min.getBlockX() >> 4;
-        int minChunkZ = min.getBlockZ() >> 4;
-        
-        int maxChunkX = max.getBlockX() >> 4;
-        int maxChunkZ = max.getBlockZ() >> 4;
-        
-        return (chunk.getX() >= minChunkX && chunk.getX() <= maxChunkX
-                && chunk.getZ() >= minChunkZ && chunk.getZ() <= maxChunkZ);
-
-    }**/
     
     public boolean containsChunk(Chunk chunk) {
 

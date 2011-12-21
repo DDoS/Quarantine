@@ -16,36 +16,12 @@ import org.bukkit.entity.Slime;
 import org.bukkit.entity.Spider;
 import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Zombie;
-import org.bukkit.inventory.ItemStack;
 
 /**
  *
  * @author DDoS
  */
 public class QUtil {
-    
-    public static QInventoryItem stackToItem(ItemStack stack) {
-        
-        if (stack == null) {
-            
-            return new QInventoryItem(-1, -1, (short)0);
-            
-        }
-        
-        return new QInventoryItem(stack.getTypeId(), stack.getAmount(), stack.getDurability());
-    }
-    
-    public static ItemStack itemToStack(QInventoryItem item) {
-        
-        if (item.getTypeId() == -1) {
-            
-            return null;
-            
-        }
-        
-        return new ItemStack(item.getTypeId(), item.getAmount(), item.getDurability());
-        
-    }
     
     public static void tell(Player player, String msg) {
         

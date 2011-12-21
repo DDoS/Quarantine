@@ -29,7 +29,6 @@ public class QWorldListener extends WorldListener {
             
             if (zone.isInZone(event.getChunk())) {
                 
-                Quarantine.log.info("Chunk unload stopped");
                 event.setCancelled(true);
                 return;
                 
