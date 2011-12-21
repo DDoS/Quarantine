@@ -1,0 +1,55 @@
+Load_on_start:
+  - 'zone1'
+Leaderboards:
+  enabled: false
+  redis_db_info:
+    host: 'localhost'
+    port: 6379
+Zones:
+  zone1:
+    max_number_of_players: 10
+    world: 'world'
+    mob_check_task_interval: 300
+    clear_drops: true
+    one_time_use_keys: false
+    entrance:
+      x: 0
+      y: 0
+      z: 0
+      yaw: 0
+      pitch: 0
+    lobby:
+      x: 0
+      y: 0
+      z: 0
+      yaw: 0
+      pitch: 0
+    starting_money: 35
+    starting_kit:
+      - '1-1'
+      - '2-1'
+      - '3-1'
+      - '4-1'
+      - '5-1'
+      - '6-1'
+    money_rewards:
+      - 'Zombie:10-15-5'
+      - 'Skeleton:15-20-6'
+      - 'Spider:15-18-6'
+    sub_zones:
+      subzone1:
+        number_of_mobs: 10
+        mob_types:
+          - 'Zombie'
+          - 'Spider'
+          - 'Skeleton'
+      subzone2:
+        number_of_mobs: 10
+        mob_types:
+          - 'Zombie'
+          - 'Spider'
+      subzone3:
+        number_of_mobs: 10
+        mob_types:
+          - 'Zombie'
+          - 'Skeleton'

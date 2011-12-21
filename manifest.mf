@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Sealed: true
+Class-Path: Quarantine/lib/jedis-2.0.0.jar
+X-COMMENT: Main-Class will be added automatically by build
+

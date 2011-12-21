@@ -1,0 +1,60 @@
+name: Quarantine
+main: me.DDoS.Quarantine.Quarantine
+depend: [WorldGuard]
+version: 0.3
+commands:
+  qload:
+      description: Load the desired zone.
+      usage:
+          /qload (zone name)
+  qunload:
+      description: Unload the desired zone.
+      usage:
+          /qunload (zone name)
+  qrespawnmobs:
+      description: Respawn the mobs in the desired zone.
+      usage:
+          /qrespawnmobs (zone name)
+  qjoin:
+      description: Join the desired zone.
+      usage:
+          /qjoin (zone name)
+  qenter:
+      description: Enter the desired zone.
+      usage:
+          /qenter
+  qsetlobby:
+      description: Set the lobby for the desired zone.
+      usage:
+          /qsetlobby (zone name)
+  qsetentrance:
+      description: Set the entrance for the desired zone.
+      usage:
+          /qsetentrance (zone name)
+  qleave:
+      description: Leave for the desired zone.
+      usage:
+          /qleave
+  qmoney:
+      description: Tells the players there current account balance.
+      usage:
+          /qmoney
+  qkeys:
+      description: Tells the players there keys.
+      usage:
+          /qkeys
+  qrank:
+      description: Tells the players there score.
+      usage:
+          /qrank
+  qtop:
+      description: Tells the players the top five players.
+      usage:
+          /qtop
+permissions:
+  quarantine.play: 
+    description: play in zones
+  quarantine.setup: 
+    description: setup the spawn and lobby
+  quarantine.admin: 
+    description: load and unload the zones
