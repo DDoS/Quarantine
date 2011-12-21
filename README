@@ -1,0 +1,8 @@
+Quarantine is a free open source plugin for Craftbukkit.
+It allows admins to create "quarantine zones", in which hostile mobs circulate, and attack players, who have to fight for their survival.
+The players can buy items (and enchantments), or sell some, through a local economy system.
+Admins can locks doors, which will require players to buy keys to open them.
+This plugin is highly customizable, from the starting kit, to the size of the zones.
+WorldGuard is required for this plugin to work, as it is throught it's API that regions are defined, protected and saved.
+Inventory, location, health, money and score are saved, so a player can resume playing at any time. Pre-game health is also saved for post-game.
+Score and leaderboards require a Redis database to work.
