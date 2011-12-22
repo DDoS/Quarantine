@@ -345,9 +345,8 @@ public class QZone {
 
         Player player = event.getPlayer();
         event.setRespawnLocation(lobby);
-        QUtil.tell(player, "You lost. All your data was reset.");
+        QUtil.tell(player, "You lost.");
         QUtil.tell(player, "You may leave the lobby by teleporting away.");
-        Quarantine.log.info("XP " + deadPlayers.get(player.getName()));
         player.giveExp(deadPlayers.get(player.getName()));
         deadPlayers.remove(player.getName());
 
