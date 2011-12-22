@@ -168,6 +168,7 @@ public class QZonePlayer extends QPlayer {
         }
         
         item.addEnchantment(enchantment, level);
+        removeMoney(cost);
         QUtil.tell(player, "Enchantment added.");
         
     }
