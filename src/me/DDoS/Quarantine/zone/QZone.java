@@ -374,23 +374,23 @@ public class QZone {
         return false;
 
     }
-    
+
     public boolean passChunkUnloadEvent(ChunkUnloadEvent event) {
-        
+
         if (!isInZone(event.getChunk())) {
-            
+
             return false;
-            
+
         }
-        
+
         if (!players.isEmpty()) {
-            
+
             event.setCancelled(true);
-            
+
         }
 
         return true;
-        
+
     }
 
     public boolean passPlayerInteractEvent(PlayerInteractEvent event) {
@@ -400,11 +400,11 @@ public class QZone {
             return false;
 
         }
-        
+
         if (!event.hasBlock()) {
-            
+
             return true;
-            
+
         }
 
         QPlayer qPlayer = players.get(event.getPlayer().getName());
@@ -419,23 +419,20 @@ public class QZone {
 
         if (!checkForSign(event.getClickedBlock())) {
 
-            if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)
-                    && !event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
+            if (event.getAction() == Action.RIGHT_CLICK_BLOCK
+                    || event.getAction() == Action.LEFT_CLICK_BLOCK) {
 
-                return true;
+                if (event.getClickedBlock().getType() != Material.STONE_BUTTON) {
 
-            }
+                    return true;
 
-            if (event.getClickedBlock().getType() != Material.STONE_BUTTON) {
+                }
 
-                return true;
+                if (!handleLock(qzPlayer, event.getClickedBlock())) {
 
-            }
+                    event.setCancelled(true);
 
-            if (!handleLock(qzPlayer, event.getClickedBlock())) {
-
-                event.setCancelled(true);
-
+                }
             }
 
             return true;
@@ -444,7 +441,7 @@ public class QZone {
 
         Sign sign = (Sign) event.getClickedBlock().getState();
 
-        if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
 
             return true;
 
@@ -464,7 +461,7 @@ public class QZone {
 
         Sign sign = getSignNextTo(block);
 
-        if (sign != null) {
+        if (sign == null) {
 
             return true;
 
@@ -508,7 +505,7 @@ public class QZone {
             return;
 
         }
-        
+
         if (sign.getLine(1).equalsIgnoreCase("Enchantment")) {
 
             String[] sa = sign.getLine(2).split("-");
