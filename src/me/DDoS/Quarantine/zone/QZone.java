@@ -161,86 +161,76 @@ public class QZone {
 
     public boolean tellMoney(Player player) {
 
-        QPlayer qPlayer = players.get(player.getName());
-
-        if (qPlayer == null) {
+        if (!players.containsKey(player.getName())) {
 
             return false;
 
         }
 
-        qPlayer.tellMoney();
+        players.get(player.getName()).tellMoney();
         return true;
 
     }
 
     public boolean tellKeys(Player player) {
 
-        QPlayer qPlayer = players.get(player.getName());
-
-        if (qPlayer == null) {
+        if (!players.containsKey(player.getName())) {
 
             return false;
 
         }
 
-        qPlayer.tellKeys();
+        players.get(player.getName()).tellKeys();
         return true;
 
     }
 
     public boolean tellScoreAndRank(Player player) {
 
-        QPlayer qPlayer = players.get(player.getName());
-
-        if (qPlayer == null) {
+        if (!players.containsKey(player.getName())) {
 
             return false;
 
         }
 
-        qPlayer.tellScoreAndRank();
+        players.get(player.getName()).tellScoreAndRank();
         return true;
 
     }
 
     public boolean tellTopFive(Player player) {
 
-        QPlayer qPlayer = players.get(player.getName());
-
-        if (qPlayer == null) {
+        if (!players.containsKey(player.getName())) {
 
             return false;
 
         }
 
-        qPlayer.tellTopFive();
+        players.get(player.getName()).tellTopFive();
         return true;
 
     }
 
     public boolean passPlayerTeleportEvent(PlayerTeleportEvent event) {
 
-        QPlayer qPlayer = players.get(event.getPlayer().getName());
+        if (!players.containsKey(event.getPlayer().getName())) {
 
-        if (qPlayer != null) {
-
-            if (qPlayer.teleportLeave(event)) {
-
-                players.remove(event.getPlayer().getName());
-
-                if (players.isEmpty()) {
-
-                    removeAllMobs();
-
-                }
-            }
-
-            return true;
+            return false;
 
         }
 
-        return false;
+        if (players.get(event.getPlayer().getName()).teleportLeave(event)) {
+
+            players.remove(event.getPlayer().getName());
+
+            if (players.isEmpty()) {
+
+                removeAllMobs();
+
+            }
+        }
+
+        return true;
 
     }
 
@@ -278,13 +268,13 @@ public class QZone {
 
                 if (player != null) {
 
-                    QPlayer qPlayer = players.get(player.getName());
-
-                    if (qPlayer == null) {
+                    if (!players.containsKey(player.getName())) {
 
                         return true;
 
                     }
+
+                    QPlayer qPlayer = players.get(player.getName());
 
                     if (!qPlayer.isZonePlayer()) {
 
@@ -292,11 +282,11 @@ public class QZone {
 
                     }
 
-                    QZonePlayer qzPlayer = (QZonePlayer) qPlayer;
-                    CreatureType creature = QUtil.getEntityCreatureType(entity);
+                    CreatureType creature = QUtil.getCreatureType(entity);
 
                     if (creature != null) {
 
+                        QZonePlayer qzPlayer = (QZonePlayer) qPlayer;
                         QRewards rew = mobRewards.get(creature);
                         qzPlayer.addMoney(rew.getRandomMoneyAmount());
                         qzPlayer.addScore(rew.getScoreReward());
@@ -315,24 +305,23 @@ public class QZone {
 
     public boolean passPlayerDeathEvent(Player player, EntityDeathEvent event) {
 
-        QPlayer qPlayer = players.get(player.getName());
+        if (!players.containsKey(player.getName())) {
 
-        if (qPlayer != null) {
-
-            qPlayer.dieLeave(event);
-            players.remove(player.getName());
-
-            if (players.isEmpty()) {
-
-                removeAllMobs();
-
-            }
-
-            return true;
+            return false;
 
         }
 
-        return false;
+        players.get(player.getName()).dieLeave(event);
+        players.remove(player.getName());
+
+        if (players.isEmpty()) {
+
+            removeAllMobs();
+
+        }
+
+        return true;
+
     }
 
     public boolean passPlayerRespawnEvent(PlayerRespawnEvent event, Quarantine plugin) {
@@ -537,63 +526,59 @@ public class QZone {
 
         QPlayer qPlayer = getPlayer(player);
 
-        if (qPlayer != null) {
+        if (qPlayer.join()) {
 
-            if (qPlayer.join()) {
+            players.put(player.getName(), qPlayer);
+            spawnStartingMobs();
 
-                players.put(player.getName(), qPlayer);
-                spawnStartingMobs();
-
-            }
         }
     }
 
     public boolean enterPlayer(Player player) {
 
-        QPlayer qPlayer = players.get(player.getName());
+        if (!players.containsKey(player.getName())) {
 
-        if (qPlayer != null) {
-
-            qPlayer.enter();
-
-            if (!qPlayer.isZonePlayer()) {
-
-                players.remove(player.getName());
-                QZonePlayer qzPlayer = new QZonePlayer(qPlayer);
-                players.put(player.getName(), qzPlayer);
-
-            }
-
-            return true;
+            return false;
 
         }
 
-        return false;
+        QPlayer qPlayer = players.get(player.getName());
+
+        qPlayer.enter();
+
+        if (!qPlayer.isZonePlayer()) {
+
+            players.remove(player.getName());
+            QZonePlayer qzPlayer = new QZonePlayer(qPlayer);
+            players.put(player.getName(), qzPlayer);
+
+        }
+
+        return true;
 
     }
 
     public boolean leavePlayer(Player player) {
 
-        QPlayer qPlayer = players.get(player.getName());
+        if (!players.containsKey(player.getName())) {
 
-        if (qPlayer != null) {
-
-            if (qPlayer.leave()) {
-
-                players.remove(player.getName());
-
-                if (players.isEmpty()) {
-
-                    removeAllMobs();
-
-                }
-            }
-
-            return true;
+            return false;
 
         }
 
-        return false;
+        if (players.get(player.getName()).leave()) {
+
+            players.remove(player.getName());
+
+            if (players.isEmpty()) {
+
+                removeAllMobs();
+
+            }
+        }
+
+        return true;
+
     }
 
     public void removeAllPlayers() {

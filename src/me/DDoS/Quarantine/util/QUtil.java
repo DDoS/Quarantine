@@ -29,7 +29,7 @@ public class QUtil {
         
     }
     
-    public static CreatureType getEntityCreatureType(LivingEntity ent) {
+    public static CreatureType getCreatureType(LivingEntity ent) {
         
         if (ent instanceof CaveSpider) {
             
