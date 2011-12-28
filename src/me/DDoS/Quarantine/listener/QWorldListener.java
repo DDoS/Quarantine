@@ -1,6 +1,5 @@
 package me.DDoS.Quarantine.listener;
 
-import java.util.Collection;
 import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.zone.QZone;
 import org.bukkit.event.world.ChunkUnloadEvent;
@@ -23,9 +22,7 @@ public class QWorldListener extends WorldListener {
     @Override
     public void onChunkUnload(ChunkUnloadEvent event) {
 
-        Collection<QZone> zones = plugin.getZones();
-
-        for (QZone zone : zones) {
+        for (QZone zone : plugin.getZones()) {
 
             if (zone.passChunkUnloadEvent(event)) {
 

@@ -1,6 +1,5 @@
 package me.DDoS.Quarantine.listener;
 
-import java.util.Collection;
 import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.zone.QZone;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -26,10 +25,8 @@ public class QPlayerListener extends PlayerListener {
 
     @Override
     public void onPlayerTeleport(PlayerTeleportEvent event) {
-
-        Collection<QZone> zones = plugin.getZones();
         
-        for (QZone zone : zones) {
+        for (QZone zone : plugin.getZones()) {
 
             if (zone.passPlayerTeleportEvent(event)) {
                 
@@ -42,9 +39,7 @@ public class QPlayerListener extends PlayerListener {
     @Override
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         
-        Collection<QZone> zones = plugin.getZones();
-        
-        for (QZone zone : zones) {
+        for (QZone zone : plugin.getZones()) {
 
             if (zone.passPlayerRespawnEvent(event, plugin)) {
                 
@@ -57,9 +52,7 @@ public class QPlayerListener extends PlayerListener {
     @Override
     public void onPlayerQuit(PlayerQuitEvent event) {
 
-        Collection<QZone> zones = plugin.getZones();
-        
-        for (QZone zone : zones) {
+        for (QZone zone : plugin.getZones()) {
 
             if (zone.leavePlayer(event.getPlayer())) {
 
@@ -71,10 +64,8 @@ public class QPlayerListener extends PlayerListener {
 
     @Override
     public void onPlayerKick(PlayerKickEvent event) {
-
-        Collection<QZone> zones = plugin.getZones();
         
-        for (QZone zone : zones) {
+        for (QZone zone : plugin.getZones()) {
 
             if (zone.leavePlayer(event.getPlayer())) {
 
@@ -86,10 +77,8 @@ public class QPlayerListener extends PlayerListener {
 
     @Override
     public void onPlayerInteract(PlayerInteractEvent event) {
-
-        Collection<QZone> zones = plugin.getZones();
         
-        for (QZone zone : zones) {
+        for (QZone zone : plugin.getZones()) {
 
             if (zone.passPlayerInteractEvent(event)) {
 

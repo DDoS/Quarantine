@@ -1,6 +1,5 @@
 package me.DDoS.Quarantine.listener;
 
-import java.util.Collection;
 import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.zone.QZone;
 import org.bukkit.entity.LivingEntity;
@@ -26,10 +25,8 @@ public class QEntityListener extends EntityListener {
 
     @Override
     public void onCreatureSpawn(CreatureSpawnEvent event) {
-
-        Collection<QZone> zones = plugin.getZones();
         
-        for (QZone zone : zones) {
+        for (QZone zone : plugin.getZones()) {
 
             if (zone.passCreatureSpawnEvent(event)) {
                 
@@ -49,10 +46,8 @@ public class QEntityListener extends EntityListener {
             if (ent instanceof Player) {
 
                 Player player = (Player) ent;
-
-                Collection<QZone> zones = plugin.getZones();
                 
-                for (QZone zone : zones) {
+                for (QZone zone : plugin.getZones()) {
 
                     if (zone.passPlayerDeathEvent(player, event)) {
                         
@@ -63,10 +58,8 @@ public class QEntityListener extends EntityListener {
                 }
 
             } else {
-
-                Collection<QZone> zones = plugin.getZones();
                 
-                for (QZone zone : zones) {
+                for (QZone zone : plugin.getZones()) {
 
                     if (zone.passEntityDeathEvent(ent, event)) {
                         
@@ -80,10 +73,8 @@ public class QEntityListener extends EntityListener {
 
     @Override
     public void onEntityCombust(EntityCombustEvent event) {
-
-        Collection<QZone> zones = plugin.getZones();
         
-        for (QZone zone : zones) {
+        for (QZone zone : plugin.getZones()) {
 
             if (zone.passEntityCombustEvent(event)) {
                 
