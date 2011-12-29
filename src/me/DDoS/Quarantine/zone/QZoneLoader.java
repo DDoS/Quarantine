@@ -160,13 +160,13 @@ public class QZoneLoader {
 
     public QZone loadZone(Quarantine plugin, FileConfiguration config, String zoneName) {
 
-        List<QSubZone> subZones = new ArrayList<QSubZone>();
-
-        boolean success = loadZoneData(config, plugin.getServer(), zoneName);
-
-        if (!success) {
+        if (!loadZoneData(config, plugin.getServer(), zoneName)) {
+            
             return null;
+        
         }
+        
+        final List<QSubZone> subZones = new ArrayList<QSubZone>();
 
         WorldGuardPlugin worldGuard = plugin.getWorldGuard();
 
