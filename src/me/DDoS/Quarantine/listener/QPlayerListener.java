@@ -54,7 +54,7 @@ public class QPlayerListener extends PlayerListener {
 
         for (QZone zone : plugin.getZones()) {
 
-            if (zone.leavePlayer(event.getPlayer())) {
+            if (zone.passPlayerQuitEvent(event.getPlayer())) {
 
                 return;
 
@@ -67,7 +67,7 @@ public class QPlayerListener extends PlayerListener {
         
         for (QZone zone : plugin.getZones()) {
 
-            if (zone.leavePlayer(event.getPlayer())) {
+            if (zone.passPlayerQuitEvent(event.getPlayer())) {
 
                 return;
 

@@ -159,23 +159,23 @@ public class QZone {
         return kit;
 
     }
-    
+
     public Collection<QPlayer> getPlayers() {
 
         return players.values();
-        
+
     }
-    
+
     public int getNumOfPlayers() {
-        
+
         return players.size();
-        
+
     }
-    
+
     public int getMaxNumOfPlayers() {
-        
+
         return maxNumOfPlayers;
-        
+
     }
 
     public boolean tellMoney(Player player) {
@@ -216,7 +216,7 @@ public class QZone {
         return true;
 
     }
-    
+
     public boolean tellScore(Player player) {
 
         if (!players.containsKey(player.getName())) {
@@ -344,6 +344,27 @@ public class QZone {
         }
 
         players.get(player.getName()).dieLeave(event);
+        players.remove(player.getName());
+
+        if (players.isEmpty()) {
+
+            removeAllMobs();
+
+        }
+
+        return true;
+
+    }
+
+    public boolean passPlayerQuitEvent(Player player) {
+
+        if (!players.containsKey(player.getName())) {
+
+            return false;
+
+        }
+
+        players.get(player.getName()).quitLeave();
         players.remove(player.getName());
 
         if (players.isEmpty()) {

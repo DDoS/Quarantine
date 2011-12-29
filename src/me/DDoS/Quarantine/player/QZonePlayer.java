@@ -226,6 +226,17 @@ public class QZonePlayer extends QPlayer {
     }
     
     @Override
+    public void quitLeave() {
+
+        save(true);
+        storeInventory();
+        clearInventory();
+        player.teleport(zone.getLobby());
+        player.setHealth(preGameHealth);
+
+    }
+    
+    @Override
     public boolean teleportLeave(PlayerTeleportEvent event) {
         
         if (event.getTo().equals(zone.getLobby())) {

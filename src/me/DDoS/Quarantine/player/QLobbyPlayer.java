@@ -60,7 +60,7 @@ public class QLobbyPlayer extends QPlayer {
             return false;
 
         }
-        
+
         if (zone.getEntrance() == null) {
 
             QUtil.tell(player, "No valid entrance.");
@@ -120,22 +120,17 @@ public class QLobbyPlayer extends QPlayer {
     public void forceLeave() {
         
         QUtil.tell(player, ChatColor.RED + "This zone is being unloaded.");
+        quitLeave();
         
-        if (!save(false)) {
+    }
+    
+    @Override
+    public void quitLeave() {
 
-            QUtil.tell(player, ChatColor.RED + "Couldn't save your data.");
-
-        }
-
-        if (!storeInventory()) {
-
-            QUtil.tell(player, ChatColor.RED + "Couldn't save your inventory.");
-
-        }
-        
+        save(false);
+        storeInventory();
         clearInventory();
         player.setHealth(preGameHealth);
-        QUtil.tell(player, "Thank you for playing.");
 
     }
 
@@ -143,17 +138,17 @@ public class QLobbyPlayer extends QPlayer {
     public boolean teleportLeave(PlayerTeleportEvent event) {
 
         if (zone.isInZone(event.getTo())) {
-            
+
             return false;
-            
+
         }
-        
+
         if (event.getTo().equals(zone.getLobby())) {
-            
+
             return false;
-            
+
         }
-        
+
         if (!save(false)) {
 
             QUtil.tell(player, ChatColor.RED + "Couldn't save your data.");
@@ -165,20 +160,20 @@ public class QLobbyPlayer extends QPlayer {
             QUtil.tell(player, ChatColor.RED + "Couldn't save your inventory.");
 
         }
-        
+
         clearInventory();
         player.setHealth(preGameHealth);
         QUtil.tell(player, "Thank you for playing.");
         return true;
 
     }
-    
+
     @Override
     public void dieLeave(EntityDeathEvent event) {
-        
+
         event.getDrops().clear();
         zone.registerDeadPlayer(player.getName(), event.getDroppedExp());
         event.setDroppedExp(0);
-        
+
     }
 }
