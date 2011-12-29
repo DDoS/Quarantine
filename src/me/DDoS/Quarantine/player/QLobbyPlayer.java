@@ -120,7 +120,22 @@ public class QLobbyPlayer extends QPlayer {
     public void forceLeave() {
         
         QUtil.tell(player, ChatColor.RED + "This zone is being unloaded.");
-        quitLeave();
+        
+        if (!save(false)) {
+
+            QUtil.tell(player, ChatColor.RED + "Couldn't save your data.");
+
+        }
+
+        if (!storeInventory()) {
+
+            QUtil.tell(player, ChatColor.RED + "Couldn't save your inventory.");
+
+        }
+
+        clearInventory();
+        player.setHealth(preGameHealth);
+        QUtil.tell(player, "Thank you for playing.");
         
     }
     
