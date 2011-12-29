@@ -61,15 +61,13 @@ public class QZonePlayer extends QPlayer {
 
     public void addScore(int scoreToAdd) {
 
-        if (zone.getLB() == null) {
+        score += scoreToAdd;
+        
+        if (zone.getLB() != null) {
 
-            return;
+            zone.getLB().registerPlayer(player.getName(), score);
 
         }
-
-        score += scoreToAdd;
-        zone.getLB().registerPlayer(player.getName(), score);
-
     }
 
     @Override

@@ -69,7 +69,7 @@ public abstract class QPlayer extends QPlayerData {
         
     }
     
-    public void tellScoreAndRank() {
+    public void tellRank() {
         
         if (zone.getLB() == null) {
             
@@ -79,6 +79,12 @@ public abstract class QPlayer extends QPlayerData {
         }
         
         QUtil.tell(player, zone.getLB().getScoreAndRank(player.getName()));
+        
+    }
+    
+    public void tellScore() {
+        
+        QUtil.tell(player, "Score: " + score);
         
     }
     

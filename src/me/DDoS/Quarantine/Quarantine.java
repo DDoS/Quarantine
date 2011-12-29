@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import me.DDoS.Quarantine.gui.QGUIHandler;
 import me.DDoS.Quarantine.permissions.Permissions;
 import me.DDoS.Quarantine.permissions.PermissionsHandler;
 import org.bukkit.ChatColor;
@@ -47,6 +48,8 @@ public class Quarantine extends JavaPlugin {
     private FileConfiguration config;
     //
     private Permissions permissions;
+    //
+    private final QGUIHandler guiHandler = new QGUIHandler(this);
     //
     private final QPlayerListener playerListener = new QPlayerListener(this);
     private final QEntityListener entityListener = new QEntityListener(this);
@@ -212,11 +215,9 @@ public class Quarantine extends JavaPlugin {
 
             }
 
-            Collection<QZone> qzs = zones.values();
-            
-            for (QZone zone : qzs) {
+            for (QZone zone : zones.values()) {
 
-                if (zone.checkForPlayer(player.getName())) {
+                if (zone.hasPlayer(player.getName())) {
 
                     QUtil.tell(player, "You can only be in one zone at a time.");
                     return true;
@@ -244,10 +245,8 @@ public class Quarantine extends JavaPlugin {
                 return true;
 
             }
-            
-            Collection<QZone> qzs = zones.values();
 
-            for (QZone zone : qzs) {
+            for (QZone zone : zones.values()) {
 
                 if (zone.enterPlayer(player)) {
 
@@ -277,10 +276,8 @@ public class Quarantine extends JavaPlugin {
                 return true;
 
             }
-            
-            Collection<QZone> qzs = zones.values();
 
-            for (QZone zone : qzs) {
+            for (QZone zone : zones.values()) {
 
                 if (zone.leavePlayer(player)) {
 
@@ -309,10 +306,8 @@ public class Quarantine extends JavaPlugin {
                 return true;
 
             }
-            
-            Collection<QZone> qzs = zones.values();
 
-            for (QZone zone : qzs) {
+            for (QZone zone : zones.values()) {
 
                 if (zone.tellMoney(player)) {
 
@@ -341,10 +336,8 @@ public class Quarantine extends JavaPlugin {
                 return true;
 
             }
-            
-            Collection<QZone> qzs = zones.values();
 
-            for (QZone zone : qzs) {
+            for (QZone zone : zones.values()) {
 
                 if (zone.tellKeys(player)) {
 
@@ -373,12 +366,10 @@ public class Quarantine extends JavaPlugin {
                 return true;
 
             }
-            
-            Collection<QZone> qzs = zones.values();
 
-            for (QZone zone : qzs) {
+            for (QZone zone : zones.values()) {
 
-                if (zone.tellScoreAndRank(player)) {
+                if (zone.tellRank(player)) {
 
                     return true;
 
@@ -405,10 +396,8 @@ public class Quarantine extends JavaPlugin {
                 return true;
 
             }
-            
-            Collection<QZone> qzs = zones.values();
 
-            for (QZone zone : qzs) {
+            for (QZone zone : zones.values()) {
 
                 if (zone.tellTopFive(player)) {
 
@@ -420,6 +409,77 @@ public class Quarantine extends JavaPlugin {
             QUtil.tell(player, "You haven't entered any zone yet.");
             return true;
 
+        }
+
+        if (cmd.getName().equalsIgnoreCase("qscore")) {
+
+            if (!permissions.hasPermission(player, QPermissions.PLAY.getPermissionsString())) {
+
+                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                return true;
+
+            }
+
+            if (zones.isEmpty()) {
+
+                QUtil.tell(player, "No zones loaded.");
+                return true;
+
+            }
+
+            for (QZone zone : zones.values()) {
+
+                if (zone.tellScore(player)) {
+
+                    return true;
+
+                }
+            }
+
+            QUtil.tell(player, "You haven't entered any zone yet.");
+            return true;
+
+        }
+
+        if (cmd.getName().equalsIgnoreCase("qzones")) {
+
+            if (!permissions.hasPermission(player, QPermissions.PLAY.getPermissionsString())) {
+
+                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+
+            } else {
+
+                guiHandler.handleZoneList(player);
+
+            }
+
+            return true;
+
+        }
+
+        if (cmd.getName().equalsIgnoreCase("qplayers")) {
+
+            if (!permissions.hasPermission(player, QPermissions.PLAY.getPermissionsString())) {
+
+                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                return true;
+
+            } else {
+
+                for (QZone zone : zones.values()) {
+
+                    if (zone.hasPlayer(player.getName())) {
+
+                        guiHandler.handlePlayerList(player, zone);
+                        return true;
+
+                    }
+                }
+
+                QUtil.tell(player, "You haven't entered any zone yet.");
+                return true;
+
+            }
         }
 
         if (cmd.getName().equalsIgnoreCase("qsetlobby") && args.length == 1) {
@@ -437,7 +497,7 @@ public class Quarantine extends JavaPlugin {
                 return true;
 
             }
-            
+
             zones.get(args[0]).setLobby(player.getLocation());
             QUtil.tell(player, "Lobby set.");
             return true;
@@ -459,17 +519,17 @@ public class Quarantine extends JavaPlugin {
                 return true;
 
             }
-            
+
             if (zones.get(args[0]).setEntrance(player.getLocation())) {
-                
+
                 QUtil.tell(player, "Entrance set.");
-                
+
             } else {
-                
+
                 QUtil.tell(player, "The entrance needs to be inside the zone.");
-                
+
             }
-            
+
             return true;
 
         }
@@ -481,6 +541,12 @@ public class Quarantine extends JavaPlugin {
     public Collection<QZone> getZones() {
 
         return zones.values();
+
+    }
+
+    public QGUIHandler getGUIHandler() {
+
+        return guiHandler;
 
     }
 
@@ -530,7 +596,7 @@ public class Quarantine extends JavaPlugin {
         if (!WGOn) {
             return;
         }
-        
+
         removePlayers(zone);
         saveZoneLocations(zone);
         stopMobCheckTask(zone);

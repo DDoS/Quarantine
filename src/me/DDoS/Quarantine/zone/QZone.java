@@ -2,6 +2,7 @@ package me.DDoS.Quarantine.zone;
 
 import me.DDoS.Quarantine.QLeaderboard;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,7 +111,7 @@ public class QZone {
 
     }
 
-    public boolean checkForPlayer(String playerName) {
+    public boolean hasPlayer(String playerName) {
 
         return players.containsKey(playerName);
 
@@ -158,6 +159,24 @@ public class QZone {
         return kit;
 
     }
+    
+    public Collection<QPlayer> getPlayers() {
+
+        return players.values();
+        
+    }
+    
+    public int getNumOfPlayers() {
+        
+        return players.size();
+        
+    }
+    
+    public int getMaxNumOfPlayers() {
+        
+        return maxNumOfPlayers;
+        
+    }
 
     public boolean tellMoney(Player player) {
 
@@ -185,7 +204,7 @@ public class QZone {
 
     }
 
-    public boolean tellScoreAndRank(Player player) {
+    public boolean tellRank(Player player) {
 
         if (!players.containsKey(player.getName())) {
 
@@ -193,7 +212,20 @@ public class QZone {
 
         }
 
-        players.get(player.getName()).tellScoreAndRank();
+        players.get(player.getName()).tellRank();
+        return true;
+
+    }
+    
+    public boolean tellScore(Player player) {
+
+        if (!players.containsKey(player.getName())) {
+
+            return false;
+
+        }
+
+        players.get(player.getName()).tellScore();
         return true;
 
     }

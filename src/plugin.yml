@@ -1,6 +1,6 @@
 name: Quarantine
 main: me.DDoS.Quarantine.Quarantine
-depend: [WorldGuard]
+softdepend: [WorldGuard]
 version: 0.3
 commands:
   qload:
@@ -40,17 +40,30 @@ commands:
       usage:
           /qmoney
   qkeys:
-      description: Tells the players there keys.
+      description: Tells the players their keys.
       usage:
           /qkeys
+  qscore:
+      description: Tells the players their score.
+      usage:
+          /qscore
   qrank:
-      description: Tells the players there score.
+      description: Tells the players their rank.
       usage:
           /qrank
   qtop:
       description: Tells the players the top five players.
       usage:
           /qtop
+  qzones:
+      description: Shows the list of zones to the player.
+      usage:
+          /qzones
+  qplayers:
+      description: Shows the list of player in a zone.
+      usage:
+          /qplayers 
+          
 permissions:
   quarantine.play: 
     description: play in zones
