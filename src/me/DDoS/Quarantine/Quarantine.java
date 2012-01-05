@@ -1,5 +1,6 @@
 package me.DDoS.Quarantine;
 
+import me.DDoS.Quarantine.leaderboard.QLeaderboard;
 import me.DDoS.Quarantine.zone.QZoneLoader;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.permissions.QPermissions;
@@ -663,7 +664,7 @@ public class Quarantine extends JavaPlugin {
 
         QLeaderboard.HOST = config.getString("Leaderboards.redis_db_info.host");
         QLeaderboard.PORT = config.getInt("Leaderboards.redis_db_info.port");
-        QLeaderboard.USE = config.getBoolean("Leaderboards.enabled");
+        QLeaderboard.USE = true;
 
     }
 

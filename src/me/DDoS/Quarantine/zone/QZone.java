@@ -1,6 +1,6 @@
 package me.DDoS.Quarantine.zone;
 
-import me.DDoS.Quarantine.QLeaderboard;
+import me.DDoS.Quarantine.leaderboard.QLeaderboard;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -160,7 +160,7 @@ public class QZone {
 
     }
 
-    public Collection<QPlayer> getPlayers() {
+    public synchronized Collection<QPlayer> getPlayers() {
 
         return players.values();
 
@@ -601,7 +601,6 @@ public class QZone {
 
         if (!qPlayer.isZonePlayer()) {
 
-            players.remove(player.getName());
             QZonePlayer qzPlayer = new QZonePlayer(qPlayer);
             players.put(player.getName(), qzPlayer);
 
@@ -619,7 +618,7 @@ public class QZone {
 
         }
 
-        if (players.get(player.getName()).leave()) {
+        if (players.get(player.getName()).commandLeave()) {
 
             players.remove(player.getName());
 
@@ -639,9 +638,12 @@ public class QZone {
         for (QPlayer player : players.values()) {
 
             player.forceLeave();
-            removeAllMobs();
 
         }
+        
+        removeAllMobs();
+        players.clear();
+        
     }
 
     public void saveLocations(FileConfiguration config) {

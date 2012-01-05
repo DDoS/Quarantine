@@ -1,9 +1,16 @@
-package me.DDoS.Quarantine;
+package me.DDoS.Quarantine.leaderboard;
 
 import com.agoragames.leaderboard.LeaderData;
 import com.agoragames.leaderboard.Leaderboard;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Timer;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.player.QPlayer;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 /**
@@ -17,24 +24,36 @@ public class QLeaderboard {
     public static boolean USE = false;
     //
     private Leaderboard lb;
+    //
+    private final Timer timer = new Timer();
+    private final Map<QPlayer, QScoreUpdate> updates = new ConcurrentHashMap<QPlayer, QScoreUpdate>();
 
     public QLeaderboard(String zoneName) {
 
         lb = new Leaderboard(zoneName, HOST, PORT, 5);
+        timer.scheduleAtFixedRate(new QScoreUpdateTask(this), 20000L, 20000L);
 
     }
 
-    public void registerPlayer(String playerName, int score) {
+    public Leaderboard getLeaderBoard() {
 
-        try {
+        return lb;
 
-            lb.rankMember(playerName, score);
+    }
+   
+    public void queueScoreUpdate(QPlayer player) {
+        
+        updates.put(player, new QScoreUpdate(player.getPlayer().getName(), player.getScore()));
+        
+    }
+    
+    public Queue<QScoreUpdate> getQueue() {
+        
+        final Queue<QScoreUpdate> queue = new ConcurrentLinkedQueue<QScoreUpdate>();
+        queue.addAll(updates.values());
+        updates.clear();
+        return queue;
 
-        } catch (JedisConnectionException e) {
-            
-            Quarantine.log.info("[Quarantine] Couldn't connect to Redis server. Is it on?");
-            
-        }
     }
 
     public String getScoreAndRank(String playerName) {
@@ -66,10 +85,10 @@ public class QLeaderboard {
             }
 
         } catch (JedisConnectionException e) {
-            
+
             Quarantine.log.info("[Quarantine] Couldn't connect to Redis server. Is it on?");
             top.add("Couldn't connect to leaderboard database. Please inform your operator.");
-            
+
         }
 
         return top;
@@ -78,6 +97,7 @@ public class QLeaderboard {
 
     public void disconnect() {
 
+        timer.cancel();
         lb.disconnect();
 
     }

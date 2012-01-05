@@ -109,7 +109,7 @@ public class QLobbyPlayer extends QPlayer {
     }
 
     @Override
-    public boolean leave() {
+    public boolean commandLeave() {
 
         QUtil.tell(player, "To leave, please teleport away.");
         return false;

@@ -64,9 +64,9 @@ public class QZonePlayer extends QPlayer {
         score += scoreToAdd;
         
         if (zone.getLB() != null) {
-
-            zone.getLB().registerPlayer(player.getName(), score);
-
+            
+            zone.getLB().queueScoreUpdate(this);
+            
         }
     }
 
@@ -195,8 +195,14 @@ public class QZonePlayer extends QPlayer {
     }
 
     @Override
-    public boolean leave() {
+    public boolean commandLeave() {
 
+        if (zone.getLB() != null) {
+            
+            zone.getLB().queueScoreUpdate(this);
+            
+        }
+        
         if (!save(true)) {
 
             QUtil.tell(player, ChatColor.RED + "Couldn't save your data.");
@@ -221,13 +227,19 @@ public class QZonePlayer extends QPlayer {
     public void forceLeave() {
         
         QUtil.tell(player, ChatColor.RED + "This zone is being unloaded.");
-        leave();
+        commandLeave();
         
     }
     
     @Override
     public void quitLeave() {
 
+        if (zone.getLB() != null) {
+            
+            zone.getLB().queueScoreUpdate(this);
+            
+        }
+        
         save(true);
         storeInventory();
         clearInventory();
@@ -260,15 +272,16 @@ public class QZonePlayer extends QPlayer {
     @Override
     public void dieLeave(EntityDeathEvent event) {
         
-        deleteInventory();
-        deletePlayerDataFile();
+        score = 0;
         
         if (zone.getLB() != null) {
             
-            zone.getLB().registerPlayer(player.getName(), 0);
+            zone.getLB().queueScoreUpdate(this);
             
         }
         
+        deleteInventory();
+        deletePlayerDataFile();
         event.getDrops().clear();
         zone.registerDeadPlayer(player.getName(), player.getTotalExperience());
         event.setDroppedExp(0);

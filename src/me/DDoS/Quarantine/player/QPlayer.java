@@ -31,7 +31,7 @@ public abstract class QPlayer extends QPlayerData {
 
     public abstract boolean enter();
 
-    public abstract boolean leave();
+    public abstract boolean commandLeave();
     
     public abstract void quitLeave();
 

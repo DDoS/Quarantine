@@ -149,12 +149,6 @@ public class QPlayerData {
         health = config.getInt("health", 20);
         score = config.getInt("score", 0);
 
-        if (zone.getLB() != null) {
-
-            zone.getLB().registerPlayer(player.getName(), score);
-
-        }
-
         if (zone.getEntrance() != null) {
 
             World world = player.getServer().getWorld(config.getString("lastLoc.World", zone.getEntrance().getWorld().getName()));
@@ -445,6 +439,39 @@ public class QPlayerData {
         }
         
         Quarantine.log.info("[Quarantine] Error message: " + ex.getMessage());
+        
+    }
+    
+    @Override
+    public int hashCode() {
+        
+        return player.hashCode() ^ zone.getName().hashCode();
+        
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        
+        if (o == null) {
+            
+            return false;
+            
+        }
+        
+        if (o == this) {
+            
+            return true;
+            
+        }
+        
+        if (!(o instanceof QPlayerData)) {
+            
+            return false;
+            
+        }
+        
+        QPlayerData p = (QPlayerData) o;  
+        return p.getPlayer().equals(player) && p.getZone().getName().equals(zone.getName());
         
     }
 }
