@@ -24,7 +24,7 @@ public class QRankQuery implements QQuery {
     @Override
     public void execute(Leaderboard lb) {
         
-        String rank = "Rank unavailable. Please try again later.";
+        String rank = "You score has yet to be compiled. Please try again later.";
         
         try {
 
