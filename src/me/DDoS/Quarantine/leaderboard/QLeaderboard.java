@@ -29,7 +29,7 @@ public class QLeaderboard {
     public QLeaderboard(String zoneName) {
 
         lb = new Leaderboard(zoneName, HOST, PORT, 5);
-        timer.scheduleAtFixedRate(new QScoreUpdateTask(this), 20000L, 20000L);
+        timer.scheduleAtFixedRate(new QScoreUpdateTask(this), 10000L, 10000L);
         timer.scheduleAtFixedRate(new QLeaderboardInfoTask(this), 500L, 500L);
 
     }
