@@ -1,5 +1,6 @@
 package me.DDoS.Quarantine.leaderboard;
 
+import com.agoragames.leaderboard.Leaderboard;
 import java.util.Queue;
 import java.util.TimerTask;
 import me.DDoS.Quarantine.Quarantine;
@@ -9,11 +10,11 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
  *
  * @author DDoS
  */
-public class QScoreUpdateTask extends TimerTask {
+public class QLeaderboardInfoTask extends TimerTask {
 
     private QLeaderboard leaderboard;
 
-    public QScoreUpdateTask(QLeaderboard leaderboard) {
+    public QLeaderboardInfoTask(QLeaderboard leaderboard) {
 
         this.leaderboard = leaderboard;
 
@@ -21,16 +22,16 @@ public class QScoreUpdateTask extends TimerTask {
 
     @Override
     public void run() {
-    
-        final Queue<QScoreUpdate> queue = leaderboard.getUpdateQueue();
+
+        final Queue<QQuery> queue = leaderboard.getLeaderboardInfoQueries();
 
         try {
 
+            Leaderboard lb = leaderboard.getLeaderBoard();
+
             while (!queue.isEmpty()) {
 
-                QScoreUpdate update = queue.poll();
-                Quarantine.log.info("Updated: " + update.getPlayer() + ", " + update.getScore());
-                leaderboard.getLeaderBoard().rankMember(update.getPlayer(), update.getScore());
+                queue.poll().execute(lb);
 
             }
 

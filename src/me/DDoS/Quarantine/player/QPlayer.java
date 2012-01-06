@@ -80,7 +80,7 @@ public abstract class QPlayer extends QPlayerData {
 
         }
 
-        QUtil.tell(player, zone.getLB().getScoreAndRank(player.getName()));
+        zone.getLB().addRankQuery(player);
 
     }
 
@@ -99,13 +99,8 @@ public abstract class QPlayer extends QPlayerData {
 
         }
 
-        List<String> tops = zone.getLB().getTopFive();
-
-        for (String top : tops) {
-
-            QUtil.tell(player, top);
-
-        }
+        zone.getLB().addTopQuery(player);
+        
     }
 
     public void tellMoney() {
