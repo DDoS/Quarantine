@@ -1,5 +1,6 @@
 package me.DDoS.Quarantine.player;
 
+import com.google.common.collect.Sets;
 import me.DDoS.Quarantine.zone.QZone;
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,7 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import me.DDoS.Quarantine.util.QInventoryItem;
@@ -35,7 +36,7 @@ public class QPlayerData {
     protected int preGameHealth;
     protected Location lastLoc;
     protected int score;
-    protected List<String> keys;
+    protected Set<String> keys;
 
     protected QPlayerData(Player player, QZone zone) {
 
@@ -76,7 +77,7 @@ public class QPlayerData {
 
     }
 
-    public List<String> getKeys() {
+    public Set<String> getKeys() {
 
         return keys;
 
@@ -163,7 +164,7 @@ public class QPlayerData {
             if (!zone.isInZone(lastLoc)) {
                 
                 lastLoc = zone.getEntrance();
-                QUtil.tell(player, ChatColor.RED + "Last location was outside the zone. It has been reset to the entrance.");
+                QUtil.tell(player, ChatColor.RED + "Your last location was outside the zone. It has been reset to the entrance.");
                 
             }
 
@@ -177,11 +178,11 @@ public class QPlayerData {
 
         if (keyList != null) {
 
-            keys = keyList;
+            keys = Sets.newHashSet(keyList);
 
         } else {
 
-            keys = new ArrayList<String>();
+            keys = new HashSet<String>();
 
         }
 
