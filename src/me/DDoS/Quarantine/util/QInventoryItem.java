@@ -15,10 +15,10 @@ public class QInventoryItem implements Serializable {
 
     private static final long serialVersionUID = -6698956186490861187L;
     //
-    private int typeId;
-    private int amount;
-    private short durability;
-    private Map<Integer, Integer> enchantments = new HashMap<Integer, Integer>();
+    private final int typeId;
+    private final int amount;
+    private final short durability;
+    private final Map<Integer, Integer> enchantments = new HashMap<Integer, Integer>();
 
     public QInventoryItem(ItemStack item) {
 

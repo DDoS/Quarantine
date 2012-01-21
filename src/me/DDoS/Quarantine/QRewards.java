@@ -8,9 +8,9 @@ import java.util.Random;
  */
 public class QRewards {
     
-    private int min;
-    private int max;
-    private int score;
+    private final int min;
+    private final int max;
+    private final int score;
     
     public QRewards(int min, int max, int score) {
         

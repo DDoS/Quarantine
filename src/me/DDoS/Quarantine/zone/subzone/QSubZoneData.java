@@ -1,4 +1,4 @@
-package me.DDoS.Quarantine.zone;
+package me.DDoS.Quarantine.zone.subzone;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +10,8 @@ import org.bukkit.entity.CreatureType;
  */
 public class QSubZoneData {
     
-    private int numOfMobs;
-    private List<String> mobTypes;
+    private final int numOfMobs;
+    private final List<String> mobTypes;
     
     public QSubZoneData(int numOfMobs, List<String> mobTypes) {
         

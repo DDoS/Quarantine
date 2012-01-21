@@ -29,11 +29,11 @@ import org.bukkit.inventory.PlayerInventory;
  */
 public class QPlayerData {
 
-    protected Player player;
-    protected QZone zone;
+    protected final Player player;
+    protected final QZone zone;
     protected int money;
     protected int health;
-    protected int preGameHealth;
+    protected final int preGameHealth;
     protected Location lastLoc;
     protected int score;
     protected Set<String> keys;

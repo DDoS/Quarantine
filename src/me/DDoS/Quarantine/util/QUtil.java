@@ -23,7 +23,7 @@ import org.bukkit.entity.Zombie;
  */
 public class QUtil {
     
-    public synchronized static void tell(Player player, String msg) {
+    public static void tell(Player player, String msg) {
         
         player.sendMessage(ChatColor.DARK_RED + "[Quarantine] " + ChatColor.GRAY + msg);
         

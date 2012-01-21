@@ -1,11 +1,10 @@
 package me.DDoS.Quarantine.zone;
 
+import me.DDoS.Quarantine.zone.subzone.QSubZoneData;
+import me.DDoS.Quarantine.zone.subzone.QSubZone;
+import me.DDoS.Quarantine.zone.region.QMainRegion;
+import me.DDoS.Quarantine.zone.region.QSubRegion;
 import me.DDoS.Quarantine.QRewards;
-import me.DDoS.Quarantine.zone.QSubRegion;
-import me.DDoS.Quarantine.zone.QMainRegion;
-import me.DDoS.Quarantine.zone.QSubZoneData;
-import me.DDoS.Quarantine.zone.QSubZone;
-import me.DDoS.Quarantine.zone.QZone;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import java.io.File;
@@ -206,8 +205,8 @@ public class QZoneLoader {
 
         QMainRegion region = new QMainRegion(pRegion.getMinimumPoint(), pRegion.getMaximumPoint(), world);
 
-        return new QZone(region, zoneName, lobby, entrance, defaultMoney, maxNumOfPlayers, clearDrops, oneTimeKeys,
-                subZones, kit, mobRewards, plugin, world, interval);
+        return new QZone(plugin, region, zoneName, lobby, entrance, defaultMoney, maxNumOfPlayers, clearDrops, oneTimeKeys,
+                subZones, kit, mobRewards, world, interval);
 
     }
 }

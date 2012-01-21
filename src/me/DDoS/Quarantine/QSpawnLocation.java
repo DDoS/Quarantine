@@ -10,7 +10,7 @@ import org.bukkit.entity.LivingEntity;
  */
 public class QSpawnLocation extends Location {
     
-    private CreatureType mobType;
+    private final CreatureType mobType;
     
     public QSpawnLocation(Location location, CreatureType mobType) {
         

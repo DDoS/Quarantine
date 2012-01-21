@@ -1,6 +1,5 @@
 package me.DDoS.Quarantine.player;
 
-import java.util.List;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.zone.QZone;
 import org.bukkit.entity.Player;

@@ -15,7 +15,7 @@ import org.bukkit.event.entity.EntityListener;
  */
 public class QEntityListener extends EntityListener {
 
-    private Quarantine plugin;
+    private final Quarantine plugin;
 
     public QEntityListener(Quarantine plugin) {
 

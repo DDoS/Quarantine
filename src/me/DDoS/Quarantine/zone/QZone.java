@@ -1,5 +1,7 @@
 package me.DDoS.Quarantine.zone;
 
+import me.DDoS.Quarantine.zone.subzone.QSubZone;
+import me.DDoS.Quarantine.zone.region.QMainRegion;
 import me.DDoS.Quarantine.leaderboard.QLeaderboard;
 import java.io.IOException;
 import java.util.Collection;
@@ -45,25 +47,25 @@ import org.bukkit.event.world.ChunkUnloadEvent;
  */
 public class QZone {
 
-    private QMainRegion region;
-    private String zoneName;
+    private final QMainRegion region;
+    private final String zoneName;
     private Location lobby;
     private Location entrance;
-    private int defaultMoney;
-    private int maxNumOfPlayers;
+    private final int defaultMoney;
+    private final int maxNumOfPlayers;
     private int mobCheckTaskID;
-    private boolean clearDrops;
-    private boolean oneTimeKeys;
-    private Map<Integer, Integer> kit;
-    private List<QSubZone> subZones;
-    private Map<CreatureType, QRewards> mobRewards;
-    private QLeaderboard leaderboard;
+    private final boolean clearDrops;
+    private final boolean oneTimeKeys;
+    private final Map<Integer, Integer> kit;
+    private final List<QSubZone> subZones;
+    private final Map<CreatureType, QRewards> mobRewards;
+    private final QLeaderboard leaderboard;
     //
     private final Map<String, QPlayer> players = new HashMap<String, QPlayer>();
     private final Map<String, Integer> deadPlayers = new HashMap<String, Integer>();
 
-    public QZone(QMainRegion region, String zoneName, Location lobby, Location entrance, int defaultMoney, int maxNumOfPlayers, boolean clearDrops, boolean oneTimeKeys,
-            List<QSubZone> subZones, Map<Integer, Integer> kit, Map<CreatureType, QRewards> mobRewards, Quarantine plugin, World world, long interval) {
+    public QZone(Quarantine plugin, QMainRegion region, String zoneName, Location lobby, Location entrance, int defaultMoney, int maxNumOfPlayers, boolean clearDrops, boolean oneTimeKeys,
+            List<QSubZone> subZones, Map<Integer, Integer> kit, Map<CreatureType, QRewards> mobRewards, World world, long interval) {
 
         this.region = region;
         this.zoneName = zoneName;
@@ -79,8 +81,12 @@ public class QZone {
 
         if (QLeaderboard.USE) {
 
-            leaderboard = new QLeaderboard(zoneName);
+            leaderboard = new QLeaderboard(plugin, zoneName);
 
+        } else {
+            
+            leaderboard = null;
+            
         }
 
         startMobCheckTask(plugin, interval);

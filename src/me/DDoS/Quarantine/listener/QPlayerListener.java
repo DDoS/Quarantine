@@ -15,7 +15,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
  */
 public class QPlayerListener extends PlayerListener {
 
-    private Quarantine plugin;
+    private final Quarantine plugin;
 
     public QPlayerListener(Quarantine plugin) {
 

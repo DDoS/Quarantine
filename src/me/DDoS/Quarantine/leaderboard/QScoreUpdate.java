@@ -6,8 +6,8 @@ package me.DDoS.Quarantine.leaderboard;
  */
 public class QScoreUpdate {
     
-    private String player;
-    private int score;
+    private final String player;
+    private final int score;
 
     public QScoreUpdate(String player, int score) {
         

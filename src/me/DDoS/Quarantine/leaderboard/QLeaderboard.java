@@ -1,11 +1,19 @@
 package me.DDoS.Quarantine.leaderboard;
 
+import me.DDoS.Quarantine.leaderboard.query.QQuery;
+import me.DDoS.Quarantine.leaderboard.query.QTopQuery;
+import me.DDoS.Quarantine.leaderboard.query.QRankQuery;
+import me.DDoS.Quarantine.leaderboard.task.QScoreUpdateTask;
+import me.DDoS.Quarantine.leaderboard.task.QLeaderboardInfoTask;
 import com.agoragames.leaderboard.Leaderboard;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.leaderboard.result.QResult;
+import me.DDoS.Quarantine.leaderboard.task.QDisplayInfoTask;
 import me.DDoS.Quarantine.player.QPlayer;
 import org.bukkit.entity.Player;
 
@@ -19,18 +27,21 @@ public class QLeaderboard {
     public static int PORT;
     public static boolean USE = false;
     //
-    private Leaderboard lb;
+    private final Leaderboard lb;
     //
     private final Timer timer = new Timer();
     //
     private final Map<QPlayer, QScoreUpdate> updates = new ConcurrentHashMap<QPlayer, QScoreUpdate>();
     private final Queue<QQuery> queries = new ConcurrentLinkedQueue<QQuery>();
+    //
+    private final Queue<QResult> results = new ConcurrentLinkedQueue<QResult>();
 
-    public QLeaderboard(String zoneName) {
+    public QLeaderboard(Quarantine plugin, String zoneName) {
 
         lb = new Leaderboard(zoneName, HOST, PORT, 5);
         timer.scheduleAtFixedRate(new QScoreUpdateTask(this), 10000L, 10000L);
         timer.scheduleAtFixedRate(new QLeaderboardInfoTask(this), 500L, 500L);
+        plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new QDisplayInfoTask(this), 15L, 10L);
 
     }
 
@@ -63,14 +74,26 @@ public class QLeaderboard {
 
     public void addRankQuery(Player player) {
 
-        queries.add(new QRankQuery(player));
+        queries.add(new QRankQuery(this, player));
         
     }
 
     public void addTopQuery(Player player) {
 
-        queries.add(new QTopQuery(player));
+        queries.add(new QTopQuery(this, player));
 
+    }
+    
+    public void addResult(QResult result) {
+        
+        results.add(result);
+        
+    }
+    
+    public Queue<QResult> getResults() {
+        
+        return results;
+        
     }
 
     public void disconnect() {

@@ -1,5 +1,6 @@
-package me.DDoS.Quarantine.zone;
+package me.DDoS.Quarantine.zone.subzone;
 
+import me.DDoS.Quarantine.zone.region.QSubRegion;
 import me.DDoS.Quarantine.QSpawnLocation;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,9 +16,9 @@ import org.bukkit.entity.LivingEntity;
  */
 public class QSubZone {
 
-    private QSubRegion region;
-    private int numOfMobs;
-    private List<CreatureType> mobTypes;
+    private final QSubRegion region;
+    private final int numOfMobs;
+    private final List<CreatureType> mobTypes;
     //
     private final List<LivingEntity> entities = new ArrayList<LivingEntity>();
     private final List<QSpawnLocation> spawnLocs = new ArrayList<QSpawnLocation>();
@@ -44,12 +45,12 @@ public class QSubZone {
         while (iter.hasNext()) {
 
             Location loc = (Location) iter.next();
-            
+
             if (loc != null) {
-            
+
                 CreatureType type = mobTypes.get(rand.nextInt(mobTypes.size()));
                 spawnLocs.add(new QSpawnLocation(loc, type));
-            
+
             }
         }
     }
@@ -72,9 +73,13 @@ public class QSubZone {
 
         for (int i = 0; i < numToSpawn; i++) {
 
-            int randIndex = rand.nextInt(spawnLocs.size());
-            entities.add(spawnLocs.get(randIndex).spawnMob());
+            int size = spawnLocs.size();
 
+            if (size > 0) {
+
+                entities.add(spawnLocs.get(rand.nextInt(size)).spawnMob());
+
+            }
         }
     }
 
@@ -105,28 +110,28 @@ public class QSubZone {
         spawnLocs.clear();
 
     }
-    
+
     public boolean containsMob(LivingEntity ent) {
-        
+
         return entities.contains(ent);
- 
+
     }
-    
+
     public void checkForDeadMobs() {
-        
+
         List<LivingEntity> flagged = new ArrayList<LivingEntity>();
-        
+
         for (LivingEntity ent : entities) {
-            
+
             if (ent.isDead()) {
-                
+
                 flagged.add(ent);
-            
+
             }
         }
 
         entities.removeAll(flagged);
         spawnMobs(flagged.size());
-        
+
     }
 }

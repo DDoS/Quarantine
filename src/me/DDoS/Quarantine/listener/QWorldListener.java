@@ -11,7 +11,7 @@ import org.bukkit.event.world.WorldListener;
  */
 public class QWorldListener extends WorldListener {
 
-    private Quarantine plugin;
+    private final Quarantine plugin;
 
     public QWorldListener(Quarantine plugin) {
 

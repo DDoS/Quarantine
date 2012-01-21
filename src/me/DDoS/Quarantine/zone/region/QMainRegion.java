@@ -1,4 +1,4 @@
-package me.DDoS.Quarantine.zone;
+package me.DDoS.Quarantine.zone.region;
 
 import com.sk89q.worldedit.Vector;
 import org.bukkit.Chunk;
@@ -12,9 +12,9 @@ import org.bukkit.World;
  */
 public class QMainRegion {
 
-    private Vector max;
-    private Vector min;
-    private World world;
+    private final Vector max;
+    private final Vector min;
+    private final World world;
 
     public QMainRegion(Vector pos1, Vector pos2, World world) {
 
