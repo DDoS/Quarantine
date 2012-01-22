@@ -19,12 +19,14 @@ public class QSubZone {
     private final QSubRegion region;
     private final int numOfMobs;
     private final List<CreatureType> mobTypes;
+    private final boolean softRespawn;
     //
     private final List<LivingEntity> entities = new ArrayList<LivingEntity>();
     private final List<QSpawnLocation> spawnLocs = new ArrayList<QSpawnLocation>();
 
-    public QSubZone(QSubRegion region, int numOfMobs, List<CreatureType> mobTypes) {
+    public QSubZone(QSubRegion region, int numOfMobs, boolean softRespawn, List<CreatureType> mobTypes) {
 
+        this.softRespawn = softRespawn;
         this.region = region;
         this.numOfMobs = numOfMobs;
         this.mobTypes = mobTypes;
@@ -69,15 +71,13 @@ public class QSubZone {
 
         }
 
-        Random rand = new Random();
+        if (!spawnLocs.isEmpty()) {
 
-        for (int i = 0; i < numToSpawn; i++) {
+            Random rand = new Random();
 
-            int size = spawnLocs.size();
+            for (int i = 0; i < numToSpawn; i++) {
 
-            if (size > 0) {
-
-                entities.add(spawnLocs.get(rand.nextInt(size)).spawnMob());
+                entities.add(spawnLocs.get(rand.nextInt(spawnLocs.size())).spawnMob());
 
             }
         }
@@ -85,17 +85,24 @@ public class QSubZone {
 
     public boolean removeAndSpawnNewEntity(LivingEntity entity) {
 
-        if (entities.contains(entity)) {
+        if (!softRespawn) {
 
-            entities.remove(entity);
-            entity.remove();
-            spawnMobs(1);
-            return true;
+            if (entities.contains(entity)) {
+
+                entities.remove(entity);
+                entity.remove();
+                spawnMobs(1);
+                return true;
+
+            }
+
+            return false;
+
+        } else {
+
+            return entities.contains(entity);
 
         }
-
-        return false;
-
     }
 
     public void removeAllMobs() {
@@ -119,6 +126,15 @@ public class QSubZone {
 
     public void checkForDeadMobs() {
 
+        if (softRespawn) {
+            
+            if (new Random().nextBoolean()) {
+                
+                return;
+                
+            }        
+        }
+        
         List<LivingEntity> flagged = new ArrayList<LivingEntity>();
 
         for (LivingEntity ent : entities) {

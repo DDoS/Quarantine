@@ -10,6 +10,7 @@ Zones:
     max_number_of_players: 10
     world: 'world'
     mob_check_task_interval: 300
+    soft_mob_respawn: false
     clear_drops: true
     one_time_use_keys: false
     entrance:

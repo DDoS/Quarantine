@@ -35,6 +35,7 @@ public class QZoneLoader {
     private int interval;
     private boolean clearDrops;
     private boolean oneTimeKeys;
+    private boolean softRespawn;
     private Location lobby;
     private Location entrance;
     private final Map<Integer, Integer> kit = new HashMap<Integer, Integer>();
@@ -122,6 +123,7 @@ public class QZoneLoader {
         interval = configSec1.getInt("mob_check_task_interval") * 20;
         clearDrops = configSec1.getBoolean("clear_drops");
         oneTimeKeys = configSec1.getBoolean("one_time_use_keys");
+        softRespawn = configSec1.getBoolean("soft_mob_respawn");
 
         for (String kitItem : (List<String>) configSec1.getList("starting_kit")) {
 
@@ -178,7 +180,7 @@ public class QZoneLoader {
                 QSubRegion subZone = new QSubRegion(subZoneRegion.getMinimumPoint(), subZoneRegion.getMaximumPoint(), world);
                 QSubZoneData sZData = subZoneData.get(subZoneName);
 
-                subZones.add(new QSubZone(subZone, sZData.getNumberOfMobs(), sZData.getMobTypes()));
+                subZones.add(new QSubZone(subZone, sZData.getNumberOfMobs(), softRespawn, sZData.getMobTypes()));
 
             } else {
 
