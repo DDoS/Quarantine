@@ -89,7 +89,7 @@ public class Quarantine extends JavaPlugin {
 
         pm.registerEvent(Event.Type.CHUNK_UNLOAD, wordlListener, Event.Priority.Normal, this);
 
-        log.info("[Quarantine] Plugin enabled. v0.3, by DDoS");
+        log.info("[Quarantine] Plugin enabled. v" + getDescription().getVersion() + ", by DDoS");
 
     }
 
@@ -98,7 +98,7 @@ public class Quarantine extends JavaPlugin {
 
         unLoadAllZones();
         zones.clear();
-        log.info("[Quarantine] Plugin disabled. v0.3, by DDoS");
+        log.info("[Quarantine] Plugin disabled. v" + getDescription().getVersion() + ", by DDoS");
 
     }
 
