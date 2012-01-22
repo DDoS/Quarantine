@@ -16,12 +16,14 @@ public class QRankQuery implements QQuery {
 
     private final QLeaderboard leaderboard;
     private final Player player;
+    private final String playerName;
 
     public QRankQuery(QLeaderboard leaderboard, Player player) {
 
         this.leaderboard = leaderboard;
         this.player = player;
-
+        this.playerName = player.getName();
+        
     }
 
     @Override
@@ -31,7 +33,6 @@ public class QRankQuery implements QQuery {
 
         try {
 
-            String playerName = player.getName();
             Leaderboard lb = leaderboard.getLeaderBoard();
 
             if (lb.checkMember(playerName)) {

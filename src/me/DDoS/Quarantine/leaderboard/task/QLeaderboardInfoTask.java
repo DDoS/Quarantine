@@ -22,7 +22,7 @@ public class QLeaderboardInfoTask extends TimerTask {
     @Override
     public void run() {
 
-        final Queue<QQuery> queue = leaderboard.getLeaderboardInfoQueries();
+        final Queue<QQuery> queue = leaderboard.getInfoQueries();
 
         while (!queue.isEmpty()) {
 

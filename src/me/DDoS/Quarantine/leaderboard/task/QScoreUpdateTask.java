@@ -24,7 +24,7 @@ public class QScoreUpdateTask extends TimerTask {
     @Override
     public void run() {
     
-        final Queue<QScoreUpdate> queue = leaderboard.getUpdateQueue();
+        final Queue<QScoreUpdate> queue = leaderboard.getUpdates();
 
         try {
 

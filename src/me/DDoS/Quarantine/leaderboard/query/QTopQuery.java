@@ -18,12 +18,14 @@ public class QTopQuery implements QQuery {
 
     private final QLeaderboard leaderboard;
     private final Player player;
+    private final String playerName;
 
     public QTopQuery(QLeaderboard leaderboard, Player player) {
 
         this.leaderboard = leaderboard;
         this.player = player;
-
+        this.playerName = player.getName();
+        
     }
 
     @Override

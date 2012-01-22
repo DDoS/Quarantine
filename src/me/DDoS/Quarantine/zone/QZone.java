@@ -4,6 +4,7 @@ import me.DDoS.Quarantine.zone.subzone.QSubZone;
 import me.DDoS.Quarantine.zone.region.QMainRegion;
 import me.DDoS.Quarantine.leaderboard.QLeaderboard;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +63,7 @@ public class QZone {
     private final QLeaderboard leaderboard;
     //
     private final Map<String, QPlayer> players = new HashMap<String, QPlayer>();
-    private final Map<String, Integer> deadPlayers = new HashMap<String, Integer>();
+    private final Map<String, Integer> deadPlayerXP = new HashMap<String, Integer>();
 
     public QZone(Quarantine plugin, QMainRegion region, String zoneName, Location lobby, Location entrance, int defaultMoney, int maxNumOfPlayers, boolean clearDrops, boolean oneTimeKeys,
             List<QSubZone> subZones, Map<Integer, Integer> kit, Map<CreatureType, QRewards> mobRewards, World world, long interval) {
@@ -166,7 +167,7 @@ public class QZone {
 
     }
 
-    public synchronized Collection<QPlayer> getPlayers() {
+    public Collection<QPlayer> getPlayers() {
 
         return players.values();
 
@@ -385,7 +386,7 @@ public class QZone {
 
     public boolean passPlayerRespawnEvent(PlayerRespawnEvent event, Quarantine plugin) {
 
-        if (!deadPlayers.containsKey(event.getPlayer().getName())) {
+        if (!deadPlayerXP.containsKey(event.getPlayer().getName())) {
 
             return false;
 
@@ -395,8 +396,8 @@ public class QZone {
         event.setRespawnLocation(lobby);
         QUtil.tell(player, "You lost.");
         QUtil.tell(player, "You may leave the lobby by teleporting away.");
-        player.giveExp(deadPlayers.get(player.getName()));
-        deadPlayers.remove(player.getName());
+        player.giveExp(deadPlayerXP.get(player.getName()));
+        deadPlayerXP.remove(player.getName());
 
         return true;
 
@@ -846,7 +847,7 @@ public class QZone {
 
     public void registerDeadPlayer(String playerName, int amount) {
 
-        deadPlayers.put(playerName, amount);
+        deadPlayerXP.put(playerName, amount);
 
     }
 }
