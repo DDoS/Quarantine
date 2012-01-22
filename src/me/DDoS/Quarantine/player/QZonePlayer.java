@@ -83,8 +83,8 @@ public class QZonePlayer extends QPlayer {
         QUtil.tell(player, "You received " + amount + " dollar(s).");
 
     }
-
-    public void buyItem(int ID, int amount, int cost) {
+    
+    public void buyItem(int ID, short damage, int amount, int cost) {
 
         if (ID == 0 || Material.getMaterial(ID) == null) {
 
@@ -92,6 +92,24 @@ public class QZonePlayer extends QPlayer {
             return;
 
         }
+        
+        ItemStack item = null;
+
+        if (damage != -1) {
+            
+            item = new ItemStack(ID, amount, damage);
+            
+        } else {
+            
+            item = new ItemStack(ID, amount);
+            
+        }
+        
+        buyItem(item, cost);
+        
+    }
+    
+    private void buyItem(ItemStack item, int cost) {
 
         if (cost > money) {
 
@@ -102,7 +120,7 @@ public class QZonePlayer extends QPlayer {
 
         QUtil.tell(player, "The item was added to your inventory.");
         removeMoney(cost);
-        player.getInventory().addItem(new ItemStack(ID, amount));
+        player.getInventory().addItem(item);
         player.updateInventory();
 
     }

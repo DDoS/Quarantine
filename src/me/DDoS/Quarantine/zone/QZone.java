@@ -84,9 +84,9 @@ public class QZone {
             leaderboard = new QLeaderboard(plugin, zoneName);
 
         } else {
-            
+
             leaderboard = null;
-            
+
         }
 
         startMobCheckTask(plugin, interval);
@@ -534,7 +534,18 @@ public class QZone {
         if (sign.getLine(1).equalsIgnoreCase("Buy Item")) {
 
             String[] sa = sign.getLine(2).split("-");
-            player.buyItem(Integer.parseInt(sa[0]), Integer.parseInt(sa[1]), Integer.parseInt(sa[2]));
+            String[] sa2 = sa[0].split(":");
+
+            if (sa2.length >= 2) {
+
+                player.buyItem(Integer.parseInt(sa2[0]), Short.parseShort(sa2[1]), Integer.parseInt(sa[1]), Integer.parseInt(sa[2]));
+
+            } else {
+
+                player.buyItem(Integer.parseInt(sa[0]), (short) -1, Integer.parseInt(sa[1]), Integer.parseInt(sa[2]));
+
+            }
+
             return;
 
         }
@@ -646,10 +657,10 @@ public class QZone {
             player.forceLeave();
 
         }
-        
+
         removeAllMobs();
         players.clear();
-        
+
     }
 
     public void saveLocations(FileConfiguration config) {
@@ -751,7 +762,6 @@ public class QZone {
     public void stopMobCheckTask(Server server) {
 
         server.getScheduler().cancelTask(mobCheckTaskID);
-
         Quarantine.log.info("[Quarantine] Stopped mob check task for zone: " + zoneName);
 
     }
