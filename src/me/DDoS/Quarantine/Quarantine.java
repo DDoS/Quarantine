@@ -4,9 +4,7 @@ import me.DDoS.Quarantine.leaderboard.QLeaderboard;
 import me.DDoS.Quarantine.zone.QZoneLoader;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.permissions.QPermissions;
-import me.DDoS.Quarantine.listener.QWorldListener;
-import me.DDoS.Quarantine.listener.QPlayerListener;
-import me.DDoS.Quarantine.listener.QEntityListener;
+import me.DDoS.Quarantine.listener.*;
 import me.DDoS.Quarantine.zone.QZone;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import java.io.DataInputStream;
@@ -21,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import me.DDoS.Quarantine.gui.QGUIHandler;
+import me.DDoS.Quarantine.gui.*;
 import me.DDoS.Quarantine.permissions.Permissions;
 import me.DDoS.Quarantine.permissions.PermissionsHandler;
 import org.bukkit.ChatColor;
@@ -50,7 +48,7 @@ public class Quarantine extends JavaPlugin {
     //
     private Permissions permissions;
     //
-    private final QGUIHandler guiHandler = new QGUIHandler(this);
+    private QGUIHandler guiHandler;
     //
     private final QPlayerListener playerListener = new QPlayerListener(this);
     private final QEntityListener entityListener = new QEntityListener(this);
@@ -71,22 +69,29 @@ public class Quarantine extends JavaPlugin {
 
         checkForWorldGuard();
 
+        if (checkForSpout()) {
+
+            guiHandler = new QSpoutEnabledGUIHandler(this);
+
+        } else {
+            
+            guiHandler = new QTextGUIHandler(this);
+            
+        }
+
         permissions = new PermissionsHandler(this).getPermissions();
 
         loadStartUpZones();
 
         PluginManager pm = getServer().getPluginManager();
-
         pm.registerEvent(Event.Type.PLAYER_TELEPORT, playerListener, Event.Priority.Normal, this);
         pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Monitor, this);
         pm.registerEvent(Event.Type.PLAYER_RESPAWN, playerListener, Event.Priority.Monitor, this);
         pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Monitor, this);
         pm.registerEvent(Event.Type.PLAYER_KICK, playerListener, Event.Priority.Monitor, this);
-
         pm.registerEvent(Event.Type.ENTITY_DEATH, entityListener, Event.Priority.Monitor, this);
         pm.registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Normal, this);
         pm.registerEvent(Event.Type.ENTITY_COMBUST, entityListener, Event.Priority.Normal, this);
-
         pm.registerEvent(Event.Type.CHUNK_UNLOAD, wordlListener, Event.Priority.Normal, this);
 
         log.info("[Quarantine] Plugin enabled. v" + getDescription().getVersion() + ", by DDoS");
@@ -553,18 +558,35 @@ public class Quarantine extends JavaPlugin {
 
     private void checkForWorldGuard() {
 
-        PluginManager pm = getServer().getPluginManager();
         Plugin plugin = getServer().getPluginManager().getPlugin("WorldGuard");
 
-        if (plugin == null || !(plugin instanceof WorldGuardPlugin)) {
-
-            log.info("[Quarantine] No WorldGuard detected. Plugin will not work.");
-            WGOn = false;
-
-        } else if (plugin != null && plugin instanceof WorldGuardPlugin) {
+        if (plugin != null && plugin instanceof WorldGuardPlugin) {
 
             log.info("[Quarantine] WorldGuard detected.");
             WGOn = true;
+
+        } else {
+
+            log.info("[Quarantine] No WorldGuard detected. This plugin will not work.");
+            WGOn = false;
+
+        }
+    }
+
+    private boolean checkForSpout() {
+
+        PluginManager pm = getServer().getPluginManager();
+        Plugin plugin = pm.getPlugin("Spout");
+
+        if (plugin != null) {
+
+            log.info("[Quarantine] Spout detected. GUI enabled.");
+            return true;
+
+        } else {
+
+            log.info("[Quarantine] No Spout detected. GUI disabled.");
+            return false;
 
         }
     }
@@ -573,13 +595,13 @@ public class Quarantine extends JavaPlugin {
 
         Plugin plugin = getServer().getPluginManager().getPlugin("WorldGuard");
 
-        if (plugin == null || !(plugin instanceof WorldGuardPlugin)) {
+        if (plugin != null && plugin instanceof WorldGuardPlugin) {
 
-            return null;
+            return (WorldGuardPlugin) plugin;
 
         }
 
-        return (WorldGuardPlugin) plugin;
+        return null;
 
     }
 
@@ -632,7 +654,9 @@ public class Quarantine extends JavaPlugin {
     private void loadStartUpZones() {
 
         if (!WGOn) {
+
             return;
+
         }
 
         for (String zoneToLoad : (List<String>) config.getList("Load_on_start")) {
@@ -704,11 +728,9 @@ public class Quarantine extends JavaPlugin {
             }
 
             dis.close();
-
             FileOutputStream fos = new FileOutputStream(new File("plugins/Quarantine/lib/jedis-2.0.0.jar"));
             fos.write(fileData);
             fos.close();
-
             return true;
 
         } catch (MalformedURLException m) {
