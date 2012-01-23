@@ -82,9 +82,9 @@ public class QLeaderboard {
 
     }
 
-    public void addTopQuery(Player player) {
+    public void addTopQuery(Player player, int page) {
 
-        queries.add(new QTopQuery(this, player));
+        queries.add(new QTopQuery(this, player, page));
 
     }
 

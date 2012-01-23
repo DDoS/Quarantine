@@ -89,7 +89,7 @@ public abstract class QPlayer extends QPlayerData {
 
     }
 
-    public void tellTopFive() {
+    public void tellTopFive(int page) {
 
         if (zone.getLB() == null) {
 
@@ -98,7 +98,7 @@ public abstract class QPlayer extends QPlayerData {
 
         }
 
-        zone.getLB().addTopQuery(player);
+        zone.getLB().addTopQuery(player, page);
         
     }
 

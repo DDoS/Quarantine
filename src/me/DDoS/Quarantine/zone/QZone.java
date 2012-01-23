@@ -4,7 +4,6 @@ import me.DDoS.Quarantine.zone.subzone.QSubZone;
 import me.DDoS.Quarantine.zone.region.QMainRegion;
 import me.DDoS.Quarantine.leaderboard.QLeaderboard;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -237,7 +236,7 @@ public class QZone {
 
     }
 
-    public boolean tellTopFive(Player player) {
+    public boolean tellTopFive(Player player, int page) {
 
         if (!players.containsKey(player.getName())) {
 
@@ -245,7 +244,7 @@ public class QZone {
 
         }
 
-        players.get(player.getName()).tellTopFive();
+        players.get(player.getName()).tellTopFive(page);
         return true;
 
     }

@@ -74,9 +74,9 @@ public class Quarantine extends JavaPlugin {
             guiHandler = new QSpoutEnabledGUIHandler(this);
 
         } else {
-            
+
             guiHandler = new QTextGUIHandler(this);
-            
+
         }
 
         permissions = new PermissionsHandler(this).getPermissions();
@@ -403,9 +403,33 @@ public class Quarantine extends JavaPlugin {
 
             }
 
+            int page;
+
+            try {
+
+                page = Integer.parseInt(args[0]);
+
+            } catch (NumberFormatException nfe) {
+
+                QUtil.tell(player, "The page number provided is not an actual number.");
+                return true;
+
+            } catch (ArrayIndexOutOfBoundsException aioobe) {
+                
+                page = 1;
+                
+            }
+            
+            if (page <= 0) {
+                
+                QUtil.tell(player, "The page number must be greater than zero.");
+                return true;
+                
+            }
+
             for (QZone zone : zones.values()) {
 
-                if (zone.tellTopFive(player)) {
+                if (zone.tellTopFive(player, page)) {
 
                     return true;
 

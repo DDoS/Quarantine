@@ -18,13 +18,13 @@ public class QTopQuery implements QQuery {
 
     private final QLeaderboard leaderboard;
     private final Player player;
-    private final String playerName;
+    private int page;
 
-    public QTopQuery(QLeaderboard leaderboard, Player player) {
+    public QTopQuery(QLeaderboard leaderboard, Player player, int page) {
 
         this.leaderboard = leaderboard;
         this.player = player;
-        this.playerName = player.getName();
+        this.page = page;
         
     }
 
@@ -35,7 +35,7 @@ public class QTopQuery implements QQuery {
 
         try {
 
-            List<LeaderData> lds = leaderboard.getLeaderBoard().leadersIn(1, false);
+            List<LeaderData> lds = leaderboard.getLeaderBoard().leadersIn(page, false);
 
             for (LeaderData ld : lds) {
 
