@@ -18,7 +18,7 @@ public class QTopQuery implements QQuery {
 
     private final QLeaderboard leaderboard;
     private final Player player;
-    private int page;
+    private final int page;
 
     public QTopQuery(QLeaderboard leaderboard, Player player, int page) {
 

@@ -18,7 +18,7 @@ import org.getspout.spoutapi.gui.WidgetAnchor;
  */
 public class QSpoutEnabledGUIHandler implements QGUIHandler {
 
-    private Quarantine plugin;
+    private final Quarantine plugin;
 
     public QSpoutEnabledGUIHandler(Quarantine plugin) {
         

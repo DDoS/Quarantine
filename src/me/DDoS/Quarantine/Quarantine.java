@@ -742,7 +742,7 @@ public class Quarantine extends JavaPlugin {
 
             URL url = new URL("http://dl.dropbox.com/u/43006973/jedis-2.0.0.jar");
             URLConnection con = url.openConnection();
-            DataInputStream dis = new DataInputStream(url.openConnection().getInputStream());
+            DataInputStream dis = new DataInputStream(con.getInputStream());
             byte[] fileData = new byte[con.getContentLength()];
 
             for (int x = 0; x < fileData.length; x++) {

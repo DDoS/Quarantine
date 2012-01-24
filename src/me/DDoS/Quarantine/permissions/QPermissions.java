@@ -11,7 +11,7 @@ public enum QPermissions {
     SETUP("quarantine.setup"),
     ADMIN("quarantine.admin");
 
-    private String permissionsString;
+    private final String permissionsString;
 
     private QPermissions(String name) {
         

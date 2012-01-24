@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
  */
 public class QTextGUIHandler implements QGUIHandler {
 
-    private Quarantine plugin;
+    private final Quarantine plugin;
 
     public QTextGUIHandler(Quarantine plugin) {
 

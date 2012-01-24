@@ -54,7 +54,6 @@ public class QEntityListener extends EntityListener {
                         return;
                         
                     }
-
                 }
 
             } else {
