@@ -604,12 +604,12 @@ public class Quarantine extends JavaPlugin {
 
         if (plugin != null) {
 
-            log.info("[Quarantine] Spout detected. GUI enabled.");
+            log.info("[Quarantine] Spout detected. Spout GUI enabled.");
             return true;
 
         } else {
 
-            log.info("[Quarantine] No Spout detected. GUI disabled.");
+            log.info("[Quarantine] No Spout detected. Spout GUI disabled.");
             return false;
 
         }
