@@ -16,7 +16,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import me.DDoS.Quarantine.gui.*;
@@ -27,7 +26,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -49,10 +47,6 @@ public class Quarantine extends JavaPlugin {
     private Permissions permissions;
     //
     private QGUIHandler guiHandler;
-    //
-    private final QPlayerListener playerListener = new QPlayerListener(this);
-    private final QEntityListener entityListener = new QEntityListener(this);
-    private final QWorldListener wordlListener = new QWorldListener(this);
 
     public Quarantine() {
 
@@ -84,15 +78,9 @@ public class Quarantine extends JavaPlugin {
         loadStartUpZones();
 
         PluginManager pm = getServer().getPluginManager();
-        pm.registerEvent(Event.Type.PLAYER_TELEPORT, playerListener, Event.Priority.Normal, this);
-        pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Monitor, this);
-        pm.registerEvent(Event.Type.PLAYER_RESPAWN, playerListener, Event.Priority.Monitor, this);
-        pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Monitor, this);
-        pm.registerEvent(Event.Type.PLAYER_KICK, playerListener, Event.Priority.Monitor, this);
-        pm.registerEvent(Event.Type.ENTITY_DEATH, entityListener, Event.Priority.Monitor, this);
-        pm.registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Normal, this);
-        pm.registerEvent(Event.Type.ENTITY_COMBUST, entityListener, Event.Priority.Normal, this);
-        pm.registerEvent(Event.Type.CHUNK_UNLOAD, wordlListener, Event.Priority.Normal, this);
+        pm.registerEvents(new QPlayerListener(this), this);
+        pm.registerEvents(new QEntityListener(this), this);
+        pm.registerEvents(new QWorldListener(this), this);
 
         log.info("[Quarantine] Plugin enabled. v" + getDescription().getVersion() + ", by DDoS");
 
@@ -415,16 +403,16 @@ public class Quarantine extends JavaPlugin {
                 return true;
 
             } catch (ArrayIndexOutOfBoundsException aioobe) {
-                
+
                 page = 1;
-                
+
             }
-            
+
             if (page <= 0) {
-                
+
                 QUtil.tell(player, "The page number must be greater than zero.");
                 return true;
-                
+
             }
 
             for (QZone zone : zones.values()) {

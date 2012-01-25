@@ -2,14 +2,16 @@ package me.DDoS.Quarantine.listener;
 
 import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.zone.QZone;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkUnloadEvent;
-import org.bukkit.event.world.WorldListener;
 
 /**
  *
  * @author DDoS
  */
-public class QWorldListener extends WorldListener {
+public class QWorldListener implements Listener {
 
     private final Quarantine plugin;
 
@@ -19,7 +21,7 @@ public class QWorldListener extends WorldListener {
 
     }
 
-    @Override
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onChunkUnload(ChunkUnloadEvent event) {
 
         for (QZone zone : plugin.getZones()) {

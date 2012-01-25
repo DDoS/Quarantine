@@ -2,9 +2,11 @@ package me.DDoS.Quarantine.listener;
 
 import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.zone.QZone;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -13,7 +15,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
  *
  * @author DDoS
  */
-public class QPlayerListener extends PlayerListener {
+public class QPlayerListener implements Listener {
 
     private final Quarantine plugin;
 
@@ -23,7 +25,7 @@ public class QPlayerListener extends PlayerListener {
 
     }
 
-    @Override
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         
         for (QZone zone : plugin.getZones()) {
@@ -36,7 +38,7 @@ public class QPlayerListener extends PlayerListener {
         }
     }
     
-    @Override
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         
         for (QZone zone : plugin.getZones()) {
@@ -49,7 +51,7 @@ public class QPlayerListener extends PlayerListener {
         }     
     }
 
-    @Override
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
 
         for (QZone zone : plugin.getZones()) {
@@ -62,7 +64,7 @@ public class QPlayerListener extends PlayerListener {
         }
     }
 
-    @Override
+   @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerKick(PlayerKickEvent event) {
         
         for (QZone zone : plugin.getZones()) {
@@ -75,7 +77,7 @@ public class QPlayerListener extends PlayerListener {
         }
     }
 
-    @Override
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerInteract(PlayerInteractEvent event) {
         
         for (QZone zone : plugin.getZones()) {
