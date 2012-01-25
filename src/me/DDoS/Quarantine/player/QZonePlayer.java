@@ -236,6 +236,7 @@ public class QZonePlayer extends QPlayer {
         clearInventory();
         player.teleport(zone.getLobby());
         player.setHealth(preGameHealth);
+        player.setFoodLevel(preGameFoodLevel);
         QUtil.tell(player, "Thank you for playing.");
         return true;
 
@@ -263,6 +264,7 @@ public class QZonePlayer extends QPlayer {
         clearInventory();
         player.teleport(zone.getLobby());
         player.setHealth(preGameHealth);
+        player.setFoodLevel(preGameFoodLevel);
 
     }
     

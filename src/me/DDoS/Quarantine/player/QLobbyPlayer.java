@@ -102,6 +102,7 @@ public class QLobbyPlayer extends QPlayer {
     public boolean enter() {
 
         player.setHealth(health);
+        player.setFoodLevel(foodLevel);
         player.teleport(lastLoc);
         QUtil.tell(player, "Have a nice stay!");
         return true;
@@ -135,6 +136,7 @@ public class QLobbyPlayer extends QPlayer {
 
         clearInventory();
         player.setHealth(preGameHealth);
+        player.setFoodLevel(preGameFoodLevel);
         QUtil.tell(player, "Thank you for playing.");
         
     }
@@ -146,6 +148,7 @@ public class QLobbyPlayer extends QPlayer {
         storeInventory();
         clearInventory();
         player.setHealth(preGameHealth);
+        player.setFoodLevel(preGameFoodLevel);
 
     }
 
@@ -178,6 +181,7 @@ public class QLobbyPlayer extends QPlayer {
 
         clearInventory();
         player.setHealth(preGameHealth);
+        player.setFoodLevel(preGameFoodLevel);
         QUtil.tell(player, "Thank you for playing.");
         return true;
 

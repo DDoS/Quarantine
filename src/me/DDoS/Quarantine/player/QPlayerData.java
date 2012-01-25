@@ -33,7 +33,9 @@ public class QPlayerData {
     protected final QZone zone;
     protected int money;
     protected int health;
+    protected int foodLevel;
     protected final int preGameHealth;
+    protected final int preGameFoodLevel;
     protected Location lastLoc;
     protected int score;
     protected Set<String> keys;
@@ -43,6 +45,7 @@ public class QPlayerData {
         this.player = player;
         this.zone = zone;
         this.preGameHealth = player.getHealth();
+        this.preGameFoodLevel = player.getFoodLevel();
 
     }
 
@@ -52,12 +55,14 @@ public class QPlayerData {
         this.zone = player.getZone();
         this.money = player.getMoney();
         this.health = player.getHealth();
+        this.foodLevel = player.getFoodLevel();
         this.preGameHealth = player.getPreGameHealth();
+        this.preGameFoodLevel = player.getPreGameFoodLevel();
         this.lastLoc = player.getLastLoc();
         this.score = player.getScore();
         this.keys = player.getKeys();
 
-    }
+    }  
 
     public Player getPlayer() {
 
@@ -75,6 +80,12 @@ public class QPlayerData {
 
         return health;
 
+    }
+    
+    public int getFoodLevel() {
+        
+        return foodLevel;
+        
     }
 
     public Set<String> getKeys() {
@@ -98,6 +109,12 @@ public class QPlayerData {
     public int getPreGameHealth() {
 
         return preGameHealth;
+
+    }
+    
+    public int getPreGameFoodLevel() {
+
+        return preGameFoodLevel;
 
     }
 
@@ -148,6 +165,7 @@ public class QPlayerData {
 
         money = config.getInt("money", zone.getDefaultMoney());
         health = config.getInt("health", 20);
+        foodLevel = config.getInt("foodLevel", 20);
         score = config.getInt("score", 0);
 
         if (zone.getEntrance() != null) {
@@ -174,7 +192,7 @@ public class QPlayerData {
 
         }
 
-        List<String> keyList = config.getList("keys");
+        List<String> keyList = config.getStringList("keys");
 
         if (keyList != null) {
 
@@ -229,9 +247,11 @@ public class QPlayerData {
         }
 
         health = player.getHealth();
+        foodLevel = player.getFoodLevel();
 
         config.set("money", money);
         config.set("health", health);
+        config.set("foodLevel", foodLevel);
         config.set("score", score);
         config.set("keys", keys);
 
