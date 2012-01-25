@@ -77,10 +77,7 @@ public class Quarantine extends JavaPlugin {
 
         loadStartUpZones();
 
-        PluginManager pm = getServer().getPluginManager();
-        pm.registerEvents(new QPlayerListener(this), this);
-        pm.registerEvents(new QEntityListener(this), this);
-        pm.registerEvents(new QWorldListener(this), this);
+        getServer().getPluginManager().registerEvents(new QListener(this), this);
 
         log.info("[Quarantine] Plugin enabled. v" + getDescription().getVersion() + ", by DDoS");
 
