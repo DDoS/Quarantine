@@ -1,5 +1,6 @@
 package me.DDoS.Quarantine.player;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import me.DDoS.Quarantine.zone.QZone;
 import java.io.File;
@@ -253,7 +254,7 @@ public class QPlayerData {
         config.set("health", health);
         config.set("foodLevel", foodLevel);
         config.set("score", score);
-        config.set("keys", keys);
+        config.set("keys", Lists.newArrayList(keys));
 
         if (lastLoc) {
 
