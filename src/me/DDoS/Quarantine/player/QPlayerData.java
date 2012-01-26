@@ -1,5 +1,6 @@
 package me.DDoS.Quarantine.player;
 
+import me.DDoS.Quarantine.util.QDataErrors;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import me.DDoS.Quarantine.zone.QZone;
@@ -15,7 +16,6 @@ import java.util.Set;
 import me.DDoS.Quarantine.util.QInventoryItem;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.util.QDataErrors;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
