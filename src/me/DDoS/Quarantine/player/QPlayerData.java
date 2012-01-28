@@ -1,6 +1,6 @@
 package me.DDoS.Quarantine.player;
 
-import me.DDoS.Quarantine.util.QDataErrors;
+import me.DDoS.Quarantine.player.error.QDataErrors;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import me.DDoS.Quarantine.zone.QZone;
@@ -12,10 +12,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
-import me.DDoS.Quarantine.util.QInventoryItem;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.util.QInventoryItem;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -63,7 +64,7 @@ public class QPlayerData {
         this.score = player.getScore();
         this.keys = player.getKeys();
 
-    }  
+    }
 
     public Player getPlayer() {
 
@@ -82,11 +83,11 @@ public class QPlayerData {
         return health;
 
     }
-    
+
     public int getFoodLevel() {
-        
+
         return foodLevel;
-        
+
     }
 
     public Set<String> getKeys() {
@@ -112,7 +113,7 @@ public class QPlayerData {
         return preGameHealth;
 
     }
-    
+
     public int getPreGameFoodLevel() {
 
         return preGameFoodLevel;
@@ -161,7 +162,7 @@ public class QPlayerData {
 
             logError(QDataErrors.DATA_LOAD, ex);
             return false;
-            
+
         }
 
         money = config.getInt("money", zone.getDefaultMoney());
@@ -179,12 +180,12 @@ public class QPlayerData {
             float pitch = (float) config.getDouble("lastLoc.Pitch", zone.getEntrance().getPitch());
 
             lastLoc = new Location(world, x, y, z, yaw, pitch);
-            
+
             if (!zone.isInZone(lastLoc)) {
-                
+
                 lastLoc = zone.getEntrance();
                 QUtil.tell(player, ChatColor.RED + "Your last location was outside the zone. It has been reset to the entrance.");
-                
+
             }
 
         } else {
@@ -292,7 +293,7 @@ public class QPlayerData {
 
     }
 
-    protected boolean restoreInventory() {
+    protected boolean loadInventory() {
 
         File mainDir = new File("plugins/Quarantine/" + zone.getName() + "/PlayerInventories");
 
@@ -308,12 +309,12 @@ public class QPlayerData {
 
             if (!backupFile.exists()) {
 
-                Set<Integer> items = zone.getKit().keySet();
+                Set<Entry<Integer, Integer>> items = zone.getKit().entrySet();
                 PlayerInventory inv = player.getInventory();
 
-                for (Integer item : items) {
+                for (Entry<Integer, Integer> item : items) {
 
-                    inv.addItem(new ItemStack(item, zone.getKit().get(item)));
+                    inv.addItem(new ItemStack(item.getKey(), item.getValue()));
 
                 }
 
@@ -354,7 +355,7 @@ public class QPlayerData {
 
         } catch (Exception ex) {
 
-            logError(QDataErrors.INV_RESTORE, ex);
+            logError(QDataErrors.INV_LOAD, ex);
             return false;
 
         }
@@ -363,10 +364,7 @@ public class QPlayerData {
 
     }
 
-    protected boolean storeInventory() {
-
-        ItemStack[] armor = player.getInventory().getArmorContents();
-        ItemStack[] items = player.getInventory().getContents();
+    protected boolean saveInventory() {
 
         File mainDir = new File("plugins/Quarantine/" + zone.getName() + "/PlayerInventories");
 
@@ -388,6 +386,8 @@ public class QPlayerData {
 
             backupFile.createNewFile();
 
+            ItemStack[] armor = player.getInventory().getArmorContents();
+            ItemStack[] items = player.getInventory().getContents();
             QInventoryItem[] inv = new QInventoryItem[armor.length + items.length];
 
             for (int i = 0; i < armor.length; i++) {
@@ -409,7 +409,7 @@ public class QPlayerData {
 
         } catch (Exception ex) {
 
-            logError(QDataErrors.INV_STORE, ex);
+            logError(QDataErrors.INV_SAVE, ex);
             return false;
 
         }
@@ -441,59 +441,62 @@ public class QPlayerData {
 
         }
     }
-    
+
     private void logError(QDataErrors error, Exception ex) {
-        
+
         switch (error) {
-            
+
             case DATA_LOAD:
                 Quarantine.log.info("[Quarantine] Couldn't load data for player: " + player.getName());
-               
+                break;
+
             case DATA_SAVE:
                 Quarantine.log.info("[Quarantine] Couldn't save data for player: " + player.getName());
-                
-            case INV_RESTORE:
-                Quarantine.log.info("[Quarantine] Could not restore inventory for player: " + player.getName());
-                
-            case INV_STORE:
-                Quarantine.log.info("[Quarantine] Could not store inventory for player: " + player.getName());
-            
+                break;
+
+            case INV_LOAD:
+                Quarantine.log.info("[Quarantine] Couldn't restore inventory for player: " + player.getName());
+                break;
+
+            case INV_SAVE:
+                Quarantine.log.info("[Quarantine] Couldn't store inventory for player: " + player.getName());
+
         }
-        
+
         Quarantine.log.info("[Quarantine] Error message: " + ex.getMessage());
-        
+
     }
-    
+
     @Override
     public int hashCode() {
-        
+
         return player.hashCode() ^ zone.getName().hashCode();
-        
+
     }
-    
+
     @Override
     public boolean equals(Object o) {
-        
+
         if (o == null) {
-            
+
             return false;
-            
+
         }
-        
+
         if (o == this) {
-            
+
             return true;
-            
+
         }
-        
+
         if (!(o instanceof QPlayerData)) {
-            
+
             return false;
-            
+
         }
-        
-        QPlayerData p = (QPlayerData) o;  
+
+        QPlayerData p = (QPlayerData) o;
         return p.getPlayer().equals(player) && p.getZone().getName().equals(zone.getName());
-        
+
     }
 }

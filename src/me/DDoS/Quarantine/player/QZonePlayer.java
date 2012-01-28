@@ -227,7 +227,7 @@ public class QZonePlayer extends QPlayer {
 
         }
         
-        if (!storeInventory()) {
+        if (!saveInventory()) {
 
             QUtil.tell(player, ChatColor.RED + "Couldn't save your inventory.");
 
@@ -260,7 +260,7 @@ public class QZonePlayer extends QPlayer {
         }
         
         save(true);
-        storeInventory();
+        saveInventory();
         clearInventory();
         player.teleport(zone.getLobby());
         player.setHealth(preGameHealth);

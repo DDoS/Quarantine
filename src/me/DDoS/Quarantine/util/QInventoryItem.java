@@ -52,33 +52,42 @@ public class QInventoryItem implements Serializable {
 
         ItemStack item = new ItemStack(typeId, amount, durability);
 
-        if (enchantments != null) {
+        if (enchantments == null) {
 
-            for (Entry<Integer, Integer> entry : enchantments.entrySet()) {
+            return item;
 
-                Enchantment enchantment = Enchantment.getById(entry.getKey());
-                
-                if (!enchantment.canEnchantItem(item)) {
-                    
-                    continue;
-                    
-                }
-                
-                int level = entry.getValue();
-                
-                if (level < enchantment.getStartLevel()) {
-                    
-                    level = enchantment.getStartLevel();
-                    
-                } else if (level > enchantment.getMaxLevel()) {
-                    
-                    level = enchantment.getMaxLevel();
-                    
-                }
+        }
 
-                item.addEnchantment(enchantment, level);
+        for (Entry<Integer, Integer> entry : enchantments.entrySet()) {
+
+            Enchantment enchantment = Enchantment.getById(entry.getKey());
+            
+            if (enchantment == null) {
+                
+                continue;
+                
+            }
+            
+            if (!enchantment.canEnchantItem(item)) {
+
+                continue;
+
+            }      
+
+            int level = entry.getValue();
+
+            if (level < enchantment.getStartLevel()) {
+
+                level = enchantment.getStartLevel();
+
+            } else if (level > enchantment.getMaxLevel()) {
+
+                level = enchantment.getMaxLevel();
 
             }
+
+            item.addEnchantment(enchantment, level);
+
         }
 
         return item;

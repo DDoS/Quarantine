@@ -83,7 +83,7 @@ public class QLobbyPlayer extends QPlayer {
 
         }
 
-        if (!restoreInventory()) {
+        if (!loadInventory()) {
 
             QUtil.tell(player, ChatColor.RED + "Couldn't restore your inventory.");
             return false;
@@ -128,7 +128,7 @@ public class QLobbyPlayer extends QPlayer {
 
         }
 
-        if (!storeInventory()) {
+        if (!saveInventory()) {
 
             QUtil.tell(player, ChatColor.RED + "Couldn't save your inventory.");
 
@@ -145,7 +145,7 @@ public class QLobbyPlayer extends QPlayer {
     public void quitLeave() {
 
         save(false);
-        storeInventory();
+        saveInventory();
         clearInventory();
         player.setHealth(preGameHealth);
         player.setFoodLevel(preGameFoodLevel);
@@ -173,7 +173,7 @@ public class QLobbyPlayer extends QPlayer {
 
         }
 
-        if (!storeInventory()) {
+        if (!saveInventory()) {
 
             QUtil.tell(player, ChatColor.RED + "Couldn't save your inventory.");
 
