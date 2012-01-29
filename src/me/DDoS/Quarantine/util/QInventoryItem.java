@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
+@Deprecated
 public class QInventoryItem implements Serializable {
 
     private static final long serialVersionUID = -6698956186490861187L;
