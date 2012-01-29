@@ -4,7 +4,7 @@ import me.DDoS.Quarantine.zone.subzone.QSubZoneData;
 import me.DDoS.Quarantine.zone.subzone.QSubZone;
 import me.DDoS.Quarantine.zone.region.QMainRegion;
 import me.DDoS.Quarantine.zone.region.QSubRegion;
-import me.DDoS.Quarantine.QRewards;
+import me.DDoS.Quarantine.zone.reward.QReward;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import java.io.File;
@@ -40,7 +40,7 @@ public class QZoneLoader {
     private Location entrance;
     private final Map<Integer, Integer> kit = new HashMap<Integer, Integer>();
     private final Map<String, QSubZoneData> subZoneData = new HashMap<String, QSubZoneData>();
-    private final Map<CreatureType, QRewards> mobRewards = new EnumMap<CreatureType, QRewards>(CreatureType.class);
+    private final Map<CreatureType, QReward> mobRewards = new EnumMap<CreatureType, QReward>(CreatureType.class);
 
     private boolean loadZoneData(FileConfiguration config, Server server, String zoneName) {
 
@@ -138,7 +138,7 @@ public class QZoneLoader {
             String[] s = rewardToParse.split(":");
             String[] s2 = s[1].split("-");
 
-            mobRewards.put(CreatureType.fromName(s[0]), new QRewards(Integer.parseInt(s2[0]), Integer.parseInt(s2[1]), Integer.parseInt(s2[2])));
+            mobRewards.put(CreatureType.fromName(s[0]), new QReward(Integer.parseInt(s2[0]), Integer.parseInt(s2[1]), Integer.parseInt(s2[2])));
 
         }
 

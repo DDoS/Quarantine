@@ -1,7 +1,7 @@
 package me.DDoS.Quarantine.zone.subzone;
 
+import me.DDoS.Quarantine.zone.spawning.QSpawnLocation;
 import me.DDoS.Quarantine.zone.region.QSubRegion;
-import me.DDoS.Quarantine.QSpawnLocation;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

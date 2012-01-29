@@ -16,7 +16,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.util.QInventoryItem;
+import me.DDoS.Quarantine.player.inventory.QInventoryItem;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -172,7 +173,7 @@ public class QPlayerData {
 
         if (zone.getEntrance() != null) {
 
-            World world = player.getServer().getWorld(config.getString("lastLoc.World", zone.getEntrance().getWorld().getName()));
+            World world = Bukkit.getWorld(config.getString("lastLoc.World", zone.getEntrance().getWorld().getName()));
             double x = config.getDouble("lastLoc.X", zone.getEntrance().getX());
             double y = config.getDouble("lastLoc.Y", zone.getEntrance().getY());
             double z = config.getDouble("lastLoc.Z", zone.getEntrance().getZ());
@@ -184,7 +185,8 @@ public class QPlayerData {
             if (!zone.isInZone(lastLoc)) {
 
                 lastLoc = zone.getEntrance();
-                QUtil.tell(player, ChatColor.RED + "Your last location was outside the zone. It has been reset to the entrance.");
+                QUtil.tell(player, ChatColor.RED + "Your last location was outside the zone. "
+                        + "It has been reset to the entrance.");
 
             }
 
@@ -303,11 +305,11 @@ public class QPlayerData {
 
         }
 
-        File backupFile = new File(mainDir.getPath() + "/" + player.getName() + ".inv");
+        File invFile = new File(mainDir.getPath() + "/" + player.getName() + ".inv");
 
         try {
 
-            if (!backupFile.exists()) {
+            if (!invFile.exists()) {
 
                 Set<Entry<Integer, Integer>> items = zone.getKit().entrySet();
                 PlayerInventory inv = player.getInventory();
@@ -322,7 +324,7 @@ public class QPlayerData {
 
             }
 
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(backupFile));
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(invFile));
             QInventoryItem[] fromFile = (QInventoryItem[]) ois.readObject();
             ois.close();
 
@@ -353,6 +355,12 @@ public class QPlayerData {
                 }
             }
 
+        } catch (ClassCastException cce) {
+            
+            QUtil.tell(player, ChatColor.RED + "Your inventory needs to be converted. "
+                    + "Ask your admin to do it.");
+            return false;
+            
         } catch (Exception ex) {
 
             logError(QDataErrors.INV_LOAD, ex);
@@ -374,17 +382,17 @@ public class QPlayerData {
 
         }
 
-        File backupFile = new File(mainDir.getPath() + "/" + player.getName() + ".inv");
+        File invFile = new File(mainDir.getPath() + "/" + player.getName() + ".inv");
 
         try {
 
-            if (backupFile.exists()) {
+            if (invFile.exists()) {
 
-                backupFile.delete();
+                invFile.delete();
 
             }
 
-            backupFile.createNewFile();
+            invFile.createNewFile();
 
             ItemStack[] armor = player.getInventory().getArmorContents();
             ItemStack[] items = player.getInventory().getContents();
@@ -402,7 +410,7 @@ public class QPlayerData {
 
             }
 
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(backupFile));
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(invFile));
             oos.writeObject(inv);
             oos.flush();
             oos.close();

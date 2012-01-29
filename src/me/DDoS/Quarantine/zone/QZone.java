@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import me.DDoS.Quarantine.QRewards;
+import me.DDoS.Quarantine.zone.reward.QReward;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.player.QZonePlayer;
 import me.DDoS.Quarantine.Quarantine;
@@ -58,14 +58,14 @@ public class QZone {
     private final boolean oneTimeKeys;
     private final Map<Integer, Integer> kit;
     private final List<QSubZone> subZones;
-    private final Map<CreatureType, QRewards> mobRewards;
+    private final Map<CreatureType, QReward> mobRewards;
     private final QLeaderboard leaderboard;
     //
     private final Map<String, QPlayer> players = new HashMap<String, QPlayer>();
     private final Map<String, Integer> deadPlayerXP = new HashMap<String, Integer>();
 
     public QZone(Quarantine plugin, QMainRegion region, String zoneName, Location lobby, Location entrance, int defaultMoney, int maxNumOfPlayers, boolean clearDrops, boolean oneTimeKeys,
-            List<QSubZone> subZones, Map<Integer, Integer> kit, Map<CreatureType, QRewards> mobRewards, World world, long interval) {
+            List<QSubZone> subZones, Map<Integer, Integer> kit, Map<CreatureType, QReward> mobRewards, World world, long interval) {
 
         this.region = region;
         this.zoneName = zoneName;
@@ -325,7 +325,7 @@ public class QZone {
                     if (creature != null) {
 
                         QZonePlayer qzPlayer = (QZonePlayer) qPlayer;
-                        QRewards rew = mobRewards.get(creature);
+                        QReward rew = mobRewards.get(creature);
                         qzPlayer.addMoney(rew.getRandomMoneyAmount());
                         qzPlayer.addScore(rew.getScoreReward());
 

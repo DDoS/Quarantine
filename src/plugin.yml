@@ -15,6 +15,10 @@ commands:
       description: Respawn the mobs in the desired zone.
       usage:
           /qrespawnmobs (zone name)
+  qconvertinv:
+      description: Convert the inventories to the new format.
+      usage:
+          /qconvertinv (zone name)
   qjoin:
       description: Join the desired zone.
       usage:

@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import me.DDoS.Quarantine.gui.*;
 import me.DDoS.Quarantine.permissions.Permissions;
 import me.DDoS.Quarantine.permissions.PermissionsHandler;
+import me.DDoS.Quarantine.util.QInventoryConvertor;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -186,6 +187,22 @@ public class Quarantine extends JavaPlugin {
             zones.get(args[0]).reloadMobs();
 
             QUtil.tell(player, "Mobs successfuly respawned.");
+            return true;
+
+        }
+        
+        if (cmd.getName().equalsIgnoreCase("qconvertinv") && args.length == 1) {
+
+            if (!permissions.hasPermission(player, QPermissions.ADMIN.getPermissionsString())) {
+
+                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                return true;
+
+            }
+
+            QInventoryConvertor.convert(args[0]);
+
+            QUtil.tell(player, "Inventories converted.");
             return true;
 
         }

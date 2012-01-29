@@ -1,4 +1,4 @@
-package me.DDoS.Quarantine;
+package me.DDoS.Quarantine.zone.reward;
 
 import java.util.Random;
 
@@ -6,13 +6,15 @@ import java.util.Random;
  *
  * @author DDoS
  */
-public class QRewards {
+public class QReward {
     
     private final int min;
     private final int max;
     private final int score;
+    //
+    private final Random random = new Random();
     
-    public QRewards(int min, int max, int score) {
+    public QReward(int min, int max, int score) {
         
         this.min = min;
         this.max = max;
@@ -22,7 +24,7 @@ public class QRewards {
     
     public int getRandomMoneyAmount() {
 
-        return ((new Random()).nextInt(max - min + 1) + min);
+        return random.nextInt(max - min + 1) + min;
         
     }
     

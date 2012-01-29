@@ -1,4 +1,4 @@
-package me.DDoS.Quarantine;
+package me.DDoS.Quarantine.zone.spawning;
 
 import org.bukkit.Location;
 import org.bukkit.entity.CreatureType;

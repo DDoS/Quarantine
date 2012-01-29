@@ -1,4 +1,4 @@
-package me.DDoS.Quarantine.util;
+package me.DDoS.Quarantine.player.inventory;
 
 /**
  *
