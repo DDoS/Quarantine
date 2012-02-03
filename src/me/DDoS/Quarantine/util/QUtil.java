@@ -47,7 +47,7 @@ public class QUtil {
 
         if (ent instanceof Enderman) {
 
-            return CreatureType.CREEPER;
+            return CreatureType.ENDERMAN;
 
         }
 
