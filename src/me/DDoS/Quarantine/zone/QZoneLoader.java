@@ -125,7 +125,7 @@ public class QZoneLoader {
         oneTimeKeys = configSec1.getBoolean("one_time_use_keys");
         softRespawn = configSec1.getBoolean("soft_mob_respawn");
 
-        for (String kitItem : (List<String>) configSec1.getList("starting_kit")) {
+        for (String kitItem : configSec1.getStringList("starting_kit")) {
 
             String[] s = kitItem.split("-");
 
@@ -133,7 +133,7 @@ public class QZoneLoader {
 
         }
 
-        for (String rewardToParse : (List<String>) configSec1.getList("money_rewards")) {
+        for (String rewardToParse : configSec1.getStringList("money_rewards")) {
 
             String[] s = rewardToParse.split(":");
             String[] s2 = s[1].split("-");
