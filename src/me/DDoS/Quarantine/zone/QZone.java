@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import me.DDoS.Quarantine.zone.reward.QReward;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.player.QZonePlayer;
@@ -531,7 +532,9 @@ public class QZone {
 
     private void handleZoneSign(QZonePlayer player, Sign sign) {
 
-        if (sign.getLine(1).equalsIgnoreCase("Buy Item")) {
+        String line1 = sign.getLine(1);
+        
+        if (line1.equalsIgnoreCase("Buy Item")) {
 
             String[] sa = sign.getLine(2).split("-");
             String[] sa2 = sa[0].split(":");
@@ -549,8 +552,31 @@ public class QZone {
             return;
 
         }
+        
+        if (line1.equalsIgnoreCase("Buy Random Item")) {
 
-        if (sign.getLine(1).equalsIgnoreCase("Sell Item")) {
+            Sign sign2 = getSignNextTo(sign.getBlock());
+            
+            if (sign2 == null) {
+                
+                return;
+                
+            }
+            
+            List<Integer> IDs = QUtil.parseIntList(sign2.getLines(), "-");
+            String[] splits = sign.getLine(2).split("-");
+            
+            int ID = IDs.get(new Random().nextInt(IDs.size())); 
+            int amount = Integer.parseInt(splits[0]);
+            int cost = Integer.parseInt(splits[1]);
+            
+            player.buyItem(ID, (short) -1, amount, cost);
+            
+            return;
+
+        }
+        
+        if (line1.equalsIgnoreCase("Sell Item")) {
 
             String[] sa = sign.getLine(2).split("-");
             player.sellItem(Integer.parseInt(sa[0]), Integer.parseInt(sa[1]), Integer.parseInt(sa[2]));
@@ -558,14 +584,14 @@ public class QZone {
 
         }
 
-        if (sign.getLine(1).equalsIgnoreCase("Buy Key")) {
+        if (line1.equalsIgnoreCase("Buy Key")) {
 
             player.addKey(sign.getLine(2), Integer.parseInt(sign.getLine(3)));
             return;
 
         }
 
-        if (sign.getLine(1).equalsIgnoreCase("Enchantment")) {
+        if (line1.equalsIgnoreCase("Enchantment")) {
 
             String[] sa = sign.getLine(2).split("-");
             player.addEnchantment(Integer.parseInt(sa[0]), Integer.parseInt(sa[1]), Integer.parseInt(sa[2]));

@@ -1,5 +1,7 @@
 package me.DDoS.Quarantine.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -29,6 +31,32 @@ public class QUtil {
 
         player.sendMessage(ChatColor.DARK_RED + "[Quarantine] " + ChatColor.GRAY + msg);
 
+    }
+    
+    public static List<Integer> parseIntList(String[] lines, String seperator) {
+        
+        final List<Integer> ints = new ArrayList<Integer>();
+        
+        for (String line : lines) {
+            
+            String[] splits = line.split(seperator);
+            
+            for (String split : splits) {
+                
+                try {
+                    
+                    ints.add(Integer.parseInt(split));
+                    
+                } catch (NumberFormatException nfe) {
+                    
+                    continue;
+                    
+                }         
+            }
+        }
+        
+        return ints;
+        
     }
 
     public static CreatureType getCreatureType(LivingEntity ent) {
