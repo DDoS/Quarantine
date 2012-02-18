@@ -1,6 +1,6 @@
 package me.DDoS.Quarantine.leaderboard.query;
 
-import com.agoragames.leaderboard.LeaderData;
+import me.DDoS.Quarantine.leaderboard.redis.LeaderData;
 import java.util.ArrayList;
 import java.util.List;
 import me.DDoS.Quarantine.Quarantine;

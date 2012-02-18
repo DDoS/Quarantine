@@ -1,4 +1,4 @@
-For package com.agoragames.leaderboard
+For package me.DDoS.Quarantine.leaderboard.redis
 
 Copyright (c) 2011 David Czarnecki
 

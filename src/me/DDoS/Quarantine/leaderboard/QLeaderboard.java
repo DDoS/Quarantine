@@ -5,7 +5,7 @@ import me.DDoS.Quarantine.leaderboard.query.QTopQuery;
 import me.DDoS.Quarantine.leaderboard.query.QRankQuery;
 import me.DDoS.Quarantine.leaderboard.task.QScoreUpdateTask;
 import me.DDoS.Quarantine.leaderboard.task.QLeaderboardInfoTask;
-import com.agoragames.leaderboard.Leaderboard;
+import me.DDoS.Quarantine.leaderboard.redis.Leaderboard;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Timer;

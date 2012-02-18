@@ -1,6 +1,6 @@
 package me.DDoS.Quarantine.leaderboard.query;
 
-import com.agoragames.leaderboard.Leaderboard;
+import me.DDoS.Quarantine.leaderboard.redis.Leaderboard;
 import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.leaderboard.QLeaderboard;
 import me.DDoS.Quarantine.leaderboard.result.QRankResult;
