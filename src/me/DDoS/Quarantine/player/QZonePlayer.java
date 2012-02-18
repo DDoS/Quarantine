@@ -2,7 +2,6 @@ package me.DDoS.Quarantine.player;
 
 import me.DDoS.Quarantine.util.QUtil;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentWrapper;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -102,7 +101,7 @@ public class QZonePlayer extends QPlayer {
 
     public void sellItem(ItemStack item, int cost) {
 
-        if (!player.getInventory().contains(item)) {
+        if (!player.getInventory().contains(item.getType())) {
 
             QUtil.tell(player, "You don't have any items of this type to sell: " + item.getType().name().toLowerCase());
             return;
