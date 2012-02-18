@@ -1,19 +1,19 @@
 package me.DDoS.Quarantine.zone;
 
-import me.DDoS.Quarantine.zone.subzone.QSubZone;
-import me.DDoS.Quarantine.zone.region.QMainRegion;
-import me.DDoS.Quarantine.leaderboard.QLeaderboard;
+import me.DDoS.Quarantine.zone.subzone.SubZone;
+import me.DDoS.Quarantine.zone.region.MainRegion;
+import me.DDoS.Quarantine.leaderboard.Leaderboard;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import me.DDoS.Quarantine.zone.reward.QReward;
+import me.DDoS.Quarantine.zone.reward.Reward;
 import me.DDoS.Quarantine.util.QUtil;
-import me.DDoS.Quarantine.player.QZonePlayer;
+import me.DDoS.Quarantine.player.ZonePlayer;
 import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.player.QLobbyPlayer;
+import me.DDoS.Quarantine.player.LobbyPlayer;
 import me.DDoS.Quarantine.player.QPlayer;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -47,9 +47,9 @@ import org.bukkit.inventory.ItemStack;
  *
  * @author DDoS
  */
-public class QZone {
+public class Zone {
 
-    private final QMainRegion region;
+    private final MainRegion region;
     private final String zoneName;
     private Location lobby;
     private Location entrance;
@@ -59,15 +59,15 @@ public class QZone {
     private final boolean clearDrops;
     private final boolean oneTimeKeys;
     private final List<ItemStack> kit;
-    private final List<QSubZone> subZones;
-    private final Map<CreatureType, QReward> mobRewards;
-    private final QLeaderboard leaderboard;
+    private final List<SubZone> subZones;
+    private final Map<CreatureType, Reward> mobRewards;
+    private final Leaderboard leaderboard;
     //
     private final Map<String, QPlayer> players = new HashMap<String, QPlayer>();
     private final Map<String, Integer> deadPlayerXP = new HashMap<String, Integer>();
 
-    public QZone(Quarantine plugin, QMainRegion region, String zoneName, Location lobby, Location entrance, int defaultMoney, int maxNumOfPlayers, boolean clearDrops, boolean oneTimeKeys,
-            List<QSubZone> subZones, List<ItemStack> kit, Map<CreatureType, QReward> mobRewards, World world, long interval) {
+    public Zone(Quarantine plugin, MainRegion region, String zoneName, Location lobby, Location entrance, int defaultMoney, int maxNumOfPlayers, boolean clearDrops, boolean oneTimeKeys,
+            List<SubZone> subZones, List<ItemStack> kit, Map<CreatureType, Reward> mobRewards, World world, long interval) {
 
         this.region = region;
         this.zoneName = zoneName;
@@ -81,9 +81,9 @@ public class QZone {
         this.subZones = subZones;
         this.mobRewards = mobRewards;
 
-        if (QLeaderboard.USE) {
+        if (Leaderboard.USE) {
 
-            leaderboard = new QLeaderboard(plugin, zoneName);
+            leaderboard = new Leaderboard(plugin, zoneName);
 
         } else {
 
@@ -113,7 +113,7 @@ public class QZone {
 
     }
 
-    public QLeaderboard getLB() {
+    public Leaderboard getLB() {
 
         return leaderboard;
 
@@ -294,7 +294,7 @@ public class QZone {
 
     public boolean passEntityDeathEvent(LivingEntity entity, EntityDeathEvent event) {
 
-        for (QSubZone subZone : subZones) {
+        for (SubZone subZone : subZones) {
 
             if (subZone.removeAndSpawnNewEntity(entity)) {
 
@@ -326,8 +326,8 @@ public class QZone {
 
                     if (creature != null) {
 
-                        QZonePlayer qzPlayer = (QZonePlayer) qPlayer;
-                        QReward rew = mobRewards.get(creature);
+                        ZonePlayer qzPlayer = (ZonePlayer) qPlayer;
+                        Reward rew = mobRewards.get(creature);
                         qzPlayer.addMoney(rew.getRandomMoneyAmount());
                         qzPlayer.addScore(rew.getScoreReward());
 
@@ -410,7 +410,7 @@ public class QZone {
 
             LivingEntity ent = (LivingEntity) event.getEntity();
 
-            for (QSubZone subZone : subZones) {
+            for (SubZone subZone : subZones) {
 
                 if (subZone.containsMob(ent)) {
 
@@ -465,7 +465,7 @@ public class QZone {
 
         }
 
-        QZonePlayer qzPlayer = (QZonePlayer) qPlayer;
+        ZonePlayer qzPlayer = (ZonePlayer) qPlayer;
 
         if (!checkForSign(event.getClickedBlock())) {
 
@@ -507,7 +507,7 @@ public class QZone {
 
     }
 
-    private boolean handleLock(QZonePlayer player, Block block) {
+    private boolean handleLock(ZonePlayer player, Block block) {
 
         Sign sign = getSignNextTo(block);
 
@@ -531,7 +531,7 @@ public class QZone {
 
     }
 
-    private void handleZoneSign(QZonePlayer player, Sign sign) {
+    private void handleZoneSign(ZonePlayer player, Sign sign) {
 
         String line1 = sign.getLine(1);
 
@@ -608,7 +608,7 @@ public class QZone {
 
         if (!players.containsKey(player.getName())) {
 
-            return new QLobbyPlayer(player, this);
+            return new LobbyPlayer(player, this);
 
         }
 
@@ -649,7 +649,7 @@ public class QZone {
 
         if (!qPlayer.isZonePlayer()) {
 
-            QZonePlayer qzPlayer = new QZonePlayer(qPlayer);
+            ZonePlayer qzPlayer = new ZonePlayer(qPlayer);
             players.put(player.getName(), qzPlayer);
 
         }
@@ -724,7 +724,7 @@ public class QZone {
 
     public void reloadMobs() {
 
-        for (QSubZone subzone : subZones) {
+        for (SubZone subzone : subZones) {
 
             subzone.removeAllMobs();
             subzone.spawnStartingMobs();
@@ -746,7 +746,7 @@ public class QZone {
 
     private void spawnStartingMobs() {
 
-        for (QSubZone subZone : subZones) {
+        for (SubZone subZone : subZones) {
 
             if (!subZone.hasMobs()) {
 
@@ -758,7 +758,7 @@ public class QZone {
 
     private void removeAllMobs() {
 
-        for (QSubZone subZone : subZones) {
+        for (SubZone subZone : subZones) {
 
             if (subZone.hasMobs()) {
 
@@ -775,7 +775,7 @@ public class QZone {
             @Override
             public void run() {
 
-                for (QSubZone subZone : subZones) {
+                for (SubZone subZone : subZones) {
 
                     subZone.checkForDeadMobs();
 

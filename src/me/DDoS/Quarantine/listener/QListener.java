@@ -1,7 +1,7 @@
 package me.DDoS.Quarantine.listener;
 
 import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.zone.QZone;
+import me.DDoS.Quarantine.zone.Zone;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -35,7 +35,7 @@ public class QListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
 
-        for (QZone zone : plugin.getZones()) {
+        for (Zone zone : plugin.getZones()) {
 
             if (zone.passPlayerTeleportEvent(event)) {
 
@@ -48,7 +48,7 @@ public class QListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
 
-        for (QZone zone : plugin.getZones()) {
+        for (Zone zone : plugin.getZones()) {
 
             if (zone.passPlayerRespawnEvent(event, plugin)) {
 
@@ -61,7 +61,7 @@ public class QListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
 
-        for (QZone zone : plugin.getZones()) {
+        for (Zone zone : plugin.getZones()) {
 
             if (zone.passPlayerQuitEvent(event.getPlayer())) {
 
@@ -74,7 +74,7 @@ public class QListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerKick(PlayerKickEvent event) {
 
-        for (QZone zone : plugin.getZones()) {
+        for (Zone zone : plugin.getZones()) {
 
             if (zone.passPlayerQuitEvent(event.getPlayer())) {
 
@@ -87,7 +87,7 @@ public class QListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerInteract(PlayerInteractEvent event) {
 
-        for (QZone zone : plugin.getZones()) {
+        for (Zone zone : plugin.getZones()) {
 
             if (zone.passPlayerInteractEvent(event)) {
 
@@ -100,7 +100,7 @@ public class QListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onCreatureSpawn(CreatureSpawnEvent event) {
 
-        for (QZone zone : plugin.getZones()) {
+        for (Zone zone : plugin.getZones()) {
 
             if (zone.passCreatureSpawnEvent(event)) {
 
@@ -121,7 +121,7 @@ public class QListener implements Listener {
 
                 Player player = (Player) ent;
 
-                for (QZone zone : plugin.getZones()) {
+                for (Zone zone : plugin.getZones()) {
 
                     if (zone.passPlayerDeathEvent(player, event)) {
 
@@ -132,7 +132,7 @@ public class QListener implements Listener {
 
             } else {
 
-                for (QZone zone : plugin.getZones()) {
+                for (Zone zone : plugin.getZones()) {
 
                     if (zone.passEntityDeathEvent(ent, event)) {
 
@@ -147,7 +147,7 @@ public class QListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onEntityCombust(EntityCombustEvent event) {
 
-        for (QZone zone : plugin.getZones()) {
+        for (Zone zone : plugin.getZones()) {
 
             if (zone.passEntityCombustEvent(event)) {
 
@@ -160,7 +160,7 @@ public class QListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onChunkUnload(ChunkUnloadEvent event) {
 
-        for (QZone zone : plugin.getZones()) {
+        for (Zone zone : plugin.getZones()) {
 
             if (zone.passChunkUnloadEvent(event)) {
 

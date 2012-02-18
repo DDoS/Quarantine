@@ -1,9 +1,9 @@
 package me.DDoS.Quarantine.leaderboard.query;
 
-import me.DDoS.Quarantine.leaderboard.redis.Leaderboard;
 import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.leaderboard.QLeaderboard;
-import me.DDoS.Quarantine.leaderboard.result.QRankResult;
+import me.DDoS.Quarantine.leaderboard.Leaderboard;
+import me.DDoS.Quarantine.leaderboard.LeaderboardDB;
+import me.DDoS.Quarantine.leaderboard.result.RankResult;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import redis.clients.jedis.exceptions.JedisConnectionException;
@@ -12,13 +12,13 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
  *
  * @author DDoS
  */
-public class QRankQuery implements QQuery {
+public class RankQuery implements Query {
 
-    private final QLeaderboard leaderboard;
+    private final Leaderboard leaderboard;
     private final Player player;
     private final String playerName;
 
-    public QRankQuery(QLeaderboard leaderboard, Player player) {
+    public RankQuery(Leaderboard leaderboard, Player player) {
 
         this.leaderboard = leaderboard;
         this.player = player;
@@ -33,11 +33,11 @@ public class QRankQuery implements QQuery {
 
         try {
 
-            Leaderboard lb = leaderboard.getLeaderBoard();
+            LeaderboardDB lb = leaderboard.getLeaderBoard();
 
-            if (lb.checkMember(playerName)) {
+            if (lb.isMember(playerName)) {
 
-                rank = lb.rankFor(playerName, false) + ": " + playerName + " | " + (int) lb.scoreFor(playerName);
+                rank = lb.getRank(playerName) + ": " + playerName + " | " + lb.getScore(playerName);
 
             } else {
 
@@ -52,7 +52,7 @@ public class QRankQuery implements QQuery {
 
         }
 
-        leaderboard.addResult(new QRankResult(player, rank));
+        leaderboard.addResult(new RankResult(player, rank));
 
     }
 }

@@ -1,10 +1,10 @@
 package me.DDoS.Quarantine.zone;
 
-import me.DDoS.Quarantine.zone.subzone.QSubZoneData;
-import me.DDoS.Quarantine.zone.subzone.QSubZone;
-import me.DDoS.Quarantine.zone.region.QMainRegion;
-import me.DDoS.Quarantine.zone.region.QSubRegion;
-import me.DDoS.Quarantine.zone.reward.QReward;
+import me.DDoS.Quarantine.zone.subzone.SubZoneData;
+import me.DDoS.Quarantine.zone.subzone.SubZone;
+import me.DDoS.Quarantine.zone.region.MainRegion;
+import me.DDoS.Quarantine.zone.region.SubRegion;
+import me.DDoS.Quarantine.zone.reward.Reward;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import java.io.File;
@@ -29,7 +29,7 @@ import org.bukkit.inventory.ItemStack;
  *
  * @author DDoS
  */
-public class QZoneLoader {
+public class ZoneLoader {
 
     private World world;
     private int defaultMoney;
@@ -41,8 +41,8 @@ public class QZoneLoader {
     private Location lobby;
     private Location entrance;
     private final List<ItemStack> kit = new ArrayList<ItemStack>();
-    private final Map<String, QSubZoneData> subZoneData = new HashMap<String, QSubZoneData>();
-    private final Map<CreatureType, QReward> mobRewards = new EnumMap<CreatureType, QReward>(CreatureType.class);
+    private final Map<String, SubZoneData> subZoneData = new HashMap<String, SubZoneData>();
+    private final Map<CreatureType, Reward> mobRewards = new EnumMap<CreatureType, Reward>(CreatureType.class);
 
     private boolean loadZoneData(FileConfiguration config, Server server, String zoneName) {
 
@@ -144,7 +144,7 @@ public class QZoneLoader {
             String[] s = rewardToParse.split(":");
             String[] s2 = s[1].split("-");
 
-            mobRewards.put(CreatureType.fromName(s[0]), new QReward(Integer.parseInt(s2[0]), Integer.parseInt(s2[1]), Integer.parseInt(s2[2])));
+            mobRewards.put(CreatureType.fromName(s[0]), new Reward(Integer.parseInt(s2[0]), Integer.parseInt(s2[1]), Integer.parseInt(s2[2])));
 
         }
 
@@ -157,7 +157,7 @@ public class QZoneLoader {
             int numOfMobs = configSec3.getInt("number_of_mobs");
             List<String> mobTypes = configSec3.getList("mob_types");
 
-            subZoneData.put(subZone, new QSubZoneData(numOfMobs, mobTypes));
+            subZoneData.put(subZone, new SubZoneData(numOfMobs, mobTypes));
 
         }
 
@@ -165,7 +165,7 @@ public class QZoneLoader {
 
     }
 
-    public QZone loadZone(Quarantine plugin, FileConfiguration config, String zoneName) {
+    public Zone loadZone(Quarantine plugin, FileConfiguration config, String zoneName) {
 
         if (!loadZoneData(config, plugin.getServer(), zoneName)) {
 
@@ -173,7 +173,7 @@ public class QZoneLoader {
 
         }
 
-        final List<QSubZone> subZones = new ArrayList<QSubZone>();
+        final List<SubZone> subZones = new ArrayList<SubZone>();
 
         WorldGuardPlugin worldGuard = plugin.getWorldGuard();
 
@@ -183,10 +183,10 @@ public class QZoneLoader {
 
             if (subZoneRegion != null) {
 
-                QSubRegion subZone = new QSubRegion(subZoneRegion.getMinimumPoint(), subZoneRegion.getMaximumPoint(), world);
-                QSubZoneData sZData = subZoneData.get(subZoneName);
+                SubRegion subZone = new SubRegion(subZoneRegion.getMinimumPoint(), subZoneRegion.getMaximumPoint(), world);
+                SubZoneData sZData = subZoneData.get(subZoneName);
 
-                subZones.add(new QSubZone(subZone, sZData.getNumberOfMobs(), softRespawn, sZData.getMobTypes()));
+                subZones.add(new SubZone(subZone, sZData.getNumberOfMobs(), softRespawn, sZData.getMobTypes()));
 
             } else {
 
@@ -211,9 +211,9 @@ public class QZoneLoader {
 
         }
 
-        QMainRegion region = new QMainRegion(pRegion.getMinimumPoint(), pRegion.getMaximumPoint(), world);
+        MainRegion region = new MainRegion(pRegion.getMinimumPoint(), pRegion.getMaximumPoint(), world);
 
-        return new QZone(plugin, region, zoneName, lobby, entrance, defaultMoney, maxNumOfPlayers, clearDrops, oneTimeKeys,
+        return new Zone(plugin, region, zoneName, lobby, entrance, defaultMoney, maxNumOfPlayers, clearDrops, oneTimeKeys,
                 subZones, kit, mobRewards, world, interval);
 
     }

@@ -1,7 +1,7 @@
 package me.DDoS.Quarantine.zone.subzone;
 
-import me.DDoS.Quarantine.zone.spawning.QSpawnLocation;
-import me.DDoS.Quarantine.zone.region.QSubRegion;
+import me.DDoS.Quarantine.zone.spawning.SpawnLocation;
+import me.DDoS.Quarantine.zone.region.SubRegion;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -14,17 +14,17 @@ import org.bukkit.entity.LivingEntity;
  *
  * @author DDoS
  */
-public class QSubZone {
+public class SubZone {
 
-    private final QSubRegion region;
+    private final SubRegion region;
     private final int numOfMobs;
     private final List<CreatureType> mobTypes;
     private final boolean softRespawn;
     //
     private final List<LivingEntity> entities = new ArrayList<LivingEntity>();
-    private final List<QSpawnLocation> spawnLocs = new ArrayList<QSpawnLocation>();
+    private final List<SpawnLocation> spawnLocs = new ArrayList<SpawnLocation>();
 
-    public QSubZone(QSubRegion region, int numOfMobs, boolean softRespawn, List<CreatureType> mobTypes) {
+    public SubZone(SubRegion region, int numOfMobs, boolean softRespawn, List<CreatureType> mobTypes) {
 
         this.softRespawn = softRespawn;
         this.region = region;
@@ -51,7 +51,7 @@ public class QSubZone {
             if (loc != null) {
 
                 CreatureType type = mobTypes.get(rand.nextInt(mobTypes.size()));
-                spawnLocs.add(new QSpawnLocation(loc, type));
+                spawnLocs.add(new SpawnLocation(loc, type));
 
             }
         }

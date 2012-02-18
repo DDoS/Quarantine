@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
-public class QInventoryItem implements Serializable {
+public class InventoryItem implements Serializable {
 
     private static final long serialVersionUID = -6698956186490861187L;
     //
@@ -20,7 +20,7 @@ public class QInventoryItem implements Serializable {
     private final short durability;
     private final Map<Integer, Integer> enchantments = new HashMap<Integer, Integer>();
 
-    public QInventoryItem(ItemStack item) {
+    public InventoryItem(ItemStack item) {
 
         if (item == null) {
 

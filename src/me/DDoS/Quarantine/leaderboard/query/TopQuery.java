@@ -1,11 +1,11 @@
 package me.DDoS.Quarantine.leaderboard.query;
 
-import me.DDoS.Quarantine.leaderboard.redis.LeaderData;
+import me.DDoS.Quarantine.leaderboard.LeaderData;
 import java.util.ArrayList;
 import java.util.List;
 import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.leaderboard.QLeaderboard;
-import me.DDoS.Quarantine.leaderboard.result.QTopResult;
+import me.DDoS.Quarantine.leaderboard.Leaderboard;
+import me.DDoS.Quarantine.leaderboard.result.TopResult;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import redis.clients.jedis.exceptions.JedisConnectionException;
@@ -14,13 +14,13 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
  *
  * @author DDoS
  */
-public class QTopQuery implements QQuery {
+public class TopQuery implements Query {
 
-    private final QLeaderboard leaderboard;
+    private final Leaderboard leaderboard;
     private final Player player;
     private final int page;
 
-    public QTopQuery(QLeaderboard leaderboard, Player player, int page) {
+    public TopQuery(Leaderboard leaderboard, Player player, int page) {
 
         this.leaderboard = leaderboard;
         this.player = player;
@@ -35,7 +35,7 @@ public class QTopQuery implements QQuery {
 
         try {
 
-            List<LeaderData> lds = leaderboard.getLeaderBoard().leadersIn(page, false);
+            List<LeaderData> lds = leaderboard.getLeaderBoard().getLeaders(page);
 
             for (LeaderData ld : lds) {
 
@@ -50,7 +50,7 @@ public class QTopQuery implements QQuery {
 
         }
         
-        leaderboard.addResult(new QTopResult(player, top));
+        leaderboard.addResult(new TopResult(player, top));
         
     }
 }

@@ -4,7 +4,7 @@ package me.DDoS.Quarantine.leaderboard.result;
  *
  * @author DDoS
  */
-public interface QResult {
+public interface Result {
     
     public void display();
     

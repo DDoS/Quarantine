@@ -14,13 +14,13 @@ import org.bukkit.block.BlockFace;
  * @author DDoS 
  * 
  */
-public class QSubRegion {
+public class SubRegion {
 
     private final Vector max;
     private final Vector min;
     private final World world;
 
-    public QSubRegion(Vector pos1, Vector pos2, World world) {
+    public SubRegion(Vector pos1, Vector pos2, World world) {
 
         this.max = new Vector(Math.max(pos1.getX(), pos2.getX()),
                 Math.max(pos1.getY(), pos2.getY()),

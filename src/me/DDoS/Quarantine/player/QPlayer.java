@@ -1,7 +1,7 @@
 package me.DDoS.Quarantine.player;
 
 import me.DDoS.Quarantine.util.QUtil;
-import me.DDoS.Quarantine.zone.QZone;
+import me.DDoS.Quarantine.zone.Zone;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -10,15 +10,15 @@ import org.bukkit.event.player.PlayerTeleportEvent;
  *
  * @author DDoS
  */
-public abstract class QPlayer extends QPlayerData {
+public abstract class QPlayer extends PlayerData {
 
-    protected QPlayer(Player player, QZone zone) {
+    protected QPlayer(Player player, Zone zone) {
 
         super(player, zone);
 
     }
 
-    protected QPlayer(QPlayerData player) {
+    protected QPlayer(PlayerData player) {
 
         super(player);
 

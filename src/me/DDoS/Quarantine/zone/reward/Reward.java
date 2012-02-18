@@ -6,7 +6,7 @@ import java.util.Random;
  *
  * @author DDoS
  */
-public class QReward {
+public class Reward {
     
     private final int min;
     private final int max;
@@ -14,7 +14,7 @@ public class QReward {
     //
     private final Random random = new Random();
     
-    public QReward(int min, int max, int score) {
+    public Reward(int min, int max, int score) {
         
         this.min = min;
         this.max = max;

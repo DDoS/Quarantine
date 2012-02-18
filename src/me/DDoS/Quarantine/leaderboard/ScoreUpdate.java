@@ -4,12 +4,12 @@ package me.DDoS.Quarantine.leaderboard;
  *
  * @author DDoS
  */
-public class QScoreUpdate {
+public class ScoreUpdate {
     
     private final String player;
     private final int score;
 
-    public QScoreUpdate(String player, int score) {
+    public ScoreUpdate(String player, int score) {
         
         this.player = player;       
         this.score = score;

@@ -12,9 +12,9 @@ import org.bukkit.inventory.ItemStack;
  *
  * @author DDoS
  */
-public class QZonePlayer extends QPlayer {
+public class ZonePlayer extends QPlayer {
     
-    public QZonePlayer(QPlayerData player) {
+    public ZonePlayer(PlayerData player) {
 
         super(player);
 

@@ -8,12 +8,12 @@ import org.bukkit.entity.Player;
  *
  * @author DDoS
  */
-public class QTopResult implements QResult{
+public class TopResult implements Result{
     
     private final Player player;
     private final List<String> results;
 
-    public QTopResult(Player player, List<String> results) {
+    public TopResult(Player player, List<String> results) {
         
         this.player = player;      
         this.results = results;

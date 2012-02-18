@@ -10,13 +10,13 @@ import org.bukkit.World;
  * @author DDoS 
  * 
  */
-public class QMainRegion {
+public class MainRegion {
 
     private final Vector max;
     private final Vector min;
     private final World world;
 
-    public QMainRegion(Vector pos1, Vector pos2, World world) {
+    public MainRegion(Vector pos1, Vector pos2, World world) {
 
         this.max = new Vector(Math.max(pos1.getX(), pos2.getX()),
                 Math.max(pos1.getY(), pos2.getY()),

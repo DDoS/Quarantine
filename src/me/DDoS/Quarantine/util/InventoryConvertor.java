@@ -7,12 +7,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.player.inventory.InventoryItem;
 
 /**
  *
  * @author DDoS
  */
-public class QInventoryConvertor {
+public class InventoryConvertor {
 
     public static void convert(String zoneName) {
 
@@ -71,13 +72,12 @@ public class QInventoryConvertor {
 
         }
 
-        me.DDoS.Quarantine.player.inventory.QInventoryItem[] newInv =
-                new me.DDoS.Quarantine.player.inventory.QInventoryItem[oldInv.length];
+        InventoryItem[] newInv = new InventoryItem[oldInv.length];
 
         for (int i = 0; i < newInv.length; i++) {
 
             newInv[i] =
-                    new me.DDoS.Quarantine.player.inventory.QInventoryItem(oldInv[i].getItem());
+                    new InventoryItem(oldInv[i].getItem());
 
         }
 

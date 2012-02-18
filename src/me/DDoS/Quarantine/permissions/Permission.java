@@ -5,7 +5,7 @@ package me.DDoS.Quarantine.permissions;
  * @author DDoS
  */
 
-public enum QPermissions {
+public enum Permission {
     
     PLAY("quarantine.play"),
     SETUP("quarantine.setup"),
@@ -13,7 +13,7 @@ public enum QPermissions {
 
     private final String permissionsString;
 
-    private QPermissions(String name) {
+    private Permission(String name) {
         
         this.permissionsString = name;
     

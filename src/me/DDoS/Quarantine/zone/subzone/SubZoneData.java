@@ -8,12 +8,12 @@ import org.bukkit.entity.CreatureType;
  *
  * @author DDoS
  */
-public class QSubZoneData {
+public class SubZoneData {
     
     private final int numOfMobs;
     private final List<String> mobTypes;
     
-    public QSubZoneData(int numOfMobs, List<String> mobTypes) {
+    public SubZoneData(int numOfMobs, List<String> mobTypes) {
         
         this.numOfMobs = numOfMobs;
         this.mobTypes = mobTypes;

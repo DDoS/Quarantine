@@ -1,12 +1,12 @@
-package me.DDoS.Quarantine.leaderboard.redis;
+package me.DDoS.Quarantine.leaderboard;
 
 public class LeaderData {
 
     private final String member;
-    private final Double score;
-    private final Long rank;
+    private final int score;
+    private final int rank;
 
-    public LeaderData(String member, double score, long rank) {
+    public LeaderData(String member, int score, int rank) {
 
         this.member = member;
         this.score = score;
@@ -20,13 +20,13 @@ public class LeaderData {
 
     }
 
-    public double getScore() {
+    public int getScore() {
 
         return score;
 
     }
 
-    public long getRank() {
+    public int getRank() {
 
         return rank;
 

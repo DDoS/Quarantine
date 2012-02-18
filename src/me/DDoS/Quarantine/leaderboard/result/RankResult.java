@@ -7,12 +7,12 @@ import org.bukkit.entity.Player;
  *
  * @author DDoS
  */
-public class QRankResult implements QResult{
+public class RankResult implements Result{
     
     private final Player player;
     private final String result;
 
-    public QRankResult(Player player, String result) {
+    public RankResult(Player player, String result) {
         
         this.player = player;
         this.result = result;

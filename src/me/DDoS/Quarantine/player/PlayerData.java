@@ -1,9 +1,9 @@
 package me.DDoS.Quarantine.player;
 
-import me.DDoS.Quarantine.player.error.QDataErrors;
+import me.DDoS.Quarantine.player.error.DataErrors;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import me.DDoS.Quarantine.zone.QZone;
+import me.DDoS.Quarantine.zone.Zone;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Set;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.player.inventory.QInventoryItem;
+import me.DDoS.Quarantine.player.inventory.InventoryItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -29,10 +29,10 @@ import org.bukkit.inventory.PlayerInventory;
  *
  * @author DDoS
  */
-public class QPlayerData {
+public class PlayerData {
 
     protected final Player player;
-    protected final QZone zone;
+    protected final Zone zone;
     protected int money;
     protected int health;
     protected int foodLevel;
@@ -42,7 +42,7 @@ public class QPlayerData {
     protected int score;
     protected Set<String> keys;
 
-    protected QPlayerData(Player player, QZone zone) {
+    protected PlayerData(Player player, Zone zone) {
 
         this.player = player;
         this.zone = zone;
@@ -51,7 +51,7 @@ public class QPlayerData {
 
     }
 
-    protected QPlayerData(QPlayerData player) {
+    protected PlayerData(PlayerData player) {
 
         this.player = player.getPlayer();
         this.zone = player.getZone();
@@ -72,7 +72,7 @@ public class QPlayerData {
 
     }
 
-    public QZone getZone() {
+    public Zone getZone() {
 
         return zone;
 
@@ -148,7 +148,7 @@ public class QPlayerData {
 
             } catch (IOException ex) {
 
-                logError(QDataErrors.DATA_LOAD, ex);
+                logError(DataErrors.DATA_LOAD, ex);
                 return false;
 
             }
@@ -160,7 +160,7 @@ public class QPlayerData {
 
         } catch (Exception ex) {
 
-            logError(QDataErrors.DATA_LOAD, ex);
+            logError(DataErrors.DATA_LOAD, ex);
             return false;
 
         }
@@ -232,7 +232,7 @@ public class QPlayerData {
 
             } catch (IOException ex) {
 
-                logError(QDataErrors.DATA_SAVE, ex);
+                logError(DataErrors.DATA_SAVE, ex);
                 return false;
 
             }
@@ -244,7 +244,7 @@ public class QPlayerData {
 
         } catch (Exception ex) {
 
-            logError(QDataErrors.DATA_SAVE, ex);
+            logError(DataErrors.DATA_SAVE, ex);
             return false;
 
         }
@@ -276,7 +276,7 @@ public class QPlayerData {
 
         } catch (IOException ex) {
 
-            logError(QDataErrors.DATA_SAVE, ex);
+            logError(DataErrors.DATA_SAVE, ex);
             return false;
 
         }
@@ -323,7 +323,7 @@ public class QPlayerData {
             }
 
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(invFile));
-            QInventoryItem[] fromFile = (QInventoryItem[]) ois.readObject();
+            InventoryItem[] fromFile = (InventoryItem[]) ois.readObject();
             ois.close();
 
             ItemStack[] armor = new ItemStack[4];
@@ -361,7 +361,7 @@ public class QPlayerData {
             
         } catch (Exception ex) {
 
-            logError(QDataErrors.INV_LOAD, ex);
+            logError(DataErrors.INV_LOAD, ex);
             return false;
 
         }
@@ -394,17 +394,17 @@ public class QPlayerData {
 
             ItemStack[] armor = player.getInventory().getArmorContents();
             ItemStack[] items = player.getInventory().getContents();
-            QInventoryItem[] inv = new QInventoryItem[armor.length + items.length];
+            InventoryItem[] inv = new InventoryItem[armor.length + items.length];
 
             for (int i = 0; i < armor.length; i++) {
 
-                inv[i] = new QInventoryItem(armor[i]);
+                inv[i] = new InventoryItem(armor[i]);
 
             }
 
             for (int i = 0; i < items.length; i++) {
 
-                inv[armor.length + i] = new QInventoryItem(items[i]);
+                inv[armor.length + i] = new InventoryItem(items[i]);
 
             }
 
@@ -415,7 +415,7 @@ public class QPlayerData {
 
         } catch (Exception ex) {
 
-            logError(QDataErrors.INV_SAVE, ex);
+            logError(DataErrors.INV_SAVE, ex);
             return false;
 
         }
@@ -448,7 +448,7 @@ public class QPlayerData {
         }
     }
 
-    private void logError(QDataErrors error, Exception ex) {
+    private void logError(DataErrors error, Exception ex) {
 
         switch (error) {
 
@@ -495,13 +495,13 @@ public class QPlayerData {
 
         }
 
-        if (!(o instanceof QPlayerData)) {
+        if (!(o instanceof PlayerData)) {
 
             return false;
 
         }
 
-        QPlayerData p = (QPlayerData) o;
+        PlayerData p = (PlayerData) o;
         return p.getPlayer().equals(player) && p.getZone().getName().equals(zone.getName());
 
     }

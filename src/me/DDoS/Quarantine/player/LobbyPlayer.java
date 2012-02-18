@@ -1,7 +1,7 @@
 package me.DDoS.Quarantine.player;
 
 import me.DDoS.Quarantine.util.QUtil;
-import me.DDoS.Quarantine.zone.QZone;
+import me.DDoS.Quarantine.zone.Zone;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -13,9 +13,9 @@ import org.bukkit.inventory.ItemStack;
  *
  * @author DDoS
  */
-public class QLobbyPlayer extends QPlayer {
+public class LobbyPlayer extends QPlayer {
 
-    public QLobbyPlayer(Player player, QZone zone) {
+    public LobbyPlayer(Player player, Zone zone) {
 
         super(player, zone);
 

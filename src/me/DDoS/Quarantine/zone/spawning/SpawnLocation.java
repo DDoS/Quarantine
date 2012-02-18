@@ -8,11 +8,11 @@ import org.bukkit.entity.LivingEntity;
  *
  * @author DDoS
  */
-public class QSpawnLocation extends Location {
+public class SpawnLocation extends Location {
     
     private final CreatureType mobType;
     
-    public QSpawnLocation(Location location, CreatureType mobType) {
+    public SpawnLocation(Location location, CreatureType mobType) {
         
         super(location.getWorld(), location.getX(), location.getY(), location.getZ());
         

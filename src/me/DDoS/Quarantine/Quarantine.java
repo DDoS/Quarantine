@@ -1,11 +1,11 @@
 package me.DDoS.Quarantine;
 
-import me.DDoS.Quarantine.leaderboard.QLeaderboard;
-import me.DDoS.Quarantine.zone.QZoneLoader;
+import me.DDoS.Quarantine.leaderboard.Leaderboard;
+import me.DDoS.Quarantine.zone.ZoneLoader;
 import me.DDoS.Quarantine.util.QUtil;
-import me.DDoS.Quarantine.permissions.QPermissions;
+import me.DDoS.Quarantine.permissions.Permission;
 import me.DDoS.Quarantine.listener.*;
-import me.DDoS.Quarantine.zone.QZone;
+import me.DDoS.Quarantine.zone.Zone;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import java.io.DataInputStream;
 import java.io.File;
@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 import me.DDoS.Quarantine.gui.*;
 import me.DDoS.Quarantine.permissions.Permissions;
 import me.DDoS.Quarantine.permissions.PermissionsHandler;
-import me.DDoS.Quarantine.util.QInventoryConvertor;
+import me.DDoS.Quarantine.util.InventoryConvertor;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -41,13 +41,13 @@ public class Quarantine extends JavaPlugin {
     //
     private boolean WGOn;
     //
-    private final Map<String, QZone> zones = new HashMap<String, QZone>();
+    private final Map<String, Zone> zones = new HashMap<String, Zone>();
     //
     private FileConfiguration config;
     //
     private Permissions permissions;
     //
-    private QGUIHandler guiHandler;
+    private GUIHandler guiHandler;
 
     public Quarantine() {
 
@@ -66,11 +66,11 @@ public class Quarantine extends JavaPlugin {
 
         if (checkForSpout()) {
 
-            guiHandler = new QSpoutEnabledGUIHandler(this);
+            guiHandler = new SpoutEnabledGUIHandler(this);
 
         } else {
 
-            guiHandler = new QTextGUIHandler(this);
+            guiHandler = new TextGUIHandler(this);
 
         }
 
@@ -107,7 +107,7 @@ public class Quarantine extends JavaPlugin {
 
         if (cmd.getName().equalsIgnoreCase("qload") && args.length == 1) {
 
-            if (!permissions.hasPermission(player, QPermissions.ADMIN.getPermissionsString())) {
+            if (!permissions.hasPermission(player, Permission.ADMIN.getPermissionsString())) {
 
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -128,8 +128,8 @@ public class Quarantine extends JavaPlugin {
 
             }
 
-            QZoneLoader loader = new QZoneLoader();
-            QZone zone = loader.loadZone(this, config, args[0]);
+            ZoneLoader loader = new ZoneLoader();
+            Zone zone = loader.loadZone(this, config, args[0]);
 
             if (zone == null) {
 
@@ -146,7 +146,7 @@ public class Quarantine extends JavaPlugin {
 
         if (cmd.getName().equalsIgnoreCase("qunload") && args.length == 1) {
 
-            if (!permissions.hasPermission(player, QPermissions.ADMIN.getPermissionsString())) {
+            if (!permissions.hasPermission(player, Permission.ADMIN.getPermissionsString())) {
 
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -170,7 +170,7 @@ public class Quarantine extends JavaPlugin {
 
         if (cmd.getName().equalsIgnoreCase("qrespawnmobs") && args.length == 1) {
 
-            if (!permissions.hasPermission(player, QPermissions.ADMIN.getPermissionsString())) {
+            if (!permissions.hasPermission(player, Permission.ADMIN.getPermissionsString())) {
 
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -193,14 +193,14 @@ public class Quarantine extends JavaPlugin {
         
         if (cmd.getName().equalsIgnoreCase("qconvertinv") && args.length == 1) {
 
-            if (!permissions.hasPermission(player, QPermissions.ADMIN.getPermissionsString())) {
+            if (!permissions.hasPermission(player, Permission.ADMIN.getPermissionsString())) {
 
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
 
             }
 
-            QInventoryConvertor.convert(args[0]);
+            InventoryConvertor.convert(args[0]);
 
             QUtil.tell(player, "Inventories converted.");
             return true;
@@ -209,7 +209,7 @@ public class Quarantine extends JavaPlugin {
 
         if (cmd.getName().equalsIgnoreCase("qjoin") && args.length == 1) {
 
-            if (!permissions.hasPermission(player, QPermissions.PLAY.getPermissionsString())) {
+            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
 
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -223,7 +223,7 @@ public class Quarantine extends JavaPlugin {
 
             }
 
-            for (QZone zone : zones.values()) {
+            for (Zone zone : zones.values()) {
 
                 if (zone.hasPlayer(player.getName())) {
 
@@ -240,7 +240,7 @@ public class Quarantine extends JavaPlugin {
 
         if (cmd.getName().equalsIgnoreCase("qenter")) {
 
-            if (!permissions.hasPermission(player, QPermissions.PLAY.getPermissionsString())) {
+            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
 
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -254,7 +254,7 @@ public class Quarantine extends JavaPlugin {
 
             }
 
-            for (QZone zone : zones.values()) {
+            for (Zone zone : zones.values()) {
 
                 if (zone.enterPlayer(player)) {
 
@@ -271,7 +271,7 @@ public class Quarantine extends JavaPlugin {
 
         if (cmd.getName().equalsIgnoreCase("qleave")) {
 
-            if (!permissions.hasPermission(player, QPermissions.PLAY.getPermissionsString())) {
+            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
 
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -285,7 +285,7 @@ public class Quarantine extends JavaPlugin {
 
             }
 
-            for (QZone zone : zones.values()) {
+            for (Zone zone : zones.values()) {
 
                 if (zone.leavePlayer(player)) {
 
@@ -301,7 +301,7 @@ public class Quarantine extends JavaPlugin {
 
         if (cmd.getName().equalsIgnoreCase("qmoney")) {
 
-            if (!permissions.hasPermission(player, QPermissions.PLAY.getPermissionsString())) {
+            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
 
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -315,7 +315,7 @@ public class Quarantine extends JavaPlugin {
 
             }
 
-            for (QZone zone : zones.values()) {
+            for (Zone zone : zones.values()) {
 
                 if (zone.tellMoney(player)) {
 
@@ -331,7 +331,7 @@ public class Quarantine extends JavaPlugin {
 
         if (cmd.getName().equalsIgnoreCase("qkeys")) {
 
-            if (!permissions.hasPermission(player, QPermissions.PLAY.getPermissionsString())) {
+            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
 
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -345,7 +345,7 @@ public class Quarantine extends JavaPlugin {
 
             }
 
-            for (QZone zone : zones.values()) {
+            for (Zone zone : zones.values()) {
 
                 if (zone.tellKeys(player)) {
 
@@ -361,7 +361,7 @@ public class Quarantine extends JavaPlugin {
 
         if (cmd.getName().equalsIgnoreCase("qrank")) {
 
-            if (!permissions.hasPermission(player, QPermissions.PLAY.getPermissionsString())) {
+            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
 
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -375,7 +375,7 @@ public class Quarantine extends JavaPlugin {
 
             }
 
-            for (QZone zone : zones.values()) {
+            for (Zone zone : zones.values()) {
 
                 if (zone.tellRank(player)) {
 
@@ -391,7 +391,7 @@ public class Quarantine extends JavaPlugin {
 
         if (cmd.getName().equalsIgnoreCase("qtop")) {
 
-            if (!permissions.hasPermission(player, QPermissions.PLAY.getPermissionsString())) {
+            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
 
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -429,7 +429,7 @@ public class Quarantine extends JavaPlugin {
 
             }
 
-            for (QZone zone : zones.values()) {
+            for (Zone zone : zones.values()) {
 
                 if (zone.tellTopFive(player, page)) {
 
@@ -445,7 +445,7 @@ public class Quarantine extends JavaPlugin {
 
         if (cmd.getName().equalsIgnoreCase("qscore")) {
 
-            if (!permissions.hasPermission(player, QPermissions.PLAY.getPermissionsString())) {
+            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
 
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -459,7 +459,7 @@ public class Quarantine extends JavaPlugin {
 
             }
 
-            for (QZone zone : zones.values()) {
+            for (Zone zone : zones.values()) {
 
                 if (zone.tellScore(player)) {
 
@@ -475,7 +475,7 @@ public class Quarantine extends JavaPlugin {
 
         if (cmd.getName().equalsIgnoreCase("qzones")) {
 
-            if (!permissions.hasPermission(player, QPermissions.PLAY.getPermissionsString())) {
+            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
 
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
 
@@ -491,14 +491,14 @@ public class Quarantine extends JavaPlugin {
 
         if (cmd.getName().equalsIgnoreCase("qplayers")) {
 
-            if (!permissions.hasPermission(player, QPermissions.PLAY.getPermissionsString())) {
+            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
 
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
 
             } else {
 
-                for (QZone zone : zones.values()) {
+                for (Zone zone : zones.values()) {
 
                     if (zone.hasPlayer(player.getName())) {
 
@@ -516,7 +516,7 @@ public class Quarantine extends JavaPlugin {
 
         if (cmd.getName().equalsIgnoreCase("qsetlobby") && args.length == 1) {
 
-            if (!permissions.hasPermission(player, QPermissions.SETUP.getPermissionsString())) {
+            if (!permissions.hasPermission(player, Permission.SETUP.getPermissionsString())) {
 
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -538,7 +538,7 @@ public class Quarantine extends JavaPlugin {
 
         if (cmd.getName().equalsIgnoreCase("qsetentrance") && args.length == 1) {
 
-            if (!permissions.hasPermission(player, QPermissions.SETUP.getPermissionsString())) {
+            if (!permissions.hasPermission(player, Permission.SETUP.getPermissionsString())) {
 
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -570,13 +570,13 @@ public class Quarantine extends JavaPlugin {
 
     }
 
-    public Collection<QZone> getZones() {
+    public Collection<Zone> getZones() {
 
         return zones.values();
 
     }
 
-    public QGUIHandler getGUIHandler() {
+    public GUIHandler getGUIHandler() {
 
         return guiHandler;
 
@@ -633,14 +633,14 @@ public class Quarantine extends JavaPlugin {
 
     private void unLoadAllZones() {
 
-        for (QZone zone : zones.values()) {
+        for (Zone zone : zones.values()) {
 
             unloadZone(zone);
 
         }
     }
 
-    private void unloadZone(QZone zone) {
+    private void unloadZone(Zone zone) {
 
         if (!WGOn) {
             return;
@@ -653,25 +653,25 @@ public class Quarantine extends JavaPlugin {
 
     }
 
-    private void saveZoneLocations(QZone zone) {
+    private void saveZoneLocations(Zone zone) {
 
         zone.saveLocations(config);
 
     }
 
-    private void stopMobCheckTask(QZone zone) {
+    private void stopMobCheckTask(Zone zone) {
 
         zone.stopMobCheckTask(getServer());
 
     }
 
-    private void removePlayers(QZone zone) {
+    private void removePlayers(Zone zone) {
 
         zone.removeAllPlayers();
 
     }
 
-    private void disconnectLB(QZone zone) {
+    private void disconnectLB(Zone zone) {
 
         zone.disconnectLB();
 
@@ -687,8 +687,8 @@ public class Quarantine extends JavaPlugin {
 
         for (String zoneToLoad : config.getStringList("Load_on_start")) {
 
-            QZoneLoader loader = new QZoneLoader();
-            QZone zone = loader.loadZone(this, config, zoneToLoad);
+            ZoneLoader loader = new ZoneLoader();
+            Zone zone = loader.loadZone(this, config, zoneToLoad);
 
             if (zone == null) {
 
@@ -712,9 +712,9 @@ public class Quarantine extends JavaPlugin {
 
         }
 
-        QLeaderboard.HOST = config.getString("Leaderboards.redis_db_info.host");
-        QLeaderboard.PORT = config.getInt("Leaderboards.redis_db_info.port");
-        QLeaderboard.USE = true;
+        Leaderboard.HOST = config.getString("Leaderboards.redis_db_info.host");
+        Leaderboard.PORT = config.getInt("Leaderboards.redis_db_info.port");
+        Leaderboard.USE = true;
 
     }
 

@@ -3,19 +3,19 @@ package me.DDoS.Quarantine.leaderboard.task;
 import java.util.Queue;
 import java.util.TimerTask;
 import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.leaderboard.QLeaderboard;
-import me.DDoS.Quarantine.leaderboard.QScoreUpdate;
+import me.DDoS.Quarantine.leaderboard.Leaderboard;
+import me.DDoS.Quarantine.leaderboard.ScoreUpdate;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 /**
  *
  * @author DDoS
  */
-public class QScoreUpdateTask extends TimerTask {
+public class ScoreUpdateTask extends TimerTask {
 
-    private final QLeaderboard leaderboard;
+    private final Leaderboard leaderboard;
 
-    public QScoreUpdateTask(QLeaderboard leaderboard) {
+    public ScoreUpdateTask(Leaderboard leaderboard) {
 
         this.leaderboard = leaderboard;
 
@@ -24,14 +24,14 @@ public class QScoreUpdateTask extends TimerTask {
     @Override
     public void run() {
     
-        final Queue<QScoreUpdate> queue = leaderboard.getUpdates();
+        final Queue<ScoreUpdate> queue = leaderboard.getUpdates();
 
         try {
 
             while (!queue.isEmpty()) {
 
-                QScoreUpdate update = queue.poll();
-                leaderboard.getLeaderBoard().rankMember(update.getPlayer(), update.getScore());
+                ScoreUpdate update = queue.poll();
+                leaderboard.getLeaderBoard().rank(update.getPlayer(), update.getScore());
 
             }
 

@@ -3,7 +3,7 @@ package me.DDoS.Quarantine.gui;
 import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.player.QPlayer;
 import me.DDoS.Quarantine.util.QUtil;
-import me.DDoS.Quarantine.zone.QZone;
+import me.DDoS.Quarantine.zone.Zone;
 import org.bukkit.entity.Player;
 import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.gui.GenericLabel;
@@ -16,11 +16,11 @@ import org.getspout.spoutapi.gui.WidgetAnchor;
  *
  * @author DDoS
  */
-public class QSpoutEnabledGUIHandler implements QGUIHandler {
+public class SpoutEnabledGUIHandler implements GUIHandler {
 
     private final Quarantine plugin;
 
-    public QSpoutEnabledGUIHandler(Quarantine plugin) {
+    public SpoutEnabledGUIHandler(Quarantine plugin) {
         
         this.plugin = plugin;
     
@@ -41,7 +41,7 @@ public class QSpoutEnabledGUIHandler implements QGUIHandler {
     }
 
     @Override
-    public void handlePlayerList(Player player, QZone zone) {
+    public void handlePlayerList(Player player, Zone zone) {
 
         if (SpoutManager.getPlayer(player).isSpoutCraftEnabled()) {
 
@@ -75,7 +75,7 @@ public class QSpoutEnabledGUIHandler implements QGUIHandler {
 
         int i = 32;
 
-        for (QZone zone : plugin.getZones()) {
+        for (Zone zone : plugin.getZones()) {
 
             Label zoneLabel = new GenericLabel();
             zoneLabel.setAnchor(WidgetAnchor.SCALE);
@@ -92,7 +92,7 @@ public class QSpoutEnabledGUIHandler implements QGUIHandler {
 
     }
 
-    private void displaySpoutPlayerList(Player player, QZone zone) {
+    private void displaySpoutPlayerList(Player player, Zone zone) {
 
         PopupScreen popup = new GenericPopup();
 
@@ -141,7 +141,7 @@ public class QSpoutEnabledGUIHandler implements QGUIHandler {
         
         QUtil.tell(player, "Zones:");
         
-        for (QZone zone : plugin.getZones()) {
+        for (Zone zone : plugin.getZones()) {
             
             QUtil.tell(player, zone.getName()
                     + ": " + zone.getNumOfPlayers()
@@ -150,7 +150,7 @@ public class QSpoutEnabledGUIHandler implements QGUIHandler {
         }    
     }
 
-    private void displayTextPlayerList(Player player, QZone zone) {
+    private void displayTextPlayerList(Player player, Zone zone) {
 
         String playerList = "";
         QUtil.tell(player, "Players:");

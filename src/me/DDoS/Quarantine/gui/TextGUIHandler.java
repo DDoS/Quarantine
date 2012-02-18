@@ -3,18 +3,18 @@ package me.DDoS.Quarantine.gui;
 import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.player.QPlayer;
 import me.DDoS.Quarantine.util.QUtil;
-import me.DDoS.Quarantine.zone.QZone;
+import me.DDoS.Quarantine.zone.Zone;
 import org.bukkit.entity.Player;
 
 /**
  *
  * @author DDoS
  */
-public class QTextGUIHandler implements QGUIHandler {
+public class TextGUIHandler implements GUIHandler {
 
     private final Quarantine plugin;
 
-    public QTextGUIHandler(Quarantine plugin) {
+    public TextGUIHandler(Quarantine plugin) {
 
         this.plugin = plugin;
 
@@ -25,7 +25,7 @@ public class QTextGUIHandler implements QGUIHandler {
 
         QUtil.tell(player, "Zones:");
 
-        for (QZone zone : plugin.getZones()) {
+        for (Zone zone : plugin.getZones()) {
 
             QUtil.tell(player, zone.getName()
                     + ": " + zone.getNumOfPlayers()
@@ -35,7 +35,7 @@ public class QTextGUIHandler implements QGUIHandler {
     }
 
     @Override
-    public void handlePlayerList(Player player, QZone zone) {
+    public void handlePlayerList(Player player, Zone zone) {
 
         String playerList = "";
         QUtil.tell(player, "Players:");
