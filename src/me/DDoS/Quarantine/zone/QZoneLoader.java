@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.util.QUtil;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
@@ -22,6 +23,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.CreatureType;
+import org.bukkit.inventory.ItemStack;
 
 /**
  *
@@ -38,7 +40,7 @@ public class QZoneLoader {
     private boolean softRespawn;
     private Location lobby;
     private Location entrance;
-    private final Map<Integer, Integer> kit = new HashMap<Integer, Integer>();
+    private final List<ItemStack> kit = new ArrayList<ItemStack>();
     private final Map<String, QSubZoneData> subZoneData = new HashMap<String, QSubZoneData>();
     private final Map<CreatureType, QReward> mobRewards = new EnumMap<CreatureType, QReward>(CreatureType.class);
 
@@ -128,9 +130,13 @@ public class QZoneLoader {
         for (String kitItem : configSec1.getStringList("starting_kit")) {
 
             String[] s = kitItem.split("-");
+            ItemStack item = QUtil.toItemStack(s[0], Integer.parseInt(s[1]));
 
-            kit.put(Integer.parseInt(s[0]), Integer.parseInt(s[1]));
+            if (item != null) {
 
+                kit.add(item);
+
+            }
         }
 
         for (String rewardToParse : configSec1.getStringList("money_rewards")) {
@@ -162,11 +168,11 @@ public class QZoneLoader {
     public QZone loadZone(Quarantine plugin, FileConfiguration config, String zoneName) {
 
         if (!loadZoneData(config, plugin.getServer(), zoneName)) {
-            
+
             return null;
-        
+
         }
-        
+
         final List<QSubZone> subZones = new ArrayList<QSubZone>();
 
         WorldGuardPlugin worldGuard = plugin.getWorldGuard();

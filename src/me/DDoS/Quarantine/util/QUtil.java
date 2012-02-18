@@ -20,6 +20,7 @@ import org.bukkit.entity.Slime;
 import org.bukkit.entity.Spider;
 import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Zombie;
+import org.bukkit.inventory.ItemStack;
 
 /**
  *
@@ -32,31 +33,62 @@ public class QUtil {
         player.sendMessage(ChatColor.DARK_RED + "[Quarantine] " + ChatColor.GRAY + msg);
 
     }
-    
-    public static List<Integer> parseIntList(String[] lines, String seperator) {
-        
-        final List<Integer> ints = new ArrayList<Integer>();
-        
+
+    public static ItemStack toItemStack(String string, int amount) {
+
+        String[] splits = string.split(":");
+
+        ItemStack item = null;
+
+        try {
+
+            int ID = Integer.parseInt(splits[0]);
+
+            if (ID == 0 || Material.getMaterial(ID) == null) {
+
+                return item;
+
+            }
+
+            item = new ItemStack(ID, amount, splits.length > 1 ? Short.parseShort(splits[1]) : (short) 0);
+
+        } catch (NumberFormatException nfe) {
+        }
+
+        return item;
+
+    }
+
+    public static List<ItemStack> parseItemList(String[] lines, int amount) {
+
+        final List<ItemStack> items = new ArrayList<ItemStack>();
+
         for (String line : lines) {
-            
-            String[] splits = line.split(seperator);
-            
+
+            String[] splits = line.split("-");
+
             for (String split : splits) {
-                
+
                 try {
-                    
-                    ints.add(Integer.parseInt(split));
-                    
+
+                    ItemStack item = toItemStack(split, amount);
+
+                    if (item != null) {
+
+                        items.add(item);
+
+                    }
+
                 } catch (NumberFormatException nfe) {
-                    
+
                     continue;
-                    
-                }         
+
+                }
             }
         }
-        
-        return ints;
-        
+
+        return items;
+
     }
 
     public static CreatureType getCreatureType(LivingEntity ent) {

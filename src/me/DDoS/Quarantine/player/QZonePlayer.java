@@ -84,32 +84,7 @@ public class QZonePlayer extends QPlayer {
 
     }
     
-    public void buyItem(int ID, short damage, int amount, int cost) {
-
-        if (ID == 0 || Material.getMaterial(ID) == null) {
-
-            QUtil.tell(player, "Invalid item ID");
-            return;
-
-        }
-        
-        ItemStack item = null;
-
-        if (damage != -1) {
-            
-            item = new ItemStack(ID, amount, damage);
-            
-        } else {
-            
-            item = new ItemStack(ID, amount);
-            
-        }
-        
-        buyItem(item, cost);
-        
-    }
-    
-    private void buyItem(ItemStack item, int cost) {
+    public void buyItem(ItemStack item, int cost) {
 
         if (cost > money) {
 
@@ -125,18 +100,9 @@ public class QZonePlayer extends QPlayer {
 
     }
 
-    public void sellItem(int ID, int amount, int cost) {
+    public void sellItem(ItemStack item, int cost) {
 
-        if (ID == 0 || Material.getMaterial(ID) == null) {
-
-            QUtil.tell(player, "Invalid item ID");
-            return;
-
-        }
-
-        ItemStack item = new ItemStack(ID, amount);
-
-        if (!player.getInventory().contains(item.getType(), amount)) {
+        if (!player.getInventory().contains(item)) {
 
             QUtil.tell(player, "You don't have any items of this type to sell: " + item.getType().name().toLowerCase());
             return;

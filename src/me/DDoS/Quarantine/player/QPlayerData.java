@@ -311,12 +311,11 @@ public class QPlayerData {
 
             if (!invFile.exists()) {
 
-                Set<Entry<Integer, Integer>> items = zone.getKit().entrySet();
                 PlayerInventory inv = player.getInventory();
 
-                for (Entry<Integer, Integer> item : items) {
+                for (ItemStack item : zone.getKit()) {
 
-                    inv.addItem(new ItemStack(item.getKey(), item.getValue()));
+                    inv.addItem(item);
 
                 }
 

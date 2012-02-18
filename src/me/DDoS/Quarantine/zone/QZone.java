@@ -41,6 +41,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.inventory.ItemStack;
 
 /**
  *
@@ -57,7 +58,7 @@ public class QZone {
     private int mobCheckTaskID;
     private final boolean clearDrops;
     private final boolean oneTimeKeys;
-    private final Map<Integer, Integer> kit;
+    private final List<ItemStack> kit;
     private final List<QSubZone> subZones;
     private final Map<CreatureType, QReward> mobRewards;
     private final QLeaderboard leaderboard;
@@ -66,7 +67,7 @@ public class QZone {
     private final Map<String, Integer> deadPlayerXP = new HashMap<String, Integer>();
 
     public QZone(Quarantine plugin, QMainRegion region, String zoneName, Location lobby, Location entrance, int defaultMoney, int maxNumOfPlayers, boolean clearDrops, boolean oneTimeKeys,
-            List<QSubZone> subZones, Map<Integer, Integer> kit, Map<CreatureType, QReward> mobRewards, World world, long interval) {
+            List<QSubZone> subZones, List<ItemStack> kit, Map<CreatureType, QReward> mobRewards, World world, long interval) {
 
         this.region = region;
         this.zoneName = zoneName;
@@ -161,7 +162,7 @@ public class QZone {
 
     }
 
-    public Map<Integer, Integer> getKit() {
+    public List<ItemStack> getKit() {
 
         return kit;
 
@@ -533,53 +534,57 @@ public class QZone {
     private void handleZoneSign(QZonePlayer player, Sign sign) {
 
         String line1 = sign.getLine(1);
-        
+
         if (line1.equalsIgnoreCase("Buy Item")) {
 
             String[] sa = sign.getLine(2).split("-");
-            String[] sa2 = sa[0].split(":");
 
-            if (sa2.length >= 2) {
+            ItemStack item = QUtil.toItemStack(sa[0], Integer.parseInt(sa[1]));
 
-                player.buyItem(Integer.parseInt(sa2[0]), Short.parseShort(sa2[1]), Integer.parseInt(sa[1]), Integer.parseInt(sa[2]));
-
+            if (item != null) {
+                
+                player.buyItem(item, Integer.parseInt(sa[2]));
+                
             } else {
-
-                player.buyItem(Integer.parseInt(sa[0]), (short) -1, Integer.parseInt(sa[1]), Integer.parseInt(sa[2]));
-
+                
+                QUtil.tell(player.getPlayer(), "Invalid sign or ID");
+                
             }
-
+            
             return;
 
         }
-        
+
         if (line1.equalsIgnoreCase("Buy Random Item")) {
 
             Sign sign2 = getSignNextTo(sign.getBlock());
-            
+
             if (sign2 == null) {
-                
+
                 return;
-                
+
             }
-            
-            List<Integer> IDs = QUtil.parseIntList(sign2.getLines(), "-");
+
             String[] splits = sign.getLine(2).split("-");
+            List<ItemStack> items = QUtil.parseItemList(sign2.getLines(), Integer.parseInt(splits[0]));
             
-            int ID = IDs.get(new Random().nextInt(IDs.size())); 
-            int amount = Integer.parseInt(splits[0]);
-            int cost = Integer.parseInt(splits[1]);
-            
-            player.buyItem(ID, (short) -1, amount, cost);
-            
+            player.buyItem(items.get(new Random().nextInt(items.size())), Integer.parseInt(splits[1]));
+
             return;
 
         }
-        
+
         if (line1.equalsIgnoreCase("Sell Item")) {
 
             String[] sa = sign.getLine(2).split("-");
-            player.sellItem(Integer.parseInt(sa[0]), Integer.parseInt(sa[1]), Integer.parseInt(sa[2]));
+            ItemStack item = QUtil.toItemStack(sa[0], Integer.parseInt(sa[1]));
+
+            if (item != null) {
+                
+                player.sellItem(item, Integer.parseInt(sa[2]));
+                
+            }
+            
             return;
 
         }
