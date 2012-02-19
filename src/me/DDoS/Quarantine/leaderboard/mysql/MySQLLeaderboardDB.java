@@ -43,6 +43,12 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
 
         connection = conn;
 
+        if (connection == null) {
+            
+            return;
+            
+        }
+
         try {
 
             verifyTable();
@@ -87,6 +93,12 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
     @Override
     public void disconnect() {
 
+        if (connection == null) {
+            
+            return;
+            
+        }
+        
         try {
 
             connection.close();
@@ -101,6 +113,12 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
     @Override
     public void rank(String member, int score) {
 
+        if (connection == null) {
+            
+            return;
+            
+        }
+        
         String updateString = "REPLACE INTO " + tableName + " "
                 + "SET player_name = ?, score = ?";
 
@@ -183,8 +201,14 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
 
     @Override
     public int getScore(String member) {
-
+        
         int score = 0;
+        
+        if (connection == null) {
+            
+            return score;
+            
+        }
 
         String statmenentString = "SELECT score FROM " + tableName + " "
                 + "WHERE player_name LIKE ?";
@@ -229,8 +253,14 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
 
     @Override
     public boolean isMember(String member) {
-
+        
         boolean isMember = false;
+        
+        if (connection == null) {
+            
+            return isMember;
+            
+        }
 
         String statmenentString = "SELECT EXISTS(SELECT 1 FROM " + tableName + " "
                 + "WHERE player_name LIKE ?)";
@@ -277,6 +307,12 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
     public int getRank(String member) {
 
         int rank = 0;
+        
+        if (connection == null) {
+            
+            return rank;
+            
+        }
 
         String statmenentString = "SELECT rank FROM " + tableName + " "
                 + "WHERE player_name LIKE ?";
@@ -324,6 +360,12 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
 
         final List<LeaderData> leaderData = new ArrayList<LeaderData>();
 
+        if (connection == null) {
+            
+            return leaderData;
+            
+        }
+        
         String statmenentString = "SELECT player_name,score,rank FROM " + tableName + " "
                 + "WHERE rank<=? AND rank>=? ORDER BY rank";
 
