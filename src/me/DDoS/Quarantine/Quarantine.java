@@ -1,5 +1,6 @@
 package me.DDoS.Quarantine;
 
+import me.DDoS.Quarantine.command.AdminCommandExecutor;
 import me.DDoS.Quarantine.leaderboard.Leaderboard;
 import me.DDoS.Quarantine.zone.ZoneLoader;
 import me.DDoS.Quarantine.listener.*;
@@ -14,6 +15,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+import me.DDoS.Quarantine.command.PlayerCommandExecutor;
+import me.DDoS.Quarantine.command.SetupCommandExecutor;
 import me.DDoS.Quarantine.gui.*;
 import me.DDoS.Quarantine.permissions.Permissions;
 import me.DDoS.Quarantine.permissions.PermissionsHandler;
@@ -50,23 +53,28 @@ public class Quarantine extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        CommandExecutor ce = new QCommandExecutor(this);
-        getCommand("qload").setExecutor(ce);
-        getCommand("qunload").setExecutor(ce);
-        getCommand("qrespawnmobs").setExecutor(ce);
-        getCommand("qconvertinv").setExecutor(ce);
-        getCommand("qjoin").setExecutor(ce);
-        getCommand("qenter").setExecutor(ce);
-        getCommand("qsetlobby").setExecutor(ce);
-        getCommand("qsetentrance").setExecutor(ce);
-        getCommand("qleave").setExecutor(ce);
-        getCommand("qmoney").setExecutor(ce);
-        getCommand("qkeys").setExecutor(ce);
-        getCommand("qscore").setExecutor(ce);
-        getCommand("qrank").setExecutor(ce);
-        getCommand("qtop").setExecutor(ce);
-        getCommand("qzones").setExecutor(ce);
-        getCommand("qplayers").setExecutor(ce);
+        CommandExecutor ace = new AdminCommandExecutor(this);
+        CommandExecutor pce = new PlayerCommandExecutor(this);
+        CommandExecutor sce = new SetupCommandExecutor(this);
+        
+        getCommand("qload").setExecutor(ace);
+        getCommand("qunload").setExecutor(ace);
+        getCommand("qrespawnmobs").setExecutor(ace);
+        getCommand("qconvertinv").setExecutor(ace);
+        
+        getCommand("qjoin").setExecutor(pce);
+        getCommand("qenter").setExecutor(pce);
+        getCommand("qleave").setExecutor(pce);
+        getCommand("qmoney").setExecutor(pce);
+        getCommand("qkeys").setExecutor(pce);
+        getCommand("qscore").setExecutor(pce);
+        getCommand("qrank").setExecutor(pce);
+        getCommand("qtop").setExecutor(pce);
+        getCommand("qzones").setExecutor(pce);
+        getCommand("qplayers").setExecutor(pce);
+        
+        getCommand("qsetlobby").setExecutor(sce);
+        getCommand("qsetentrance").setExecutor(sce);
 
         config = getConfig();
 
