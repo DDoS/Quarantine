@@ -1,7 +1,7 @@
 name: Quarantine
 main: me.DDoS.Quarantine.Quarantine
 softdepend: [WorldGuard]
-version: 0.4.1
+version: 0.5
 commands:
   qload:
       description: Load the desired zone.
@@ -75,3 +75,4 @@ permissions:
     description: setup the spawn and lobby
   quarantine.admin: 
     description: load and unload the zones
+    
