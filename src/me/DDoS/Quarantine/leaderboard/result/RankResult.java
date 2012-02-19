@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
  *
  * @author DDoS
  */
-public class RankResult implements Result{
+public class RankResult implements Result {
     
     private final Player player;
     private final String result;

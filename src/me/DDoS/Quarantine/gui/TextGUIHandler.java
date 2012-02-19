@@ -1,5 +1,6 @@
 package me.DDoS.Quarantine.gui;
 
+import java.util.List;
 import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.player.QPlayer;
 import me.DDoS.Quarantine.util.QUtil;
@@ -58,5 +59,15 @@ public class TextGUIHandler implements GUIHandler {
 
         QUtil.tell(player, playerList);
 
+    }
+    
+    @Override
+    public void handleTopResults(Player player, List<String> results) {
+       
+        for (String result : results) {
+
+            QUtil.tell(player, result);
+
+        }        
     }
 }

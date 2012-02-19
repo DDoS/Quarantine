@@ -1,12 +1,9 @@
 package me.DDoS.Quarantine.leaderboard.query;
 
-import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.leaderboard.Leaderboard;
 import me.DDoS.Quarantine.leaderboard.LeaderboardDB;
 import me.DDoS.Quarantine.leaderboard.result.RankResult;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import redis.clients.jedis.exceptions.JedisConnectionException;
 
 /**
  *

@@ -3,12 +3,9 @@ package me.DDoS.Quarantine.leaderboard.query;
 import me.DDoS.Quarantine.leaderboard.LeaderData;
 import java.util.ArrayList;
 import java.util.List;
-import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.leaderboard.Leaderboard;
 import me.DDoS.Quarantine.leaderboard.result.TopResult;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import redis.clients.jedis.exceptions.JedisConnectionException;
 
 /**
  *
@@ -47,7 +44,7 @@ public class TopQuery implements Query {
             }
         }
 
-        leaderboard.addResult(new TopResult(player, top));
+        leaderboard.addResult(new TopResult(player, leaderboard.getPlugin().getGUIHandler(), top));
 
     }
 }

@@ -35,7 +35,7 @@ public class Leaderboard {
     //
     private final Quarantine plugin;
     //
-    private final LeaderboardDB lb;
+    private final LeaderboardDB lbdb;
     //
     private final Timer timer = new Timer();
     private final int displayInfoTaskID;
@@ -51,11 +51,11 @@ public class Leaderboard {
 
         if (TYPE.equals("redis")) {
 
-            lb = new RedisLeaderboardDB(zoneName, 5);
+            lbdb = new RedisLeaderboardDB(zoneName, 5);
 
         } else {
 
-            lb = new MySQLLeaderboardDB(zoneName, 5);
+            lbdb = new MySQLLeaderboardDB(zoneName, 5);
 
         }
 
@@ -67,7 +67,7 @@ public class Leaderboard {
 
     public LeaderboardDB getLeaderBoard() {
 
-        return lb;
+        return lbdb;
 
     }
 
@@ -115,11 +115,17 @@ public class Leaderboard {
         return results;
 
     }
+    
+    public Quarantine getPlugin() {
+        
+        return plugin;
+        
+    }
 
     public void disconnect() {
 
         timer.cancel();
-        lb.disconnect();
+        lbdb.disconnect();
         plugin.getServer().getScheduler().cancelTask(displayInfoTaskID);
 
     }
