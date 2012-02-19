@@ -43,7 +43,7 @@ public class Quarantine extends JavaPlugin {
 
     public Quarantine() {
 
-        checkForLibs();
+        checkLibs();
 
     }
 
@@ -319,7 +319,7 @@ public class Quarantine extends JavaPlugin {
         }
     }
 
-    private void checkForLibs() {
+    private void checkLibs() {
 
         if (!new File("plugins/Quarantine/lib").exists()) {
 
