@@ -165,9 +165,9 @@ public class ZoneLoader {
 
     }
 
-    public Zone loadZone(Quarantine plugin, FileConfiguration config, String zoneName) {
+    public Zone loadZone(Quarantine plugin, String zoneName) {
 
-        if (!loadZoneData(config, plugin.getServer(), zoneName)) {
+        if (!loadZoneData(plugin.getConfigFile(), plugin.getServer(), zoneName)) {
 
             return null;
 

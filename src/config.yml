@@ -2,9 +2,16 @@ Load_on_start:
   - 'zone1'
 Leaderboards:
   enabled: false
+  type: sqlite
   redis_db_info:
     host: 'localhost'
     port: 6379
+  mysql_db_info:
+    host: 'localhost'
+    name: 'minecraft'
+    port: 3306
+    user: 'user'
+    password: 'password'
 Zones:
   zone1:
     max_number_of_players: 10

@@ -23,32 +23,22 @@ public class RankQuery implements Query {
         this.leaderboard = leaderboard;
         this.player = player;
         this.playerName = player.getName();
-        
+
     }
 
     @Override
     public void execute() {
 
         String rank;
+        LeaderboardDB lb = leaderboard.getLeaderBoard();
 
-        try {
+        if (lb.isMember(playerName)) {
 
-            LeaderboardDB lb = leaderboard.getLeaderBoard();
+            rank = lb.getRank(playerName) + ": " + playerName + " | " + lb.getScore(playerName);
 
-            if (lb.isMember(playerName)) {
+        } else {
 
-                rank = lb.getRank(playerName) + ": " + playerName + " | " + lb.getScore(playerName);
-
-            } else {
-
-                rank = "You score has yet to be compiled. Please try again later.";
-
-            }
-
-        } catch (JedisConnectionException e) {
-
-            Quarantine.log.info("[Quarantine] Couldn't connect to Redis server: " + e.getMessage());
-            rank = ChatColor.RED + "Couldn't connect to leaderboard database. Please inform your operator.";
+            rank = "You score has yet to be compiled. Please try again later.";
 
         }
 

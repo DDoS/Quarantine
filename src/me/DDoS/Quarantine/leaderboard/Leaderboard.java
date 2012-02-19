@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.leaderboard.result.Result;
+import me.DDoS.Quarantine.leaderboard.mysql.MySQLLeaderboardDB;
 import me.DDoS.Quarantine.leaderboard.task.DisplayInfoTask;
 import me.DDoS.Quarantine.player.QPlayer;
 import org.bukkit.entity.Player;
@@ -23,9 +24,14 @@ import org.bukkit.entity.Player;
  */
 public class Leaderboard {
 
-    public static String HOST;
-    public static int PORT;
     public static boolean USE = false;
+    //
+    public static String TYPE;
+    public static String HOST;
+    public static String DB_NAME;
+    public static String USER;
+    public static String PASSWORD;
+    public static int PORT;
     //
     private final Quarantine plugin;
     //
@@ -42,10 +48,20 @@ public class Leaderboard {
     public Leaderboard(Quarantine plugin, String zoneName) {
 
         this.plugin = plugin;
-        lb = new RedisLeaderboardDB(zoneName, HOST, PORT, 5);
+
+        if (TYPE.equals("redis")) {
+
+            lb = new RedisLeaderboardDB(zoneName, 5);
+
+        } else {
+
+            lb = new MySQLLeaderboardDB(zoneName, 5);
+
+        }
+
         timer.scheduleAtFixedRate(new ScoreUpdateTask(this), 10000L, 10000L);
         timer.scheduleAtFixedRate(new LeaderboardInfoTask(this), 500L, 500L);
-        displayInfoTaskID = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new DisplayInfoTask(this), 15L, 10L);
+        displayInfoTaskID = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new DisplayInfoTask(this), 10L, 10L);
 
     }
 

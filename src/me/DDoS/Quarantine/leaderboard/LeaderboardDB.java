@@ -10,7 +10,7 @@ public interface LeaderboardDB {
     
     public void disconnect();
     
-    public int rank(String member, double score);
+    public void rank(String member, int score);
     
     public int getScore(String member);
     
@@ -18,6 +18,6 @@ public interface LeaderboardDB {
     
     public int getRank(String member);
     
-    public List<LeaderData> getLeaders(int currentPage);
+    public List<LeaderData> getLeaders(int pageNumber);
     
 }

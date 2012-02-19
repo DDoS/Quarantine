@@ -25,32 +25,29 @@ public class TopQuery implements Query {
         this.leaderboard = leaderboard;
         this.player = player;
         this.page = page;
-        
+
     }
 
     @Override
     public void execute() {
 
         List<String> top = new ArrayList();
+        List<LeaderData> lds = leaderboard.getLeaderBoard().getLeaders(page);
 
-        try {
+        if (lds.isEmpty()) {
 
-            List<LeaderData> lds = leaderboard.getLeaderBoard().getLeaders(page);
+            top.add("No results to list.");
+
+        } else {
 
             for (LeaderData ld : lds) {
 
-                top.add(ld.getRank() + ": " + ld.getMember() + " | " + (int) ld.getScore());
+                top.add(ld.getRank() + ": " + ld.getMember() + " | " + ld.getScore());
 
             }
-
-        } catch (JedisConnectionException e) {
-
-            Quarantine.log.info("[Quarantine] Couldn't connect to Redis server: " + e.getMessage());
-            top.add(ChatColor.RED + "Couldn't connect to leaderboard database. Please inform your operator.");
-
         }
-        
+
         leaderboard.addResult(new TopResult(player, top));
-        
+
     }
 }

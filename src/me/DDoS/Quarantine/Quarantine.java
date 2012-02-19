@@ -2,16 +2,12 @@ package me.DDoS.Quarantine;
 
 import me.DDoS.Quarantine.leaderboard.Leaderboard;
 import me.DDoS.Quarantine.zone.ZoneLoader;
-import me.DDoS.Quarantine.util.QUtil;
-import me.DDoS.Quarantine.permissions.Permission;
 import me.DDoS.Quarantine.listener.*;
 import me.DDoS.Quarantine.zone.Zone;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Collection;
@@ -21,12 +17,8 @@ import java.util.logging.Logger;
 import me.DDoS.Quarantine.gui.*;
 import me.DDoS.Quarantine.permissions.Permissions;
 import me.DDoS.Quarantine.permissions.PermissionsHandler;
-import me.DDoS.Quarantine.util.InventoryConvertor;
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -39,7 +31,7 @@ public class Quarantine extends JavaPlugin {
 
     public static final Logger log = Logger.getLogger("Minecraft");
     //
-    private boolean WGOn;
+    private boolean WGOn = false;
     //
     private final Map<String, Zone> zones = new HashMap<String, Zone>();
     //
@@ -51,12 +43,30 @@ public class Quarantine extends JavaPlugin {
 
     public Quarantine() {
 
-        checkForJedisLib();
+        checkForLibs();
 
     }
 
     @Override
     public void onEnable() {
+
+        CommandExecutor ce = new QCommandExecutor(this);
+        getCommand("qload").setExecutor(ce);
+        getCommand("qunload").setExecutor(ce);
+        getCommand("qrespawnmobs").setExecutor(ce);
+        getCommand("qconvertinv").setExecutor(ce);
+        getCommand("qjoin").setExecutor(ce);
+        getCommand("qenter").setExecutor(ce);
+        getCommand("qsetlobby").setExecutor(ce);
+        getCommand("qsetentrance").setExecutor(ce);
+        getCommand("qleave").setExecutor(ce);
+        getCommand("qmoney").setExecutor(ce);
+        getCommand("qkeys").setExecutor(ce);
+        getCommand("qscore").setExecutor(ce);
+        getCommand("qrank").setExecutor(ce);
+        getCommand("qtop").setExecutor(ce);
+        getCommand("qzones").setExecutor(ce);
+        getCommand("qplayers").setExecutor(ce);
 
         config = getConfig();
 
@@ -93,486 +103,57 @@ public class Quarantine extends JavaPlugin {
 
     }
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-
-        if (!(sender instanceof Player)) {
-
-            sender.sendMessage("This command can only be used in-game.");
-            return true;
-
-        }
-
-        Player player = (Player) sender;
-
-        if (cmd.getName().equalsIgnoreCase("qload") && args.length == 1) {
-
-            if (!permissions.hasPermission(player, Permission.ADMIN.getPermissionsString())) {
-
-                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
-                return true;
-
-            }
-
-            if (!WGOn) {
-
-                QUtil.tell(player, "No worldGuard detected, plugin will not work.");
-                return true;
-
-            }
-
-            if (zones.containsKey(args[0])) {
-
-                QUtil.tell(player, "This zone is already loaded.");
-                return true;
-
-            }
-
-            ZoneLoader loader = new ZoneLoader();
-            Zone zone = loader.loadZone(this, config, args[0]);
-
-            if (zone == null) {
-
-                QUtil.tell(player, "Couldn't load the zone. Please see the console.");
-                return true;
-
-            }
-
-            zones.put(args[0], zone);
-            QUtil.tell(player, "Zone loaded.");
-            return true;
-
-        }
-
-        if (cmd.getName().equalsIgnoreCase("qunload") && args.length == 1) {
-
-            if (!permissions.hasPermission(player, Permission.ADMIN.getPermissionsString())) {
-
-                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
-                return true;
-
-            }
-
-            if (!zones.containsKey(args[0])) {
-
-                QUtil.tell(player, "This zone is not loaded or does not exist.");
-                return true;
-
-            }
-
-            unloadZone(zones.get(args[0]));
-            zones.remove(args[0]);
-
-            QUtil.tell(player, "Zone successfuly unloaded.");
-            return true;
-
-        }
-
-        if (cmd.getName().equalsIgnoreCase("qrespawnmobs") && args.length == 1) {
-
-            if (!permissions.hasPermission(player, Permission.ADMIN.getPermissionsString())) {
-
-                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
-                return true;
-
-            }
-
-            if (!zones.containsKey(args[0])) {
-
-                QUtil.tell(player, "This zone is not loaded or doesn't exist.");
-                return true;
-
-            }
-
-            zones.get(args[0]).reloadMobs();
-
-            QUtil.tell(player, "Mobs successfuly respawned.");
-            return true;
-
-        }
-        
-        if (cmd.getName().equalsIgnoreCase("qconvertinv") && args.length == 1) {
-
-            if (!permissions.hasPermission(player, Permission.ADMIN.getPermissionsString())) {
-
-                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
-                return true;
-
-            }
-
-            InventoryConvertor.convert(args[0]);
-
-            QUtil.tell(player, "Inventories converted.");
-            return true;
-
-        }
-
-        if (cmd.getName().equalsIgnoreCase("qjoin") && args.length == 1) {
-
-            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
-
-                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
-                return true;
-
-            }
-
-            if (!zones.containsKey(args[0])) {
-
-                QUtil.tell(player, "This zone is not loaded or doesn't exist.");
-                return true;
-
-            }
-
-            for (Zone zone : zones.values()) {
-
-                if (zone.hasPlayer(player.getName())) {
-
-                    QUtil.tell(player, "You can only be in one zone at a time.");
-                    return true;
-
-                }
-            }
-
-            zones.get(args[0]).joinPlayer(player);
-            return true;
-
-        }
-
-        if (cmd.getName().equalsIgnoreCase("qenter")) {
-
-            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
-
-                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
-                return true;
-
-            }
-
-            if (zones.isEmpty()) {
-
-                QUtil.tell(player, "No zones loaded.");
-                return true;
-
-            }
-
-            for (Zone zone : zones.values()) {
-
-                if (zone.enterPlayer(player)) {
-
-                    return true;
-
-
-                }
-            }
-
-            QUtil.tell(player, "You need to join a zone first.");
-            return true;
-
-        }
-
-        if (cmd.getName().equalsIgnoreCase("qleave")) {
-
-            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
-
-                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
-                return true;
-
-            }
-
-            if (zones.isEmpty()) {
-
-                QUtil.tell(player, "No zones loaded.");
-                return true;
-
-            }
-
-            for (Zone zone : zones.values()) {
-
-                if (zone.leavePlayer(player)) {
-
-                    return true;
-
-                }
-            }
-
-            QUtil.tell(player, "You haven't joined any zone yet.");
-            return true;
-
-        }
-
-        if (cmd.getName().equalsIgnoreCase("qmoney")) {
-
-            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
-
-                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
-                return true;
-
-            }
-
-            if (zones.isEmpty()) {
-
-                QUtil.tell(player, "No zones loaded.");
-                return true;
-
-            }
-
-            for (Zone zone : zones.values()) {
-
-                if (zone.tellMoney(player)) {
-
-                    return true;
-
-                }
-            }
-
-            QUtil.tell(player, "You haven't entered any zone yet.");
-            return true;
-
-        }
-
-        if (cmd.getName().equalsIgnoreCase("qkeys")) {
-
-            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
-
-                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
-                return true;
-
-            }
-
-            if (zones.isEmpty()) {
-
-                QUtil.tell(player, "No zones loaded.");
-                return true;
-
-            }
-
-            for (Zone zone : zones.values()) {
-
-                if (zone.tellKeys(player)) {
-
-                    return true;
-
-                }
-            }
-
-            QUtil.tell(player, "You haven't entered any zone yet.");
-            return true;
-
-        }
-
-        if (cmd.getName().equalsIgnoreCase("qrank")) {
-
-            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
-
-                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
-                return true;
-
-            }
-
-            if (zones.isEmpty()) {
-
-                QUtil.tell(player, "No zones loaded.");
-                return true;
-
-            }
-
-            for (Zone zone : zones.values()) {
-
-                if (zone.tellRank(player)) {
-
-                    return true;
-
-                }
-            }
-
-            QUtil.tell(player, "You haven't entered any zone yet.");
-            return true;
-
-        }
-
-        if (cmd.getName().equalsIgnoreCase("qtop")) {
-
-            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
-
-                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
-                return true;
-
-            }
-
-            if (zones.isEmpty()) {
-
-                QUtil.tell(player, "No zones loaded.");
-                return true;
-
-            }
-
-            int page;
-
-            try {
-
-                page = Integer.parseInt(args[0]);
-
-            } catch (NumberFormatException nfe) {
-
-                QUtil.tell(player, "The page number provided is not an actual number.");
-                return true;
-
-            } catch (ArrayIndexOutOfBoundsException aioobe) {
-
-                page = 1;
-
-            }
-
-            if (page <= 0) {
-
-                QUtil.tell(player, "The page number must be greater than zero.");
-                return true;
-
-            }
-
-            for (Zone zone : zones.values()) {
-
-                if (zone.tellTopFive(player, page)) {
-
-                    return true;
-
-                }
-            }
-
-            QUtil.tell(player, "You haven't entered any zone yet.");
-            return true;
-
-        }
-
-        if (cmd.getName().equalsIgnoreCase("qscore")) {
-
-            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
-
-                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
-                return true;
-
-            }
-
-            if (zones.isEmpty()) {
-
-                QUtil.tell(player, "No zones loaded.");
-                return true;
-
-            }
-
-            for (Zone zone : zones.values()) {
-
-                if (zone.tellScore(player)) {
-
-                    return true;
-
-                }
-            }
-
-            QUtil.tell(player, "You haven't entered any zone yet.");
-            return true;
-
-        }
-
-        if (cmd.getName().equalsIgnoreCase("qzones")) {
-
-            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
-
-                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
-
-            } else {
-
-                guiHandler.handleZoneList(player);
-
-            }
-
-            return true;
-
-        }
-
-        if (cmd.getName().equalsIgnoreCase("qplayers")) {
-
-            if (!permissions.hasPermission(player, Permission.PLAY.getPermissionsString())) {
-
-                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
-                return true;
-
-            } else {
-
-                for (Zone zone : zones.values()) {
-
-                    if (zone.hasPlayer(player.getName())) {
-
-                        guiHandler.handlePlayerList(player, zone);
-                        return true;
-
-                    }
-                }
-
-                QUtil.tell(player, "You haven't entered any zone yet.");
-                return true;
-
-            }
-        }
-
-        if (cmd.getName().equalsIgnoreCase("qsetlobby") && args.length == 1) {
-
-            if (!permissions.hasPermission(player, Permission.SETUP.getPermissionsString())) {
-
-                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
-                return true;
-
-            }
-
-            if (!zones.containsKey(args[0])) {
-
-                QUtil.tell(player, "This zone is not loaded or doesn't exist.");
-                return true;
-
-            }
-
-            zones.get(args[0]).setLobby(player.getLocation());
-            QUtil.tell(player, "Lobby set.");
-            return true;
-
-        }
-
-        if (cmd.getName().equalsIgnoreCase("qsetentrance") && args.length == 1) {
-
-            if (!permissions.hasPermission(player, Permission.SETUP.getPermissionsString())) {
-
-                player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
-                return true;
-
-            }
-
-            if (!zones.containsKey(args[0])) {
-
-                QUtil.tell(player, "This zone is not loaded or doesn't exist.");
-                return true;
-
-            }
-
-            if (zones.get(args[0]).setEntrance(player.getLocation())) {
-
-                QUtil.tell(player, "Entrance set.");
-
-            } else {
-
-                QUtil.tell(player, "The entrance needs to be inside the zone.");
-
-            }
-
-            return true;
-
-        }
-
-        return false;
-
-    }
-
     public Collection<Zone> getZones() {
 
         return zones.values();
+
+    }
+
+    public boolean hasZone(String zoneName) {
+
+        return zones.containsKey(zoneName);
+
+    }
+
+    public boolean hasZones() {
+
+        return zones.isEmpty();
+
+    }
+
+    public Zone getZone(String zoneName) {
+
+        return zones.get(zoneName);
+
+    }
+
+    public Zone addZone(String zoneName, Zone zone) {
+
+        return zones.put(zoneName, zone);
+
+    }
+
+    public void removeZone(String zoneName) {
+
+        zones.remove(zoneName);
+
+    }
+
+    public boolean isWGOn() {
+
+        return WGOn;
+
+    }
+
+    public Permissions getPermissions() {
+
+        return permissions;
+
+    }
+
+    public FileConfiguration getConfigFile() {
+
+        return config;
 
     }
 
@@ -640,7 +221,7 @@ public class Quarantine extends JavaPlugin {
         }
     }
 
-    private void unloadZone(Zone zone) {
+    public void unloadZone(Zone zone) {
 
         if (!WGOn) {
             return;
@@ -688,7 +269,7 @@ public class Quarantine extends JavaPlugin {
         for (String zoneToLoad : config.getStringList("Load_on_start")) {
 
             ZoneLoader loader = new ZoneLoader();
-            Zone zone = loader.loadZone(this, config, zoneToLoad);
+            Zone zone = loader.loadZone(this, zoneToLoad);
 
             if (zone == null) {
 
@@ -712,13 +293,33 @@ public class Quarantine extends JavaPlugin {
 
         }
 
-        Leaderboard.HOST = config.getString("Leaderboards.redis_db_info.host");
-        Leaderboard.PORT = config.getInt("Leaderboards.redis_db_info.port");
         Leaderboard.USE = true;
+        String type = config.getString("Leaderboards.type", "invalid");
 
+        if (type.equalsIgnoreCase("redis")) {
+
+            Leaderboard.TYPE = "redis";
+            Leaderboard.HOST = config.getString("Leaderboards.redis_db_info.host");
+            Leaderboard.PORT = config.getInt("Leaderboards.redis_db_info.port");
+
+
+        } else if (type.equalsIgnoreCase("mysql")) {
+
+            Leaderboard.TYPE = "mysql";
+            Leaderboard.HOST = config.getString("Leaderboards.mysql_db_info.host");
+            Leaderboard.DB_NAME = config.getString("Leaderboards.mysql_db_info.name");
+            Leaderboard.PORT = config.getInt("Leaderboards.mysql_db_info.port");
+            Leaderboard.USER = config.getString("Leaderboards.mysql_db_info.user");
+            Leaderboard.PASSWORD = config.getString("Leaderboards.mysql_db_info.password");
+
+        } else {
+
+            Leaderboard.USE = false;
+
+        }
     }
 
-    private void checkForJedisLib() {
+    private void checkForLibs() {
 
         if (!new File("plugins/Quarantine/lib").exists()) {
 
@@ -759,14 +360,9 @@ public class Quarantine extends JavaPlugin {
             fos.close();
             return true;
 
-        } catch (MalformedURLException m) {
+        } catch (Exception ex) {
 
-            log.info("[Quarantine] Couldn't download 'jedis-2.0.0.jar' library.");
-            return false;
-
-        } catch (IOException io) {
-
-            log.info("[Quarantine] Couldn't download 'jedis-2.0.0.jar' library.");
+            log.info("[Quarantine] Couldn't download 'jedis-2.0.0.jar' library. Error: " + ex.getMessage());
             return false;
 
         }
