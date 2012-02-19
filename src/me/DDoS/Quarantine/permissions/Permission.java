@@ -19,7 +19,7 @@ public enum Permission {
     
     }
 
-    public String getPermissionsString() {
+    public String getPermissionString() {
     
         return permissionsString;
     
