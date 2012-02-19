@@ -24,6 +24,8 @@ public class RedisLeaderboardDB implements LeaderboardDB {
         this.pageSize = pageSize;
         this.jedis = new Jedis(Leaderboard.HOST, Leaderboard.PORT);
 
+        Quarantine.log.info("[Quarantine] Redis leaderboard for zone '" + lbName + "' was initialized.");
+
     }
 
     @Override
@@ -176,11 +178,11 @@ public class RedisLeaderboardDB implements LeaderboardDB {
         List<LeaderData> leaderData = new ArrayList<LeaderData>();
 
         if (memberData == null) {
-            
+
             return leaderData;
-            
+
         }
-        
+
         Iterator<Tuple> memberDataIterator = memberData.iterator();
 
         while (memberDataIterator.hasNext()) {
