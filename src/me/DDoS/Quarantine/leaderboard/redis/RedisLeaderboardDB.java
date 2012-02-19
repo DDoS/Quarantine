@@ -69,7 +69,7 @@ public class RedisLeaderboardDB implements LeaderboardDB {
 
         try {
 
-            jedis.zadd(lbName, score, member).intValue();
+            jedis.zadd(lbName, score, member);
 
         } catch (JedisConnectionException jce) {
 
