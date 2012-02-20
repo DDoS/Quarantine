@@ -1,7 +1,7 @@
 package me.DDoS.Quarantine.command;
 
 import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.permissions.Permission;
+import me.DDoS.Quarantine.permission.Permission;
 import me.DDoS.Quarantine.util.QUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;

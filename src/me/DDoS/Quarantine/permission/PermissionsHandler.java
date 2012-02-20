@@ -1,4 +1,4 @@
-package me.DDoS.Quarantine.permissions;
+package me.DDoS.Quarantine.permission;
 
 import java.io.File;
 import java.io.IOException;
