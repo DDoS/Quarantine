@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
  */
 public class TextGUIHandler implements GUIHandler {
 
-    private final Quarantine plugin;
+    protected final Quarantine plugin;
 
     public TextGUIHandler(Quarantine plugin) {
 
@@ -69,5 +69,5 @@ public class TextGUIHandler implements GUIHandler {
             QUtil.tell(player, result);
 
         }        
-    }
+    }   
 }

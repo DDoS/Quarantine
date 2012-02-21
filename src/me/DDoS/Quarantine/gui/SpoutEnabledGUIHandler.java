@@ -17,13 +17,11 @@ import org.getspout.spoutapi.gui.WidgetAnchor;
  *
  * @author DDoS
  */
-public class SpoutEnabledGUIHandler implements GUIHandler {
-
-    private final Quarantine plugin;
+public class SpoutEnabledGUIHandler extends TextGUIHandler implements GUIHandler {
 
     public SpoutEnabledGUIHandler(Quarantine plugin) {
         
-        this.plugin = plugin;
+        super(plugin);
     
     }
     
@@ -36,7 +34,7 @@ public class SpoutEnabledGUIHandler implements GUIHandler {
             
         } else {
 
-            displayTextZoneList(player);
+            super.handleZoneList(player);
 
         }
     }
@@ -50,7 +48,7 @@ public class SpoutEnabledGUIHandler implements GUIHandler {
 
         } else {
 
-            displayTextPlayerList(player, zone);
+            super.handlePlayerList(player, zone);
 
         }
     }
@@ -64,7 +62,7 @@ public class SpoutEnabledGUIHandler implements GUIHandler {
 
         } else {
 
-            displayTextTopResults(player, results);
+            super.handleTopResults(player, results);
 
         }       
     }
@@ -80,13 +78,7 @@ public class SpoutEnabledGUIHandler implements GUIHandler {
         top.setX(100).setY(10);
         popup.attachWidget(plugin, top);
 
-        Label notice = new GenericLabel();
-        notice.setAnchor(WidgetAnchor.SCALE);
-        notice.setWidth(100).setHeight(10);
-        notice.setScale(0.50F);
-        notice.setText("Use the escape key to close this popup.");
-        notice.setX(100).setY(21);
-        popup.attachWidget(plugin, notice);
+        attachNotice(popup);
 
         int i = 32;
 
@@ -118,13 +110,7 @@ public class SpoutEnabledGUIHandler implements GUIHandler {
         top.setX(100).setY(10);
         popup.attachWidget(plugin, top);
 
-        Label notice = new GenericLabel();
-        notice.setAnchor(WidgetAnchor.SCALE);
-        notice.setWidth(100).setHeight(10);
-        notice.setScale(0.50F);
-        notice.setText("Use the escape key to close this popup.");
-        notice.setX(100).setY(21);
-        popup.attachWidget(plugin, notice);
+        attachNotice(popup);
 
         Label legend = new GenericLabel();
         legend.setAnchor(WidgetAnchor.SCALE);
@@ -163,13 +149,7 @@ public class SpoutEnabledGUIHandler implements GUIHandler {
         top.setX(100).setY(10);
         popup.attachWidget(plugin, top);
 
-        Label notice = new GenericLabel();
-        notice.setAnchor(WidgetAnchor.SCALE);
-        notice.setWidth(100).setHeight(10);
-        notice.setScale(0.50F);
-        notice.setText("Use the escape key to close this popup.");
-        notice.setX(100).setY(21);
-        popup.attachWidget(plugin, notice);
+        attachNotice(popup);
 
         Label legend = new GenericLabel();
         legend.setAnchor(WidgetAnchor.SCALE);
@@ -197,50 +177,15 @@ public class SpoutEnabledGUIHandler implements GUIHandler {
         
     }
     
-    private void displayTextZoneList(Player player) {
+    private void attachNotice(PopupScreen popup) {
         
-        QUtil.tell(player, "Zones:");
+        Label notice = new GenericLabel();
+        notice.setAnchor(WidgetAnchor.SCALE);
+        notice.setWidth(100).setHeight(10);
+        notice.setScale(0.50F);
+        notice.setText("Use the escape key to close this popup.");
+        notice.setX(100).setY(21);
+        popup.attachWidget(plugin, notice);
         
-        for (Zone zone : plugin.getZones()) {
-            
-            QUtil.tell(player, zone.getName()
-                    + ": " + zone.getNumOfPlayers()
-                    + "/" + zone.getMaxNumOfPlayers());
-            
-        }    
-    }
-
-    private void displayTextPlayerList(Player player, Zone zone) {
-
-        String playerList = "";
-        QUtil.tell(player, "Players:");
-
-        for (QPlayer p : zone.getPlayers()) {
-
-            playerList = playerList + p.getPlayer().getDisplayName() + ", ";
-
-        }
-        
-        try {
-
-            playerList = playerList.substring(0, playerList.length() - 2);
-
-        } catch (StringIndexOutOfBoundsException sioobe) {
-            
-            return;
-            
-        }
-   
-        QUtil.tell(player, playerList);
-        
-    }
-    
-    private void displayTextTopResults(Player player, List<String> results) {
-       
-        for (String result : results) {
-
-            QUtil.tell(player, result);
-
-        }        
     }
 }
