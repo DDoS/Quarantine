@@ -24,7 +24,18 @@ public class RedisLeaderboardDB implements LeaderboardDB {
         this.pageSize = pageSize;
         this.jedis = new Jedis(Leaderboard.HOST, Leaderboard.PORT);
 
-        Quarantine.log.info("[Quarantine] Redis leaderboard for zone '" + lbName + "' was initialized.");
+        try {
+            
+            jedis.connect();
+            
+        } catch (JedisConnectionException jce) {
+
+            Quarantine.log.info("[Quarantine] Couldn't connect to Redis DB. Error: " + jce.getMessage());
+            return;
+
+        }
+        
+        Quarantine.log.info("[Quarantine] Leaderboard connection to Redis server for zone '" + lbName + "' was established.");
 
     }
 
