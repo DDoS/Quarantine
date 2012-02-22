@@ -1,12 +1,11 @@
 package me.DDoS.Quarantine.zone.subzone;
 
-import me.DDoS.Quarantine.zone.spawning.SpawnLocation;
+import me.DDoS.Quarantine.zone.location.SpawnLocation;
 import me.DDoS.Quarantine.zone.region.SubRegion;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import org.bukkit.Location;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.LivingEntity;
 
@@ -18,18 +17,18 @@ public class SubZone {
 
     private final SubRegion region;
     private final int numOfMobs;
-    private final List<CreatureType> mobTypes;
+    private final List<CreatureType> creatureTypes;
     private final boolean softRespawn;
     //
     private final List<LivingEntity> entities = new ArrayList<LivingEntity>();
     private final List<SpawnLocation> spawnLocs = new ArrayList<SpawnLocation>();
 
-    public SubZone(SubRegion region, int numOfMobs, boolean softRespawn, List<CreatureType> mobTypes) {
+    public SubZone(SubRegion region, int numOfMobs, boolean softRespawn, List<CreatureType> creatureTypes) {
 
         this.softRespawn = softRespawn;
         this.region = region;
         this.numOfMobs = numOfMobs;
-        this.mobTypes = mobTypes;
+        this.creatureTypes = creatureTypes;
 
     }
 
@@ -42,16 +41,16 @@ public class SubZone {
     public void generateSpawnLocations() {
 
         Random rand = new Random();
-        Iterator<Location> iter = region.spawnLocationIterator();
+        Iterator<SpawnLocation> iter = region.spawnLocationIterator();
 
         while (iter.hasNext()) {
 
-            Location loc = (Location) iter.next();
+            SpawnLocation loc = iter.next();
 
             if (loc != null) {
 
-                CreatureType type = mobTypes.get(rand.nextInt(mobTypes.size()));
-                spawnLocs.add(new SpawnLocation(loc, type));
+                loc.setCreatureType(creatureTypes.get(rand.nextInt(creatureTypes.size())));
+                spawnLocs.add(loc);
 
             }
         }
@@ -77,7 +76,7 @@ public class SubZone {
 
             for (int i = 0; i < numToSpawn; i++) {
 
-                entities.add(spawnLocs.get(rand.nextInt(spawnLocs.size())).spawnMob());
+                entities.add(spawnLocs.get(rand.nextInt(spawnLocs.size())).spawnCreature());
 
             }
         }

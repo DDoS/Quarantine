@@ -1,6 +1,7 @@
 package me.DDoS.Quarantine.zone.region;
 
-import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.BlockVector;
+import me.DDoS.Quarantine.zone.location.BlockLocation;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -12,19 +13,21 @@ import org.bukkit.World;
  */
 public class MainRegion {
 
-    private final Vector max;
-    private final Vector min;
+    private final BlockLocation max;
+    private final BlockLocation min;
     private final World world;
 
-    public MainRegion(Vector pos1, Vector pos2, World world) {
+    public MainRegion(World world, BlockVector pos1, BlockVector pos2) {
 
-        this.max = new Vector(Math.max(pos1.getX(), pos2.getX()),
-                Math.max(pos1.getY(), pos2.getY()),
-                Math.max(pos1.getZ(), pos2.getZ()));
+        this.max = new BlockLocation(world,
+                Math.max(pos1.getBlockX(), pos2.getBlockX()),
+                Math.max(pos1.getBlockY(), pos2.getBlockY()),
+                Math.max(pos1.getBlockZ(), pos2.getBlockZ()));
 
-        this.min = new Vector(Math.min(pos1.getX(), pos2.getX()),
-                Math.min(pos1.getY(), pos2.getY()),
-                Math.min(pos1.getZ(), pos2.getZ()));
+        this.min = new BlockLocation(world,
+                Math.min(pos1.getBlockX(), pos2.getBlockX()),
+                Math.min(pos1.getBlockY(), pos2.getBlockY()),
+                Math.min(pos1.getBlockZ(), pos2.getBlockZ()));
         
         this.world = world;
 
@@ -42,9 +45,9 @@ public class MainRegion {
         double y = loc.getY();
         double z = loc.getZ();
 
-        return (x >= min.getBlockX() && x <= max.getBlockX()
-                && y >= min.getBlockY() && y <= max.getBlockY()
-                && z >= min.getBlockZ() && z <= max.getBlockZ());
+        return (x >= min.getX() && x <= max.getX()
+                && y >= min.getY() && y <= max.getY()
+                && z >= min.getZ() && z <= max.getZ());
 
     }
     
@@ -56,14 +59,14 @@ public class MainRegion {
             
         }
         
-        int minChunkX = min.getBlockX() >> 4;
-        int minChunkZ = min.getBlockZ() >> 4;
+        int minChunkX = min.getX() >> 4;
+        int minChunkZ = min.getZ() >> 4;
         
-        int maxChunkX = max.getBlockX() >> 4;
-        int maxChunkZ = max.getBlockZ() >> 4;
+        int maxChunkX = max.getX() >> 4;
+        int maxChunkZ = max.getZ() >> 4;
         
-        return ((chunk.getX() >= minChunkX && chunk.getX() <= maxChunkX)
-                && (chunk.getZ() >= minChunkZ && chunk.getZ() <= maxChunkZ));
+        return (chunk.getX() >= minChunkX && chunk.getX() <= maxChunkX)
+                && (chunk.getZ() >= minChunkZ && chunk.getZ() <= maxChunkZ);
 
     }  
 }

@@ -183,7 +183,7 @@ public class ZoneLoader {
 
             if (subZoneRegion != null) {
 
-                SubRegion subZone = new SubRegion(subZoneRegion.getMinimumPoint(), subZoneRegion.getMaximumPoint(), world);
+                SubRegion subZone = new SubRegion(world, subZoneRegion.getMinimumPoint(), subZoneRegion.getMaximumPoint());
                 SubZoneData sZData = subZoneData.get(subZoneName);
 
                 subZones.add(new SubZone(subZone, sZData.getNumberOfMobs(), softRespawn, sZData.getMobTypes()));
@@ -211,7 +211,7 @@ public class ZoneLoader {
 
         }
 
-        MainRegion region = new MainRegion(pRegion.getMinimumPoint(), pRegion.getMaximumPoint(), world);
+        MainRegion region = new MainRegion(world, pRegion.getMinimumPoint(), pRegion.getMaximumPoint());
 
         return new Zone(plugin, region, zoneName, lobby, entrance, defaultMoney, maxNumOfPlayers, clearDrops, oneTimeKeys,
                 subZones, kit, mobRewards, world, interval);

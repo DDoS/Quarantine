@@ -1,9 +1,10 @@
 package me.DDoS.Quarantine.zone.region;
 
-import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.BlockVector;
 import java.util.Iterator;
 import me.DDoS.Quarantine.util.QUtil;
-import org.bukkit.Location;
+import me.DDoS.Quarantine.zone.location.BlockLocation;
+import me.DDoS.Quarantine.zone.location.SpawnLocation;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -16,41 +17,41 @@ import org.bukkit.block.BlockFace;
  */
 public class SubRegion {
 
-    private final Vector max;
-    private final Vector min;
-    private final World world;
+    private final BlockLocation max;
+    private final BlockLocation min;
 
-    public SubRegion(Vector pos1, Vector pos2, World world) {
+    public SubRegion(World world, BlockVector pos1, BlockVector pos2) {
 
-        this.max = new Vector(Math.max(pos1.getX(), pos2.getX()),
-                Math.max(pos1.getY(), pos2.getY()),
-                Math.max(pos1.getZ(), pos2.getZ()));
+        this.max = new BlockLocation(world,
+                Math.max(pos1.getBlockX(), pos2.getBlockX()),
+                Math.max(pos1.getBlockY(), pos2.getBlockY()),
+                Math.max(pos1.getBlockZ(), pos2.getBlockZ()));
 
-        this.min = new Vector(Math.min(pos1.getX(), pos2.getX()),
-                Math.min(pos1.getY(), pos2.getY()),
-                Math.min(pos1.getZ(), pos2.getZ()));
-
-        this.world = world;
+        this.min = new BlockLocation(world, 
+                Math.min(pos1.getBlockX(), pos2.getBlockX()),
+                Math.min(pos1.getBlockY(), pos2.getBlockY()),
+                Math.min(pos1.getBlockZ(), pos2.getBlockZ()));
 
     }
 
-    public Iterator<Location> spawnLocationIterator() {
+    public Iterator<SpawnLocation> spawnLocationIterator() {
 
-        return new Iterator<Location>() {
+        return new Iterator<SpawnLocation>() {
 
-            private int nextX = min.getBlockX();
-            private int nextY = min.getBlockY();
-            private int nextZ = min.getBlockZ();
+            private int nextX = min.getX();
+            private int nextY = min.getY();
+            private int nextZ = min.getZ();
+            private final World world =  min.getWorld();
 
             @Override
             public boolean hasNext() {
 
-                return (nextX != Integer.MIN_VALUE);
+                return nextX != Integer.MIN_VALUE;
 
             }
 
             @Override
-            public Location next() {
+            public SpawnLocation next() {
 
                 if (!hasNext()) {
 
@@ -58,7 +59,7 @@ public class SubRegion {
 
                 }
 
-                Location answer = new Location(world, nextX, nextY, nextZ);
+                SpawnLocation answer = new SpawnLocation(world, nextX, nextY, nextZ);
 
                 while (!isSpawnable(answer)) {
 
@@ -70,7 +71,7 @@ public class SubRegion {
 
                     }
 
-                    answer = new Location(world, nextX, nextY, nextZ);
+                    answer = new SpawnLocation(world, nextX, nextY, nextZ);
 
                 }
 
@@ -81,15 +82,15 @@ public class SubRegion {
 
             private void increment() {
 
-                if (++nextX > max.getBlockX()) {
+                if (++nextX > max.getX()) {
 
-                    nextX = min.getBlockX();
+                    nextX = min.getX();
 
-                    if (++nextY > max.getBlockY()) {
+                    if (++nextY > max.getY()) {
 
-                        nextY = min.getBlockY();
+                        nextY = min.getY();
 
-                        if (++nextZ > max.getBlockZ()) {
+                        if (++nextZ > max.getZ()) {
 
                             nextX = Integer.MIN_VALUE;
 
@@ -98,7 +99,7 @@ public class SubRegion {
                 }
             }
 
-            private boolean isSpawnable(Location loc) {
+            private boolean isSpawnable(SpawnLocation loc) {
 
                 Block block = loc.getBlock();
 
