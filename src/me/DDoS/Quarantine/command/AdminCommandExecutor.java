@@ -39,7 +39,7 @@ public class AdminCommandExecutor implements CommandExecutor {
 
         final Player player = (Player) sender;
 
-        if (!plugin.getPermissions().hasPermission(player, Permission.ADMIN.getPermissionString())) {
+        if (!plugin.getPermissions().hasPermission(player, Permission.ADMIN.getNodeString())) {
 
             player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
             return true;

@@ -35,7 +35,7 @@ public class SetupCommandExecutor implements CommandExecutor {
         
         final Player player = (Player) sender;
         
-        if (!plugin.getPermissions().hasPermission(player, Permission.SETUP.getPermissionString())) {
+        if (!plugin.getPermissions().hasPermission(player, Permission.SETUP.getNodeString())) {
 
             player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
             return true;
