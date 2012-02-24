@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Map;
 import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.util.QUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -44,7 +44,7 @@ public class ZoneLoader {
     private final Map<String, SubZoneData> subZoneData = new HashMap<String, SubZoneData>();
     private final Map<CreatureType, Reward> mobRewards = new EnumMap<CreatureType, Reward>(CreatureType.class);
 
-    private boolean loadZoneData(FileConfiguration config, Server server, String zoneName) {
+    private boolean loadZoneData(FileConfiguration config, String zoneName) {
 
         if (!new File("plugins/Quarantine/config.yml").exists()) {
 
@@ -57,12 +57,7 @@ public class ZoneLoader {
 
             config.load("plugins/Quarantine/config.yml");
 
-        } catch (IOException ex) {
-
-            Quarantine.log.info("[Quarantine] Couldn't load zone " + zoneName + ", unable to load config.");
-            return false;
-
-        } catch (InvalidConfigurationException ex) {
+        } catch (Exception ex) {
 
             Quarantine.log.info("[Quarantine] Couldn't load zone " + zoneName + ", unable to load config.");
             return false;
@@ -79,7 +74,7 @@ public class ZoneLoader {
         }
 
         String worldName = configSec1.getString("world");
-        world = server.getWorld(worldName);
+        world = Bukkit.getWorld(worldName);
 
         if (world == null) {
 
@@ -167,7 +162,7 @@ public class ZoneLoader {
 
     public Zone loadZone(Quarantine plugin, String zoneName) {
 
-        if (!loadZoneData(plugin.getConfigFile(), plugin.getServer(), zoneName)) {
+        if (!loadZoneData(plugin.getConfigFile(), zoneName)) {
 
             return null;
 
