@@ -231,10 +231,6 @@ public class Quarantine extends JavaPlugin {
 
     public void unloadZone(Zone zone) {
 
-        if (!WGOn) {
-            return;
-        }
-
         removePlayers(zone);
         saveZoneLocations(zone);
         stopMobCheckTask(zone);

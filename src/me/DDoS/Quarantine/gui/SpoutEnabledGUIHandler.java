@@ -3,7 +3,6 @@ package me.DDoS.Quarantine.gui;
 import java.util.List;
 import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.player.QPlayer;
-import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.zone.Zone;
 import org.bukkit.entity.Player;
 import org.getspout.spoutapi.SpoutManager;
