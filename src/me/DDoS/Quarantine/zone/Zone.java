@@ -66,7 +66,8 @@ public class Zone {
     private final Map<String, QPlayer> players = new HashMap<String, QPlayer>();
     private final Map<String, Integer> deadPlayerXP = new HashMap<String, Integer>();
 
-    public Zone(Quarantine plugin, MainRegion region, String zoneName, Location lobby, Location entrance, int defaultMoney, int maxNumOfPlayers, boolean clearDrops, boolean oneTimeKeys,
+    public Zone(Quarantine plugin, MainRegion region, String zoneName, Location lobby, Location entrance,
+            int defaultMoney, int maxNumOfPlayers, boolean clearDrops, boolean oneTimeKeys,
             List<SubZone> subZones, List<ItemStack> kit, Map<CreatureType, Reward> mobRewards, World world, long interval) {
 
         this.region = region;

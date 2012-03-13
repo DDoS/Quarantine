@@ -1,6 +1,6 @@
 package me.DDoS.Quarantine.player;
 
-import me.DDoS.Quarantine.player.error.DataErrors;
+import me.DDoS.Quarantine.player.error.DataError;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import me.DDoS.Quarantine.zone.Zone;
@@ -148,7 +148,7 @@ public class PlayerData {
 
             } catch (IOException ex) {
 
-                logError(DataErrors.DATA_LOAD, ex);
+                logError(DataError.DATA_LOAD, ex);
                 return false;
 
             }
@@ -160,7 +160,7 @@ public class PlayerData {
 
         } catch (Exception ex) {
 
-            logError(DataErrors.DATA_LOAD, ex);
+            logError(DataError.DATA_LOAD, ex);
             return false;
 
         }
@@ -232,7 +232,7 @@ public class PlayerData {
 
             } catch (IOException ex) {
 
-                logError(DataErrors.DATA_SAVE, ex);
+                logError(DataError.DATA_SAVE, ex);
                 return false;
 
             }
@@ -244,7 +244,7 @@ public class PlayerData {
 
         } catch (Exception ex) {
 
-            logError(DataErrors.DATA_SAVE, ex);
+            logError(DataError.DATA_SAVE, ex);
             return false;
 
         }
@@ -276,7 +276,7 @@ public class PlayerData {
 
         } catch (IOException ex) {
 
-            logError(DataErrors.DATA_SAVE, ex);
+            logError(DataError.DATA_SAVE, ex);
             return false;
 
         }
@@ -361,7 +361,7 @@ public class PlayerData {
             
         } catch (Exception ex) {
 
-            logError(DataErrors.INV_LOAD, ex);
+            logError(DataError.INV_LOAD, ex);
             return false;
 
         }
@@ -415,7 +415,7 @@ public class PlayerData {
 
         } catch (Exception ex) {
 
-            logError(DataErrors.INV_SAVE, ex);
+            logError(DataError.INV_SAVE, ex);
             return false;
 
         }
@@ -448,7 +448,7 @@ public class PlayerData {
         }
     }
 
-    private void logError(DataErrors error, Exception ex) {
+    private void logError(DataError error, Exception ex) {
 
         switch (error) {
 

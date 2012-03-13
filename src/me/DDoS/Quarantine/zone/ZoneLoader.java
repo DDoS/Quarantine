@@ -150,7 +150,7 @@ public class ZoneLoader {
             ConfigurationSection configSec3 = configSec2.getConfigurationSection(subZone);
 
             int numOfMobs = configSec3.getInt("number_of_mobs");
-            List<String> mobTypes = configSec3.getList("mob_types");
+            List<String> mobTypes = configSec3.getStringList("mob_types");
 
             subZoneData.put(subZone, new SubZoneData(numOfMobs, mobTypes));
 
