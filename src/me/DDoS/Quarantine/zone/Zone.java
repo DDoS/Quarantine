@@ -18,15 +18,14 @@ import me.DDoS.Quarantine.player.QPlayer;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -49,18 +48,20 @@ import org.bukkit.inventory.ItemStack;
  */
 public class Zone {
 
+    private final Quarantine plugin;
     private final MainRegion region;
     private final String zoneName;
     private Location lobby;
     private Location entrance;
+    private final long interval;
     private final int defaultMoney;
     private final int maxNumOfPlayers;
-    private int mobCheckTaskID;
+    private int mobCheckTaskID = -1;
     private final boolean clearDrops;
     private final boolean oneTimeKeys;
     private final List<ItemStack> kit;
     private final List<SubZone> subZones;
-    private final Map<CreatureType, Reward> mobRewards;
+    private final Map<EntityType, Reward> mobRewards;
     private final Leaderboard leaderboard;
     //
     private final Map<String, QPlayer> players = new HashMap<String, QPlayer>();
@@ -68,12 +69,14 @@ public class Zone {
 
     public Zone(Quarantine plugin, MainRegion region, String zoneName, Location lobby, Location entrance,
             int defaultMoney, int maxNumOfPlayers, boolean clearDrops, boolean oneTimeKeys,
-            List<SubZone> subZones, List<ItemStack> kit, Map<CreatureType, Reward> mobRewards, World world, long interval) {
+            List<SubZone> subZones, List<ItemStack> kit, Map<EntityType, Reward> mobRewards, World world, long interval) {
 
+        this.plugin = plugin;
         this.region = region;
         this.zoneName = zoneName;
         this.lobby = lobby;
         this.entrance = entrance;
+        this.interval = interval;
         this.defaultMoney = defaultMoney;
         this.maxNumOfPlayers = maxNumOfPlayers;
         this.clearDrops = clearDrops;
@@ -91,9 +94,6 @@ public class Zone {
             leaderboard = null;
 
         }
-
-        startMobCheckTask(plugin, interval);
-
     }
 
     public String getName() {
@@ -323,14 +323,13 @@ public class Zone {
 
                     }
 
-                    CreatureType creature = QUtil.getCreatureType(entity);
+                    ZonePlayer qzPlayer = (ZonePlayer) qPlayer;
+                    Reward reward = mobRewards.get(entity.getType());
 
-                    if (creature != null) {
+                    if (reward != null) {
 
-                        ZonePlayer qzPlayer = (ZonePlayer) qPlayer;
-                        Reward rew = mobRewards.get(creature);
-                        qzPlayer.addMoney(rew.getRandomMoneyAmount());
-                        qzPlayer.addScore(rew.getScoreReward());
+                        qzPlayer.addMoney(reward.getRandomMoneyAmount());
+                        qzPlayer.addScore(reward.getScoreReward());
 
                     }
                 }
@@ -543,15 +542,15 @@ public class Zone {
             ItemStack item = QUtil.toItemStack(sa[0], Integer.parseInt(sa[1]));
 
             if (item != null) {
-                
+
                 player.buyItem(item, Integer.parseInt(sa[2]));
-                
+
             } else {
-                
+
                 QUtil.tell(player.getPlayer(), "Invalid sign or ID");
-                
+
             }
-            
+
             return;
 
         }
@@ -568,7 +567,7 @@ public class Zone {
 
             String[] splits = sign.getLine(2).split("-");
             List<ItemStack> items = QUtil.parseItemList(sign2.getLines(), Integer.parseInt(splits[0]));
-            
+
             player.buyItem(items.get(new Random().nextInt(items.size())), Integer.parseInt(splits[1]));
 
             return;
@@ -581,11 +580,11 @@ public class Zone {
             ItemStack item = QUtil.toItemStack(sa[0], Integer.parseInt(sa[1]));
 
             if (item != null) {
-                
+
                 player.sellItem(item, Integer.parseInt(sa[2]));
-                
+
             }
-            
+
             return;
 
         }
@@ -747,6 +746,8 @@ public class Zone {
 
     private void spawnStartingMobs() {
 
+        startMobCheckTask();
+
         for (SubZone subZone : subZones) {
 
             if (!subZone.hasMobs()) {
@@ -759,6 +760,8 @@ public class Zone {
 
     private void removeAllMobs() {
 
+        stopMobCheckTask();
+
         for (SubZone subZone : subZones) {
 
             if (subZone.hasMobs()) {
@@ -769,7 +772,13 @@ public class Zone {
         }
     }
 
-    private void startMobCheckTask(Quarantine plugin, long interval) {
+    private void startMobCheckTask() {
+
+        if (mobCheckTaskID != -1) {
+
+            return;
+
+        }
 
         mobCheckTaskID = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
 
@@ -791,9 +800,10 @@ public class Zone {
 
     }
 
-    public void stopMobCheckTask(Server server) {
+    private void stopMobCheckTask() {
 
-        server.getScheduler().cancelTask(mobCheckTaskID);
+        plugin.getServer().getScheduler().cancelTask(mobCheckTaskID);
+        mobCheckTaskID = -1;
         Quarantine.log.info("[Quarantine] Stopped mob check task for zone: " + zoneName);
 
     }

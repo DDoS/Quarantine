@@ -233,7 +233,6 @@ public class Quarantine extends JavaPlugin {
 
         removePlayers(zone);
         saveZoneLocations(zone);
-        stopMobCheckTask(zone);
         disconnectLB(zone);
 
     }
@@ -241,12 +240,6 @@ public class Quarantine extends JavaPlugin {
     private void saveZoneLocations(Zone zone) {
 
         zone.saveLocations(config);
-
-    }
-
-    private void stopMobCheckTask(Zone zone) {
-
-        zone.stopMobCheckTask(getServer());
 
     }
 

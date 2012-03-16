@@ -2,7 +2,7 @@ package me.DDoS.Quarantine.zone.location;
 
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.CreatureType;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 
 /**
@@ -11,7 +11,7 @@ import org.bukkit.entity.LivingEntity;
  */
 public class SpawnLocation extends BlockLocation {
     
-    private CreatureType creatureType;
+    private EntityType creatureType;
     
     public SpawnLocation(World world, int x, int y, int z) {
         
@@ -19,7 +19,7 @@ public class SpawnLocation extends BlockLocation {
         
     }
     
-    public void setCreatureType(CreatureType creatureType) {
+    public void setCreatureType(EntityType creatureType) {
         
         this.creatureType = creatureType;
         

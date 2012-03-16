@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import org.bukkit.entity.CreatureType;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 
 /**
@@ -17,13 +17,13 @@ public class SubZone {
 
     private final SubRegion region;
     private final int numOfMobs;
-    private final List<CreatureType> creatureTypes;
+    private final List<EntityType> creatureTypes;
     private final boolean softRespawn;
     //
     private final List<LivingEntity> entities = new ArrayList<LivingEntity>();
     private final List<SpawnLocation> spawnLocs = new ArrayList<SpawnLocation>();
 
-    public SubZone(SubRegion region, int numOfMobs, boolean softRespawn, List<CreatureType> creatureTypes) {
+    public SubZone(SubRegion region, int numOfMobs, boolean softRespawn, List<EntityType> creatureTypes) {
 
         this.softRespawn = softRespawn;
         this.region = region;

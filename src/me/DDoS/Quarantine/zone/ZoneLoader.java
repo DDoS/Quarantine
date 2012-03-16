@@ -8,7 +8,6 @@ import me.DDoS.Quarantine.zone.reward.Reward;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -20,9 +19,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.CreatureType;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -42,7 +40,7 @@ public class ZoneLoader {
     private Location entrance;
     private final List<ItemStack> kit = new ArrayList<ItemStack>();
     private final Map<String, SubZoneData> subZoneData = new HashMap<String, SubZoneData>();
-    private final Map<CreatureType, Reward> mobRewards = new EnumMap<CreatureType, Reward>(CreatureType.class);
+    private final Map<EntityType, Reward> mobRewards = new EnumMap<EntityType, Reward>(EntityType.class);
 
     private boolean loadZoneData(FileConfiguration config, String zoneName) {
 
@@ -139,7 +137,7 @@ public class ZoneLoader {
             String[] s = rewardToParse.split(":");
             String[] s2 = s[1].split("-");
 
-            mobRewards.put(CreatureType.fromName(s[0]), new Reward(Integer.parseInt(s2[0]), Integer.parseInt(s2[1]), Integer.parseInt(s2[2])));
+            mobRewards.put(EntityType.fromName(s[0]), new Reward(Integer.parseInt(s2[0]), Integer.parseInt(s2[1]), Integer.parseInt(s2[2])));
 
         }
 

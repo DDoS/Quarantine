@@ -2,7 +2,7 @@ package me.DDoS.Quarantine.zone.subzone;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.bukkit.entity.CreatureType;
+import org.bukkit.entity.EntityType;
 
 /**
  *
@@ -20,13 +20,13 @@ public class SubZoneData {
         
     }
     
-    public List<CreatureType> getMobTypes() {
+    public List<EntityType> getMobTypes() {
         
-        List<CreatureType> types = new ArrayList<CreatureType>();
+        List<EntityType> types = new ArrayList<EntityType>();
         
         for (String mobType : mobTypes) {
             
-            types.add(CreatureType.fromName(mobType));
+            types.add(EntityType.fromName(mobType));
             
         }
         
