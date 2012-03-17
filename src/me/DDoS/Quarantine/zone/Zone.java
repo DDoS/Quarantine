@@ -13,6 +13,7 @@ import me.DDoS.Quarantine.zone.reward.Reward;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.player.ZonePlayer;
 import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.player.CallablePlayer;
 import me.DDoS.Quarantine.player.LobbyPlayer;
 import me.DDoS.Quarantine.player.QPlayer;
 import org.bukkit.Chunk;
@@ -32,15 +33,19 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.event.entity.EntityCombustByBlockEvent;
+import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.LazyMetadataValue;
 
 /**
  *
@@ -406,23 +411,75 @@ public class Zone {
 
     public boolean passEntityCombustEvent(EntityCombustEvent event) {
 
-        if (event.getEntity() instanceof LivingEntity) {
+        if (event instanceof EntityCombustByBlockEvent) { 
 
-            LivingEntity ent = (LivingEntity) event.getEntity();
+            return true;
 
-            for (SubZone subZone : subZones) {
+        } else if (event instanceof EntityCombustByEntityEvent) {
 
-                if (subZone.containsMob(ent)) {
+            EntityCombustByEntityEvent ecbee = (EntityCombustByEntityEvent) event;
+            Entity combuster = ecbee.getCombuster();
 
-                    event.setCancelled(true);
+            if (combuster instanceof Projectile) {
+
+                LivingEntity shooter = ((Projectile) combuster).getShooter();
+
+                if (shooter instanceof Player) {
+
+                    Player player = (Player) shooter;
+
+                    if (players.containsKey(player.getName())) {
+
+                        event.getEntity().setMetadata("quarantine." + zoneName + ".fire_damager",
+                                new LazyMetadataValue(plugin, new CallablePlayer(player)));
+
+                        return true;
+
+                    }
+
+                    return false;
+
+                }
+
+            } else if (combuster instanceof Player) {
+
+                Player player = (Player) combuster;
+
+                if (players.containsKey(player.getName())) {
+
+                    event.getEntity().setMetadata("quarantine." + zoneName + ".fire_damager",
+                            new LazyMetadataValue(plugin, new CallablePlayer(player)));
+
                     return true;
 
                 }
+
+                return false;
+
             }
+
+            return true;
+
+        } else {
+
+            if (event.getEntity() instanceof LivingEntity) {
+
+                LivingEntity ent = (LivingEntity) event.getEntity();
+
+                for (SubZone subZone : subZones) {
+
+                    if (subZone.containsMob(ent)) {
+
+                        event.setCancelled(true);
+                        return true;
+
+                    }
+                }
+            }
+
+            return false;
+
         }
-
-        return false;
-
     }
 
     public boolean passChunkUnloadEvent(ChunkUnloadEvent event) {
@@ -866,23 +923,44 @@ public class Zone {
         }
     }
 
-    private Player getKiller(Entity ent) {
+    private Player getKiller(LivingEntity entity) {
 
-        Player player;
+        EntityDamageEvent ede = entity.getLastDamageCause();
+        DamageCause cause = ede.getCause();
 
-        EntityDamageEvent e1 = ent.getLastDamageCause();
-        EntityDamageByEntityEvent e2 = (e1 instanceof EntityDamageByEntityEvent) ? (EntityDamageByEntityEvent) e1 : null;
-        Entity damager = (e2 != null) ? e2.getDamager() : null;
-        player = (e2 != null && damager instanceof Player) ? (Player) damager : null;
+        if (cause == DamageCause.FIRE || cause == DamageCause.FIRE_TICK) {
 
-        if (player == null) {
+            if (!entity.hasMetadata("quarantine." + zoneName + ".fire_damager")) {
 
-            LivingEntity shooter = (e2 != null && damager instanceof Projectile) ? ((Projectile) damager).getShooter() : null;
-            player = (shooter != null && shooter instanceof Player) ? (Player) shooter : null;
+                return null;
 
+            }
+
+            Player player = (Player) entity.getMetadata("quarantine." + zoneName + ".fire_damager").get(0).value();
+            entity.removeMetadata("quarantine." + zoneName + ".fire_damager", plugin);
+            return player;
+
+        } else if (ede instanceof EntityDamageByEntityEvent) {
+
+            Entity damager = ((EntityDamageByEntityEvent) ede).getDamager();
+
+            if (damager instanceof Player) {
+
+                return (Player) damager;
+
+            } else if (damager instanceof Projectile) {
+
+                LivingEntity shooter = ((Projectile) damager).getShooter();
+
+                if (shooter instanceof Player) {
+
+                    return (Player) shooter;
+
+                }
+            }
         }
 
-        return player;
+        return null;
 
     }
 
