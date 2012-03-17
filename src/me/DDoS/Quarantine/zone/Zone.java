@@ -333,7 +333,7 @@ public class Zone {
 
                     if (reward != null) {
 
-                        qzPlayer.addMoney(reward.getRandomMoneyAmount());
+                        qzPlayer.giveMoneyForKill(reward.getRandomMoneyAmount());
                         qzPlayer.addScore(reward.getScoreReward());
 
                     }

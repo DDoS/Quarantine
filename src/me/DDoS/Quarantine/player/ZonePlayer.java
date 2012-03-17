@@ -13,7 +13,10 @@ import org.bukkit.inventory.ItemStack;
  * @author DDoS
  */
 public class ZonePlayer extends QPlayer {
-    
+
+    private byte moneyReceivedCount = 0;
+    private int moneyReceived = 0;
+
     public ZonePlayer(PlayerData player) {
 
         super(player);
@@ -61,11 +64,11 @@ public class ZonePlayer extends QPlayer {
     public void addScore(int scoreToAdd) {
 
         score += scoreToAdd;
-        
+
         if (zone.getLB() != null) {
-            
+
             zone.getLB().queueScoreUpdate(this);
-            
+
         }
     }
 
@@ -76,13 +79,23 @@ public class ZonePlayer extends QPlayer {
 
     }
 
-    public void addMoney(int amount) {
+    public void giveMoneyForKill(int amount) {
 
         money += amount;
-        QUtil.tell(player, "You received " + amount + " dollar(s).");
+        moneyReceived += amount;
+        moneyReceivedCount++;
 
+        if (moneyReceivedCount >= 5) {
+
+            QUtil.tell(player, "You received " + moneyReceived
+                    + " dollars from the last "
+                    + moneyReceivedCount + " mobs.");
+            moneyReceived = 0;
+            moneyReceivedCount = 0;
+
+        }
     }
-    
+
     public void buyItem(ItemStack item, int cost) {
 
         if (cost > money) {
@@ -109,49 +122,50 @@ public class ZonePlayer extends QPlayer {
         }
 
         QUtil.tell(player, "The item was removed from your inventory.");
-        addMoney(cost);
+        QUtil.tell(player, "You received " + cost + " dollar(s).");
+        money += cost;
         player.getInventory().removeItem(item);
         player.updateInventory();
 
     }
-    
+
     public void addEnchantment(int ID, int level, int cost) {
-        
+
         if (Enchantment.getById(ID) == null) {
-            
+
             QUtil.tell(player, "Invalid enchantment ID");
             return;
-            
+
         }
-        
+
         if (cost > money) {
 
             QUtil.tell(player, "You don't have enough money to buy this enchantment.");
             return;
 
         }
-        
+
         ItemStack item = player.getItemInHand();
         Enchantment enchantment = new EnchantmentWrapper(ID);
-        
+
         if (!enchantment.canEnchantItem(item)) {
-            
+
             QUtil.tell(player, "This enchantment can not be applied to this item.");
             return;
-            
+
         }
-        
+
         if (item.containsEnchantment(enchantment)) {
-            
+
             QUtil.tell(player, "This enchantment has already been applied.");
             return;
-            
+
         }
-        
+
         item.addEnchantment(enchantment, level);
         removeMoney(cost);
         QUtil.tell(player, "Enchantment added.");
-        
+
     }
 
     private void removeMoney(int amount) {
@@ -181,17 +195,17 @@ public class ZonePlayer extends QPlayer {
     public boolean commandLeave() {
 
         if (zone.getLB() != null) {
-            
+
             zone.getLB().queueScoreUpdate(this);
-            
+
         }
-        
+
         if (!save(true)) {
 
             QUtil.tell(player, ChatColor.RED + "Couldn't save your data.");
 
         }
-        
+
         if (!saveInventory()) {
 
             QUtil.tell(player, ChatColor.RED + "Couldn't save your inventory.");
@@ -206,24 +220,24 @@ public class ZonePlayer extends QPlayer {
         return true;
 
     }
-    
+
     @Override
     public void forceLeave() {
-        
+
         QUtil.tell(player, ChatColor.RED + "This zone is being unloaded.");
         commandLeave();
-        
+
     }
-    
+
     @Override
     public void quitLeave() {
 
         if (zone.getLB() != null) {
-            
+
             zone.getLB().queueScoreUpdate(this);
-            
+
         }
-        
+
         save(true);
         saveInventory();
         clearInventory();
@@ -232,44 +246,44 @@ public class ZonePlayer extends QPlayer {
         player.setFoodLevel(preGameFoodLevel);
 
     }
-    
+
     @Override
     public boolean teleportLeave(PlayerTeleportEvent event) {
-        
+
         if (event.getTo().equals(zone.getLobby())) {
-            
+
             return false;
-            
+
         }
-        
+
         if (zone.isInZone(event.getTo())) {
-            
+
             return false;
-            
+
         }
-        
+
         event.setCancelled(true);
         QUtil.tell(player, "Use '/qleave' to leave the zone.");
         return false;
-        
+
     }
-    
+
     @Override
     public void dieLeave(EntityDeathEvent event) {
-        
+
         score = 0;
-        
+
         if (zone.getLB() != null) {
-            
+
             zone.getLB().queueScoreUpdate(this);
-            
+
         }
-        
+
         deleteInventory();
         deletePlayerDataFile();
         event.getDrops().clear();
         zone.registerDeadPlayer(player.getName(), player.getTotalExperience());
         event.setDroppedExp(0);
-        
+
     }
 }
