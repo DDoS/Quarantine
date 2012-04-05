@@ -114,7 +114,7 @@ public class ZonePlayer extends QPlayer {
 
     public void sellItem(ItemStack item, int cost) {
 
-        if (!player.getInventory().contains(item.getType())) {
+        if (!player.getInventory().contains(item)) {
 
             QUtil.tell(player, "You don't have any items of this type to sell: " + item.getType().name().toLowerCase());
             return;

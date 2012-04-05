@@ -1,14 +1,26 @@
 package me.DDoS.Quarantine.listener;
 
 import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.zone.Zone;
+import org.bukkit.Material;
+import org.bukkit.block.Sign;
+import org.bukkit.entity.AnimalTamer;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityCombustByBlockEvent;
+import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityCombustEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerKickEvent;
@@ -87,9 +99,45 @@ public class QListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerInteract(PlayerInteractEvent event) {
 
+        if (!event.hasBlock()) {
+
+            return;
+
+        }
+
+        Player player = event.getPlayer();
+
+        if (!QUtil.checkForSign(event.getClickedBlock())) {
+
+            if (event.getAction() == Action.RIGHT_CLICK_BLOCK
+                    || event.getAction() == Action.LEFT_CLICK_BLOCK
+                    && event.getClickedBlock().getType() == Material.STONE_BUTTON) {
+
+                for (Zone zone : plugin.getZones()) {
+
+                    if (zone.passPlayerInteractButtonEvent(event, player)) {
+
+                        return;
+
+                    }
+                }
+            }
+
+            return;
+
+        }
+        
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+            
+            return;
+            
+        }
+
+        Sign sign = (Sign) event.getClickedBlock().getState();
+        
         for (Zone zone : plugin.getZones()) {
 
-            if (zone.passPlayerInteractEvent(event)) {
+            if (zone.passPlayerInteractSignEvent(event, player, sign)) {
 
                 return;
 
@@ -113,9 +161,9 @@ public class QListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onEntityDeath(EntityDeathEvent event) {
 
-        if (event.getEntity() instanceof LivingEntity) {
+        if (event.getEntity() instanceof Monster) {
 
-            LivingEntity ent = (LivingEntity) event.getEntity();
+            Monster ent = (Monster) event.getEntity();
 
             if (ent instanceof Player) {
 
@@ -144,15 +192,82 @@ public class QListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
-    public void onEntityCombust(EntityCombustEvent event) {
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void EntityCombustByBlockEvent(EntityCombustByBlockEvent event) {
 
         for (Zone zone : plugin.getZones()) {
 
-            if (zone.passEntityCombustEvent(event)) {
+            if (zone.passEntityCombustByBlockEvent(event.getEntity())) {
 
                 return;
 
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void EntityCombustByEntityEvent(EntityCombustByEntityEvent event) {
+
+        Entity combuster = event.getCombuster();
+        Player player = null;
+
+        if (combuster instanceof Projectile) {
+
+            LivingEntity shooter = ((Projectile) combuster).getShooter();
+
+            if (shooter instanceof Player) {
+
+                player = (Player) shooter;
+
+            }
+
+        } else if (combuster instanceof Player) {
+
+            player = (Player) combuster;
+
+        }
+
+        if (player == null) {
+
+            return;
+
+        }
+
+        Entity victim = event.getEntity();
+
+        for (Zone zone : plugin.getZones()) {
+
+            if (zone.passEntityCombustByPlayerEvent(player, victim)) {
+
+                return;
+
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onEntityCombust(EntityCombustEvent event) {
+
+        if (event instanceof EntityCombustByBlockEvent
+                || event instanceof EntityCombustByEntityEvent) {
+            
+            return;
+            
+        }
+        
+        Entity entity = event.getEntity();
+
+        if (entity instanceof Monster) {
+
+            Monster mob = (Monster) entity;
+
+            for (Zone zone : plugin.getZones()) {
+
+                if (zone.passEntityCombustEvent(event, mob)) {
+
+                    return;
+
+                }
             }
         }
     }

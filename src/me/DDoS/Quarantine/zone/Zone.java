@@ -18,23 +18,22 @@ import me.DDoS.Quarantine.player.LobbyPlayer;
 import me.DDoS.Quarantine.player.QPlayer;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
-import org.bukkit.event.block.Action;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
-import org.bukkit.event.entity.EntityCombustByBlockEvent;
-import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -298,7 +297,7 @@ public class Zone {
 
     }
 
-    public boolean passEntityDeathEvent(LivingEntity entity, EntityDeathEvent event) {
+    public boolean passEntityDeathEvent(Monster entity, EntityDeathEvent event) {
 
         for (SubZone subZone : subZones) {
 
@@ -409,77 +408,47 @@ public class Zone {
 
     }
 
-    public boolean passEntityCombustEvent(EntityCombustEvent event) {
+    public boolean passEntityCombustByBlockEvent(Entity entity) {
 
-        if (event instanceof EntityCombustByBlockEvent) { 
+        if (entity.hasMetadata("quarantine." + zoneName + ".fire_damager")) {
 
+            entity.removeMetadata("quarantine." + zoneName + ".fire_damager", plugin);
             return true;
-
-        } else if (event instanceof EntityCombustByEntityEvent) {
-
-            EntityCombustByEntityEvent ecbee = (EntityCombustByEntityEvent) event;
-            Entity combuster = ecbee.getCombuster();
-
-            if (combuster instanceof Projectile) {
-
-                LivingEntity shooter = ((Projectile) combuster).getShooter();
-
-                if (shooter instanceof Player) {
-
-                    Player player = (Player) shooter;
-
-                    if (players.containsKey(player.getName())) {
-
-                        event.getEntity().setMetadata("quarantine." + zoneName + ".fire_damager",
-                                new LazyMetadataValue(plugin, new CallablePlayer(player)));
-
-                        return true;
-
-                    }
-
-                    return false;
-
-                }
-
-            } else if (combuster instanceof Player) {
-
-                Player player = (Player) combuster;
-
-                if (players.containsKey(player.getName())) {
-
-                    event.getEntity().setMetadata("quarantine." + zoneName + ".fire_damager",
-                            new LazyMetadataValue(plugin, new CallablePlayer(player)));
-
-                    return true;
-
-                }
-
-                return false;
-
-            }
-
-            return true;
-
-        } else {
-
-            if (event.getEntity() instanceof LivingEntity) {
-
-                LivingEntity ent = (LivingEntity) event.getEntity();
-
-                for (SubZone subZone : subZones) {
-
-                    if (subZone.containsMob(ent)) {
-
-                        event.setCancelled(true);
-                        return true;
-
-                    }
-                }
-            }
-
-            return false;
 
         }
+
+        return false;
+
+    }
+
+    public boolean passEntityCombustByPlayerEvent(Player player, Entity victim) {
+
+        if (players.containsKey(player.getName())) {
+
+            victim.setMetadata("quarantine." + zoneName + ".fire_damager",
+                    new LazyMetadataValue(plugin, new CallablePlayer(player)));
+            return true;
+
+        }
+
+        return false;
+
+    }
+
+    public boolean passEntityCombustEvent(EntityCombustEvent event, Monster mob) {
+
+        for (SubZone subZone : subZones) {
+
+            if (subZone.containsMob(mob)) {
+
+                event.setCancelled(true);
+                return true;
+
+            }
+        }
+
+        return false;
+
     }
 
     public boolean passChunkUnloadEvent(ChunkUnloadEvent event) {
@@ -500,21 +469,15 @@ public class Zone {
 
     }
 
-    public boolean passPlayerInteractEvent(PlayerInteractEvent event) {
+    public boolean passPlayerInteractButtonEvent(PlayerInteractEvent event, Player player) {
 
-        if (!players.containsKey(event.getPlayer().getName())) {
+        if (!players.containsKey(player.getName())) {
 
             return false;
 
         }
 
-        if (!event.hasBlock()) {
-
-            return true;
-
-        }
-
-        QPlayer qPlayer = players.get(event.getPlayer().getName());
+        QPlayer qPlayer = players.get(player.getName());
 
         if (!qPlayer.isZonePlayer()) {
 
@@ -524,39 +487,37 @@ public class Zone {
 
         ZonePlayer qzPlayer = (ZonePlayer) qPlayer;
 
-        if (!checkForSign(event.getClickedBlock())) {
+        if (!handleLock(qzPlayer, event.getClickedBlock())) {
 
-            if (event.getAction() == Action.RIGHT_CLICK_BLOCK
-                    || event.getAction() == Action.LEFT_CLICK_BLOCK) {
+            event.setCancelled(true);
 
-                if (event.getClickedBlock().getType() != Material.STONE_BUTTON) {
+        }
 
-                    return true;
+        return true;
 
-                }
+    }
 
-                if (!handleLock(qzPlayer, event.getClickedBlock())) {
+    public boolean passPlayerInteractSignEvent(PlayerInteractEvent event, Player player, Sign sign) {
 
-                    event.setCancelled(true);
+        if (!players.containsKey(player.getName())) {
 
-                }
-            }
+            return false;
+
+        }
+
+        QPlayer qPlayer = players.get(player.getName());
+
+        if (!qPlayer.isZonePlayer()) {
 
             return true;
 
         }
 
-        Sign sign = (Sign) event.getClickedBlock().getState();
-
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
-
-            return true;
-
-        }
+        ZonePlayer qzPlayer = (ZonePlayer) qPlayer;
 
         if (sign.getLine(0).equalsIgnoreCase("[Quarantine]")) {
 
-            handleZoneSign(qzPlayer, sign);
+            event.setCancelled(handleZoneSign(qzPlayer, sign));
 
         }
 
@@ -588,7 +549,7 @@ public class Zone {
 
     }
 
-    private void handleZoneSign(ZonePlayer player, Sign sign) {
+    private boolean handleZoneSign(ZonePlayer player, Sign sign) {
 
         String line1 = sign.getLine(1);
 
@@ -608,17 +569,13 @@ public class Zone {
 
             }
 
-            return;
-
-        }
-
-        if (line1.equalsIgnoreCase("Buy Random Item")) {
+        } else if (line1.equalsIgnoreCase("Buy Random Item")) {
 
             Sign sign2 = getSignNextTo(sign.getBlock());
 
             if (sign2 == null) {
 
-                return;
+                return true;
 
             }
 
@@ -627,11 +584,7 @@ public class Zone {
 
             player.buyItem(items.get(new Random().nextInt(items.size())), Integer.parseInt(splits[1]));
 
-            return;
-
-        }
-
-        if (line1.equalsIgnoreCase("Sell Item")) {
+        } else if (line1.equalsIgnoreCase("Sell Item")) {
 
             String[] sa = sign.getLine(2).split("-");
             ItemStack item = QUtil.toItemStack(sa[0], Integer.parseInt(sa[1]));
@@ -642,23 +595,24 @@ public class Zone {
 
             }
 
-            return;
-
-        }
-
-        if (line1.equalsIgnoreCase("Buy Key")) {
+        } else if (line1.equalsIgnoreCase("Buy Key")) {
 
             player.addKey(sign.getLine(2), Integer.parseInt(sign.getLine(3)));
-            return;
+            return true;
 
-        }
-
-        if (line1.equalsIgnoreCase("Enchantment")) {
+        } else if (line1.equalsIgnoreCase("Enchantment")) {
 
             String[] sa = sign.getLine(2).split("-");
             player.addEnchantment(Integer.parseInt(sa[0]), Integer.parseInt(sa[1]), Integer.parseInt(sa[2]));
 
+        } else {
+            
+            return false;
+            
         }
+
+        return true;
+
     }
 
     private QPlayer getPlayer(Player player) {
@@ -867,37 +821,37 @@ public class Zone {
 
     private Sign getSignNextTo(Block block) {
 
-        if (checkForSign(block.getRelative(BlockFace.UP))) {
+        if (QUtil.checkForSign(block.getRelative(BlockFace.UP))) {
 
             return (Sign) block.getRelative(BlockFace.UP).getState();
 
         }
 
-        if (checkForSign(block.getRelative(BlockFace.DOWN))) {
+        if (QUtil.checkForSign(block.getRelative(BlockFace.DOWN))) {
 
             return (Sign) block.getRelative(BlockFace.DOWN).getState();
 
         }
 
-        if (checkForSign(block.getRelative(BlockFace.EAST))) {
+        if (QUtil.checkForSign(block.getRelative(BlockFace.EAST))) {
 
             return (Sign) block.getRelative(BlockFace.EAST).getState();
 
         }
 
-        if (checkForSign(block.getRelative(BlockFace.WEST))) {
+        if (QUtil.checkForSign(block.getRelative(BlockFace.WEST))) {
 
             return (Sign) block.getRelative(BlockFace.WEST).getState();
 
         }
 
-        if (checkForSign(block.getRelative(BlockFace.NORTH))) {
+        if (QUtil.checkForSign(block.getRelative(BlockFace.NORTH))) {
 
             return (Sign) block.getRelative(BlockFace.NORTH).getState();
 
         }
 
-        if (checkForSign(block.getRelative(BlockFace.SOUTH))) {
+        if (QUtil.checkForSign(block.getRelative(BlockFace.SOUTH))) {
 
             return (Sign) block.getRelative(BlockFace.SOUTH).getState();
 
@@ -905,22 +859,6 @@ public class Zone {
 
         return null;
 
-    }
-
-    private boolean checkForSign(Block block) {
-
-        switch (block.getType()) {
-
-            case WALL_SIGN:
-                return true;
-
-            case SIGN_POST:
-                return true;
-
-            default:
-                return false;
-
-        }
     }
 
     private Player getKiller(LivingEntity entity) {
@@ -955,6 +893,16 @@ public class Zone {
                 if (shooter instanceof Player) {
 
                     return (Player) shooter;
+
+                }
+
+            } else if (damager instanceof Tameable) {
+
+                AnimalTamer owner = ((Tameable) damager).getOwner();
+
+                if (owner != null && owner instanceof Player) {
+
+                    return (Player) owner;
 
                 }
             }
