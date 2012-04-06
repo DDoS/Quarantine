@@ -69,13 +69,6 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
         if (cmd.getName().equalsIgnoreCase("qenter")) {
 
-            if (plugin.hasZones()) {
-
-                QUtil.tell(player, "No zones loaded.");
-                return true;
-
-            }
-
             for (Zone zone : plugin.getZones()) {
 
                 if (zone.enterPlayer(player)) {
@@ -93,13 +86,6 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
         if (cmd.getName().equalsIgnoreCase("qleave")) {
 
-            if (plugin.hasZones()) {
-
-                QUtil.tell(player, "No zones loaded.");
-                return true;
-
-            }
-
             for (Zone zone : plugin.getZones()) {
 
                 if (zone.leavePlayer(player)) {
@@ -115,13 +101,6 @@ public class PlayerCommandExecutor implements CommandExecutor {
         }
 
         if (cmd.getName().equalsIgnoreCase("qmoney")) {
-
-            if (plugin.hasZones()) {
-
-                QUtil.tell(player, "No zones loaded.");
-                return true;
-
-            }
 
             for (Zone zone : plugin.getZones()) {
 
@@ -139,13 +118,6 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
         if (cmd.getName().equalsIgnoreCase("qkeys")) {
 
-            if (plugin.hasZones()) {
-
-                QUtil.tell(player, "No zones loaded.");
-                return true;
-
-            }
-
             for (Zone zone : plugin.getZones()) {
 
                 if (zone.tellKeys(player)) {
@@ -162,13 +134,6 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
         if (cmd.getName().equalsIgnoreCase("qrank")) {
 
-            if (plugin.hasZones()) {
-
-                QUtil.tell(player, "No zones loaded.");
-                return true;
-
-            }
-
             for (Zone zone : plugin.getZones()) {
 
                 if (zone.tellRank(player)) {
@@ -184,13 +149,6 @@ public class PlayerCommandExecutor implements CommandExecutor {
         }
 
         if (cmd.getName().equalsIgnoreCase("qtop")) {
-
-            if (plugin.hasZones()) {
-
-                QUtil.tell(player, "No zones loaded.");
-                return true;
-
-            }
 
             int page;
 
@@ -232,13 +190,6 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
         if (cmd.getName().equalsIgnoreCase("qscore")) {
 
-            if (plugin.hasZones()) {
-
-                QUtil.tell(player, "No zones loaded.");
-                return true;
-
-            }
-
             for (Zone zone : plugin.getZones()) {
 
                 if (zone.tellScore(player)) {
@@ -278,13 +229,6 @@ public class PlayerCommandExecutor implements CommandExecutor {
         }
         
         if (cmd.getName().equalsIgnoreCase("qkit")) {
-
-            if (plugin.hasZones()) {
-
-                QUtil.tell(player, "No zones loaded.");
-                return true;
-
-            }
             
             if (args.length < 1) {
                 
@@ -296,6 +240,22 @@ public class PlayerCommandExecutor implements CommandExecutor {
             for (Zone zone : plugin.getZones()) {
 
                 if (zone.giveKit(player, args[0])) {
+
+                    return true;
+
+                }
+            }
+
+            QUtil.tell(player, "You haven't entered any zone yet.");
+            return true;
+
+        }
+        
+        if (cmd.getName().equalsIgnoreCase("qkits")) {
+
+            for (Zone zone : plugin.getZones()) {
+
+                if (zone.tellKits(player)) {
 
                     return true;
 

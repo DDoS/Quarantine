@@ -73,6 +73,7 @@ public class Quarantine extends JavaPlugin {
         getCommand("qzones").setExecutor(pce);
         getCommand("qplayers").setExecutor(pce);
         getCommand("qkit").setExecutor(pce);
+        getCommand("qkits").setExecutor(pce);
 
         getCommand("qsetlobby").setExecutor(sce);
         getCommand("qsetentrance").setExecutor(sce);
@@ -121,12 +122,6 @@ public class Quarantine extends JavaPlugin {
     public boolean hasZone(String zoneName) {
 
         return zones.containsKey(zoneName);
-
-    }
-
-    public boolean hasZones() {
-
-        return zones.isEmpty();
 
     }
 

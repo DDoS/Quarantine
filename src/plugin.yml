@@ -71,6 +71,10 @@ commands:
       description: Gives to a player the requested kit.
       usage:
           /qkit (kit name)
+  qkits:
+      description: Tell all of the available kits to a player.
+      usage:
+          /qkits
           
 permissions:
   quarantine.play: 

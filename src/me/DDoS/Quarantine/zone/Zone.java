@@ -258,6 +258,38 @@ public class Zone {
         return true;
 
     }
+    
+    public boolean tellKits(Player player) {
+         
+        if (!players.containsKey(player.getName())) {
+
+            return false;
+
+        }
+        
+        String kitList = "";
+        QUtil.tell(player, "Kits:");
+
+        for (String kitName : kits.keySet()) {
+
+            kitList = kitList + kitName + ", ";
+
+        }
+
+        try {
+
+            kitList = kitList.substring(0, kitList.length() - 2);
+
+        } catch (StringIndexOutOfBoundsException sioobe) {
+
+            return true;
+
+        }
+
+        QUtil.tell(player, kitList);
+        return true;
+        
+    }
 
     public boolean giveKit(Player player, String kitName) {
 
