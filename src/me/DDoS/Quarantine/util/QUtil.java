@@ -16,10 +16,10 @@ public class QUtil {
 
     public static void tell(Player player, String msg) {
 
-        player.sendMessage(ChatColor.DARK_RED + "[Quarantine] " + ChatColor.GRAY + msg);
+        player.sendMessage(ChatColor.DARK_RED + "[Quarantine] " + msg);
 
     }
-    
+
     public static boolean checkForSign(Block block) {
 
         switch (block.getType()) {
