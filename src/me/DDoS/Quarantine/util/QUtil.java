@@ -16,7 +16,7 @@ public class QUtil {
 
     public static void tell(Player player, String msg) {
 
-        player.sendMessage(ChatColor.DARK_RED + "[Quarantine] " + msg);
+        player.sendMessage(ChatColor.DARK_RED + "[Quarantine] " + ChatColor.WHITE + msg);
 
     }
 
