@@ -1,5 +1,6 @@
 package me.DDoS.Quarantine.player;
 
+import me.DDoS.Quarantine.player.inventory.Kit;
 import me.DDoS.Quarantine.util.QUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
@@ -200,7 +201,7 @@ public class ZonePlayer extends QPlayer {
 
         }
 
-        if (!save(true)) {
+        if (!saveData(true)) {
 
             QUtil.tell(player, ChatColor.RED + "Couldn't save your data.");
 
@@ -238,7 +239,7 @@ public class ZonePlayer extends QPlayer {
 
         }
 
-        save(true);
+        saveData(true);
         saveInventory();
         clearInventory();
         player.teleport(zone.getLobby());
@@ -285,5 +286,20 @@ public class ZonePlayer extends QPlayer {
         zone.registerDeadPlayer(player.getName(), player.getTotalExperience());
         event.setDroppedExp(0);
 
+    }
+    
+    public void buyKit(Kit kit, int cost) {  
+        
+        if (cost > money) {
+
+            QUtil.tell(player, "You don't have enough money to buy this kit.");
+            return;
+
+        }
+        
+        kit.giveKit(player);
+        removeMoney(cost);
+        QUtil.tell(player, "Kit added.");
+        
     }
 }

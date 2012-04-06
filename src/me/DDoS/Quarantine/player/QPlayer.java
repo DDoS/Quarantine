@@ -1,5 +1,6 @@
 package me.DDoS.Quarantine.player;
 
+import me.DDoS.Quarantine.player.inventory.Kit;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.zone.Zone;
 import org.bukkit.entity.Player;
@@ -39,7 +40,7 @@ public abstract class QPlayer extends PlayerData {
     public abstract boolean teleportLeave(PlayerTeleportEvent event);
 
     public abstract void dieLeave(EntityDeathEvent event);
-
+    
     public void tellKeys() {
 
         QUtil.tell(player, "Your keys: " + keysToString());

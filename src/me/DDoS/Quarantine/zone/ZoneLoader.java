@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.player.inventory.Kit;
 import me.DDoS.Quarantine.util.QUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -38,7 +39,7 @@ public class ZoneLoader {
     private boolean softRespawn;
     private Location lobby;
     private Location entrance;
-    private final List<ItemStack> kit = new ArrayList<ItemStack>();
+    private Map<String, Kit> kits;
     private final Map<String, SubZoneData> subZoneData = new HashMap<String, SubZoneData>();
     private final Map<EntityType, Reward> mobRewards = new EnumMap<EntityType, Reward>(EntityType.class);
 
@@ -120,17 +121,7 @@ public class ZoneLoader {
         oneTimeKeys = configSec1.getBoolean("one_time_use_keys");
         softRespawn = configSec1.getBoolean("soft_mob_respawn");
 
-        for (String kitItem : configSec1.getStringList("starting_kit")) {
-
-            String[] s = kitItem.split("-");
-            ItemStack item = QUtil.toItemStack(s[0], Integer.parseInt(s[1]));
-
-            if (item != null) {
-
-                kit.add(item);
-
-            }
-        }
+        kits = Kit.parseKits(configSec1.getConfigurationSection("kits"));
 
         for (String rewardToParse : configSec1.getStringList("money_rewards")) {
 
@@ -207,7 +198,7 @@ public class ZoneLoader {
         MainRegion region = new MainRegion(world, pRegion.getMinimumPoint(), pRegion.getMaximumPoint());
 
         return new Zone(plugin, region, zoneName, lobby, entrance, defaultMoney, maxNumOfPlayers, clearDrops, oneTimeKeys,
-                subZones, kit, mobRewards, world, interval);
+                subZones, kits, mobRewards, world, interval);
 
     }
 }

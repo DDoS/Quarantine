@@ -276,6 +276,36 @@ public class PlayerCommandExecutor implements CommandExecutor {
             return true;
 
         }
+        
+        if (cmd.getName().equalsIgnoreCase("qkit")) {
+
+            if (plugin.hasZones()) {
+
+                QUtil.tell(player, "No zones loaded.");
+                return true;
+
+            }
+            
+            if (args.length < 1) {
+                
+                QUtil.tell(player, "You need to provide the name of the kit.");
+                return true;
+                
+            }
+
+            for (Zone zone : plugin.getZones()) {
+
+                if (zone.giveKit(player, args[0])) {
+
+                    return true;
+
+                }
+            }
+
+            QUtil.tell(player, "You haven't entered any zone yet.");
+            return true;
+
+        }
 
         return false;
 

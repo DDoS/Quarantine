@@ -56,12 +56,12 @@ public class Quarantine extends JavaPlugin {
         CommandExecutor ace = new AdminCommandExecutor(this);
         CommandExecutor pce = new PlayerCommandExecutor(this);
         CommandExecutor sce = new SetupCommandExecutor(this);
-        
+
         getCommand("qload").setExecutor(ace);
         getCommand("qunload").setExecutor(ace);
         getCommand("qrespawnmobs").setExecutor(ace);
         getCommand("qconvertinv").setExecutor(ace);
-        
+
         getCommand("qjoin").setExecutor(pce);
         getCommand("qenter").setExecutor(pce);
         getCommand("qleave").setExecutor(pce);
@@ -72,13 +72,14 @@ public class Quarantine extends JavaPlugin {
         getCommand("qtop").setExecutor(pce);
         getCommand("qzones").setExecutor(pce);
         getCommand("qplayers").setExecutor(pce);
-        
+        getCommand("qkit").setExecutor(pce);
+
         getCommand("qsetlobby").setExecutor(sce);
         getCommand("qsetentrance").setExecutor(sce);
 
         config = getConfig();
 
-        setupLeadboards();
+        setupLeaderboards();
 
         checkForWorldGuard();
 
@@ -282,7 +283,7 @@ public class Quarantine extends JavaPlugin {
         }
     }
 
-    private void setupLeadboards() {
+    private void setupLeaderboards() {
 
         if (!config.getBoolean("Leaderboards.enabled")) {
 

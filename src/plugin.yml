@@ -66,7 +66,11 @@ commands:
   qplayers:
       description: Shows the list of player in a zone.
       usage:
-          /qplayers 
+          /qplayers
+  qkit:
+      description: Gives to a player the requested kit.
+      usage:
+          /qkit (kit name)
           
 permissions:
   quarantine.play: 

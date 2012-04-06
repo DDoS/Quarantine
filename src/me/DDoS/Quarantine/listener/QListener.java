@@ -19,6 +19,7 @@ import org.bukkit.event.entity.EntityCombustByBlockEvent;
 import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -123,15 +124,15 @@ public class QListener implements Listener {
             return;
 
         }
-        
+
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
-            
+
             return;
-            
+
         }
 
         Sign sign = (Sign) event.getClickedBlock().getState();
-        
+
         for (Zone zone : plugin.getZones()) {
 
             if (zone.passPlayerInteractSignEvent(event, player, sign)) {
@@ -156,41 +157,42 @@ public class QListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerDeath(PlayerDeathEvent event) {
+
+        Player player = event.getEntity();
+
+        for (Zone zone : plugin.getZones()) {
+
+            if (zone.passPlayerDeathEvent(player, event)) {
+
+                return;
+
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onEntityDeath(EntityDeathEvent event) {
 
-        if (event.getEntity() instanceof Monster) {
+        Entity entity = event.getEntity();
 
-            Monster ent = (Monster) event.getEntity();
+        if (entity instanceof Monster) {
 
-            if (ent instanceof Player) {
+            Monster ent = (Monster) entity;
 
-                Player player = (Player) ent;
+            for (Zone zone : plugin.getZones()) {
 
-                for (Zone zone : plugin.getZones()) {
+                if (zone.passEntityDeathEvent(ent, event)) {
 
-                    if (zone.passPlayerDeathEvent(player, event)) {
+                    return;
 
-                        return;
-
-                    }
-                }
-
-            } else {
-
-                for (Zone zone : plugin.getZones()) {
-
-                    if (zone.passEntityDeathEvent(ent, event)) {
-
-                        return;
-
-                    }
                 }
             }
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void EntityCombustByBlockEvent(EntityCombustByBlockEvent event) {
+    public void onEntityCombustByBlock(EntityCombustByBlockEvent event) {
 
         for (Zone zone : plugin.getZones()) {
 
@@ -203,7 +205,7 @@ public class QListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void EntityCombustByEntityEvent(EntityCombustByEntityEvent event) {
+    public void onEntityCombustByEntity(EntityCombustByEntityEvent event) {
 
         Entity combuster = event.getCombuster();
         Player player = null;
@@ -247,11 +249,11 @@ public class QListener implements Listener {
 
         if (event instanceof EntityCombustByBlockEvent
                 || event instanceof EntityCombustByEntityEvent) {
-            
+
             return;
-            
+
         }
-        
+
         Entity entity = event.getEntity();
 
         if (entity instanceof Monster) {

@@ -126,7 +126,7 @@ public class PlayerData {
 
     }
 
-    public boolean load() {
+    public boolean loadData() {
 
         YamlConfiguration config = new YamlConfiguration();
 
@@ -210,7 +210,7 @@ public class PlayerData {
         return true;
     }
 
-    public boolean save(boolean lastLoc) {
+    public boolean saveData(boolean lastLoc) {
 
         YamlConfiguration config = new YamlConfiguration();
 
@@ -286,11 +286,18 @@ public class PlayerData {
     }
 
     public void deletePlayerDataFile() {
+        
+        new File("plugins/Quarantine/"
+                + zone.getName() + "/PlayerData/"
+                + player.getName() + ".yml").delete();
 
-        File mainDir = new File("plugins/Quarantine/" + zone.getName() + "/PlayerData");
-        File dir = new File(mainDir.getPath() + "/" + player.getName() + ".yml");
+    }
 
-        dir.delete();
+    protected boolean hasInventory() {
+
+        return new File("plugins/Quarantine/"
+                + zone.getName() + "/PlayerInventories/"
+                + player.getName() + ".inv").exists();
 
     }
 
@@ -307,20 +314,6 @@ public class PlayerData {
         File invFile = new File(mainDir.getPath() + "/" + player.getName() + ".inv");
 
         try {
-
-            if (!invFile.exists()) {
-
-                PlayerInventory inv = player.getInventory();
-
-                for (ItemStack item : zone.getKit()) {
-
-                    inv.addItem(item);
-
-                }
-
-                return true;
-
-            }
 
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(invFile));
             InventoryItem[] fromFile = (InventoryItem[]) ois.readObject();
@@ -354,11 +347,11 @@ public class PlayerData {
             }
 
         } catch (ClassCastException cce) {
-            
+
             QUtil.tell(player, ChatColor.RED + "Your inventory needs to be converted. "
                     + "Ask your admin to do it.");
             return false;
-            
+
         } catch (Exception ex) {
 
             logError(DataError.INV_LOAD, ex);

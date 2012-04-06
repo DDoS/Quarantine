@@ -1,21 +1,12 @@
 package me.DDoS.Quarantine.zone;
 
-import me.DDoS.Quarantine.zone.subzone.SubZone;
-import me.DDoS.Quarantine.zone.region.MainRegion;
-import me.DDoS.Quarantine.leaderboard.Leaderboard;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import me.DDoS.Quarantine.zone.reward.Reward;
-import me.DDoS.Quarantine.util.QUtil;
-import me.DDoS.Quarantine.player.ZonePlayer;
-import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.player.CallablePlayer;
-import me.DDoS.Quarantine.player.LobbyPlayer;
-import me.DDoS.Quarantine.player.QPlayer;
+
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -46,6 +37,18 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.LazyMetadataValue;
 
+import me.DDoS.Quarantine.zone.reward.Reward;
+import me.DDoS.Quarantine.util.QUtil;
+import me.DDoS.Quarantine.player.ZonePlayer;
+import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.player.CallablePlayer;
+import me.DDoS.Quarantine.player.LobbyPlayer;
+import me.DDoS.Quarantine.player.QPlayer;
+import me.DDoS.Quarantine.zone.subzone.SubZone;
+import me.DDoS.Quarantine.zone.region.MainRegion;
+import me.DDoS.Quarantine.leaderboard.Leaderboard;
+import me.DDoS.Quarantine.player.inventory.Kit;
+
 /**
  *
  * @author DDoS
@@ -63,7 +66,7 @@ public class Zone {
     private int mobCheckTaskID = -1;
     private final boolean clearDrops;
     private final boolean oneTimeKeys;
-    private final List<ItemStack> kit;
+    private final Map<String, Kit> kits;
     private final List<SubZone> subZones;
     private final Map<EntityType, Reward> mobRewards;
     private final Leaderboard leaderboard;
@@ -73,7 +76,7 @@ public class Zone {
 
     public Zone(Quarantine plugin, MainRegion region, String zoneName, Location lobby, Location entrance,
             int defaultMoney, int maxNumOfPlayers, boolean clearDrops, boolean oneTimeKeys,
-            List<SubZone> subZones, List<ItemStack> kit, Map<EntityType, Reward> mobRewards, World world, long interval) {
+            List<SubZone> subZones, Map<String, Kit> kits, Map<EntityType, Reward> mobRewards, World world, long interval) {
 
         this.plugin = plugin;
         this.region = region;
@@ -85,7 +88,7 @@ public class Zone {
         this.maxNumOfPlayers = maxNumOfPlayers;
         this.clearDrops = clearDrops;
         this.oneTimeKeys = oneTimeKeys;
-        this.kit = kit;
+        this.kits = kits;
         this.subZones = subZones;
         this.mobRewards = mobRewards;
 
@@ -167,9 +170,9 @@ public class Zone {
 
     }
 
-    public List<ItemStack> getKit() {
+    public Kit getKit(String name) {
 
-        return kit;
+        return kits.get(name);
 
     }
 
@@ -252,6 +255,44 @@ public class Zone {
         }
 
         players.get(player.getName()).tellTopFive(page);
+        return true;
+
+    }
+
+    public boolean giveKit(Player player, String kitName) {
+
+        if (!players.containsKey(player.getName())) {
+
+            return false;
+
+        }
+
+        if (!kits.containsKey(kitName)) {
+
+            QUtil.tell(player, "Could not find the requested kit.");
+            return true;
+
+        }
+
+        if (!plugin.getPermissions().hasPermission(player, "quarantine.kit." + zoneName + "-" + kitName)) {
+
+            QUtil.tell(player, "You don't have permission for this kit.");
+
+        } else {
+
+            QPlayer qPlayer = players.get(player.getName());
+
+            if (qPlayer instanceof LobbyPlayer) {
+
+                ((LobbyPlayer) qPlayer).giveKit(kits.get(kitName));
+                return true;
+
+            }
+
+            QUtil.tell(player, "You can only request kits from the lobby, if you don't have any saved inventory.");
+
+        }
+
         return true;
 
     }
@@ -551,9 +592,9 @@ public class Zone {
 
     private boolean handleZoneSign(ZonePlayer player, Sign sign) {
 
-        String line1 = sign.getLine(1);
+        String line = sign.getLine(1);
 
-        if (line1.equalsIgnoreCase("Buy Item")) {
+        if (line.equalsIgnoreCase("Buy Item")) {
 
             String[] sa = sign.getLine(2).split("-");
 
@@ -565,11 +606,11 @@ public class Zone {
 
             } else {
 
-                QUtil.tell(player.getPlayer(), "Invalid sign or ID");
+                QUtil.tell(player.getPlayer(), "Invalid sign or ID.");
 
             }
 
-        } else if (line1.equalsIgnoreCase("Buy Random Item")) {
+        } else if (line.equalsIgnoreCase("Buy Random Item")) {
 
             Sign sign2 = getSignNextTo(sign.getBlock());
 
@@ -584,7 +625,7 @@ public class Zone {
 
             player.buyItem(items.get(new Random().nextInt(items.size())), Integer.parseInt(splits[1]));
 
-        } else if (line1.equalsIgnoreCase("Sell Item")) {
+        } else if (line.equalsIgnoreCase("Sell Item")) {
 
             String[] sa = sign.getLine(2).split("-");
             ItemStack item = QUtil.toItemStack(sa[0], Integer.parseInt(sa[1]));
@@ -595,20 +636,36 @@ public class Zone {
 
             }
 
-        } else if (line1.equalsIgnoreCase("Buy Key")) {
+        } else if (line.equalsIgnoreCase("Buy Key")) {
 
             player.addKey(sign.getLine(2), Integer.parseInt(sign.getLine(3)));
             return true;
 
-        } else if (line1.equalsIgnoreCase("Enchantment")) {
+        } else if (line.equalsIgnoreCase("Enchantment")) {
 
             String[] sa = sign.getLine(2).split("-");
             player.addEnchantment(Integer.parseInt(sa[0]), Integer.parseInt(sa[1]), Integer.parseInt(sa[2]));
 
+        } else if (line.equalsIgnoreCase("Buy Kit")) {
+
+            String kitName = sign.getLine(2);
+
+            if (!kits.containsKey(kitName)) {
+
+                QUtil.tell(player.getPlayer(), "Invalid kit name.");
+
+            } else {
+
+                player.buyKit(kits.get(kitName), Integer.parseInt(sign.getLine(3)));
+
+            }
+
+            return true;
+
         } else {
-            
+
             return false;
-            
+
         }
 
         return true;
@@ -656,15 +713,14 @@ public class Zone {
 
         QPlayer qPlayer = players.get(player.getName());
 
-        qPlayer.enter();
+        if (!qPlayer.enter()) {
 
-        if (!qPlayer.isZonePlayer()) {
-
-            ZonePlayer qzPlayer = new ZonePlayer(qPlayer);
-            players.put(player.getName(), qzPlayer);
+            return true;
 
         }
 
+        ZonePlayer qzPlayer = new ZonePlayer(qPlayer);
+        players.put(player.getName(), qzPlayer);
         return true;
 
     }
