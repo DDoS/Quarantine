@@ -1,7 +1,7 @@
 package me.DDoS.Quarantine.zone.subzone;
 
 import me.DDoS.Quarantine.zone.location.SpawnLocation;
-import me.DDoS.Quarantine.zone.region.SubRegion;
+import me.DDoS.Quarantine.zone.region.SpawnRegion;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -15,7 +15,7 @@ import org.bukkit.entity.LivingEntity;
  */
 public class SubZone {
 
-    private final SubRegion region;
+    private final SpawnRegion region;
     private final int numOfMobs;
     private final List<EntityType> creatureTypes;
     private final boolean softRespawn;
@@ -23,7 +23,7 @@ public class SubZone {
     private final List<LivingEntity> entities = new ArrayList<LivingEntity>();
     private final List<SpawnLocation> spawnLocs = new ArrayList<SpawnLocation>();
 
-    public SubZone(SubRegion region, int numOfMobs, boolean softRespawn, List<EntityType> creatureTypes) {
+    public SubZone(SpawnRegion region, int numOfMobs, boolean softRespawn, List<EntityType> creatureTypes) {
 
         this.softRespawn = softRespawn;
         this.region = region;

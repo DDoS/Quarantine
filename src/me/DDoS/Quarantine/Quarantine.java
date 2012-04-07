@@ -1,11 +1,13 @@
 package me.DDoS.Quarantine;
 
+import com.bekvon.bukkit.residence.Residence;
 import me.DDoS.Quarantine.command.AdminCommandExecutor;
 import me.DDoS.Quarantine.leaderboard.Leaderboard;
 import me.DDoS.Quarantine.zone.ZoneLoader;
 import me.DDoS.Quarantine.listener.*;
 import me.DDoS.Quarantine.zone.Zone;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import couk.Adamki11s.Regios.Main.Regios;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,6 +22,10 @@ import me.DDoS.Quarantine.command.SetupCommandExecutor;
 import me.DDoS.Quarantine.gui.*;
 import me.DDoS.Quarantine.permission.Permissions;
 import me.DDoS.Quarantine.permission.PermissionsHandler;
+import me.DDoS.Quarantine.zone.region.provider.RegionProvider;
+import me.DDoS.Quarantine.zone.region.provider.RegiosRegionProvider;
+import me.DDoS.Quarantine.zone.region.provider.ResidenceRegionProvider;
+import me.DDoS.Quarantine.zone.region.provider.WorldGuardRegionProvider;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -34,8 +40,6 @@ public class Quarantine extends JavaPlugin {
 
     public static final Logger log = Logger.getLogger("Minecraft");
     //
-    private boolean WGOn = false;
-    //
     private final Map<String, Zone> zones = new HashMap<String, Zone>();
     //
     private FileConfiguration config;
@@ -43,6 +47,8 @@ public class Quarantine extends JavaPlugin {
     private Permissions permissions;
     //
     private GUIHandler guiHandler;
+    //
+    private RegionProvider regionProvider;
 
     public Quarantine() {
 
@@ -80,19 +86,10 @@ public class Quarantine extends JavaPlugin {
 
         config = getConfig();
 
+        findRegionProvider();
+        
         setupLeaderboards();
-
-        checkForWorldGuard();
-
-        if (checkForSpout()) {
-
-            guiHandler = new SpoutEnabledGUIHandler(this);
-
-        } else {
-
-            guiHandler = new TextGUIHandler(this);
-
-        }
+        setupGUIHandler();
 
         permissions = new PermissionsHandler(this).getPermissions();
 
@@ -143,10 +140,16 @@ public class Quarantine extends JavaPlugin {
 
     }
 
-    public boolean isWGOn() {
+    public boolean hasRegionProvider() {
 
-        return WGOn;
+        return regionProvider != null;
 
+    }
+
+    public RegionProvider getRegionProvider() {
+        
+        return regionProvider;
+    
     }
 
     public Permissions getPermissions() {
@@ -167,24 +170,63 @@ public class Quarantine extends JavaPlugin {
 
     }
 
-    private void checkForWorldGuard() {
+    private void findRegionProvider() {
 
-        Plugin plugin = getServer().getPluginManager().getPlugin("WorldGuard");
+        String providerName = config.getString("RegionProviderPlugin");
 
-        if (plugin != null && plugin instanceof WorldGuardPlugin) {
+        if (providerName.equalsIgnoreCase("worldguard")) {
 
-            log.info("[Quarantine] WorldGuard detected.");
-            WGOn = true;
+            Plugin plugin = getServer().getPluginManager().getPlugin("WorldGuard");
 
+            if (plugin != null && plugin instanceof WorldGuardPlugin) {
+
+                regionProvider = new WorldGuardRegionProvider(((WorldGuardPlugin) plugin).getGlobalRegionManager());
+                log.info("[Quarantine] Will be using WorldGuard as a region provider.");
+
+            } else {
+                
+                log.info("[Quarantine] Couldn't find WorldGuard! This plugin will not work!.");
+                
+            }
+
+        } else if (providerName.equalsIgnoreCase("residence")) {
+            
+            Plugin plugin = getServer().getPluginManager().getPlugin("Residence");
+
+            if (plugin != null && plugin instanceof Residence) {
+
+                regionProvider = new ResidenceRegionProvider();
+                log.info("[Quarantine] Will be using Residence as a region provider.");
+
+            } else {
+                
+                log.info("[Quarantine] Couldn't find Residence! This plugin will not work!.");
+                
+            }
+            
+        } else if (providerName.equalsIgnoreCase("regios")) {
+            
+            Plugin plugin = getServer().getPluginManager().getPlugin("Regios");
+
+            if (plugin != null && plugin instanceof Regios) {
+
+                regionProvider = new RegiosRegionProvider();
+                log.info("[Quarantine] Will be using Regios as a region provider.");
+
+            } else {
+                
+                log.info("[Quarantine] Couldn't find Regios! This plugin will not work!.");
+                
+            }
+            
         } else {
-
-            log.info("[Quarantine] No WorldGuard detected. This plugin will not work.");
-            WGOn = false;
-
+            
+            log.info("[Quarantine] No region provider defined! This plugin will not work!.");
+            
         }
     }
 
-    private boolean checkForSpout() {
+    private void setupGUIHandler() {
 
         PluginManager pm = getServer().getPluginManager();
         Plugin plugin = pm.getPlugin("Spout");
@@ -192,28 +234,14 @@ public class Quarantine extends JavaPlugin {
         if (plugin != null) {
 
             log.info("[Quarantine] Spout detected. Spout GUI enabled.");
-            return true;
+            guiHandler = new SpoutEnabledGUIHandler(this);
 
         } else {
 
             log.info("[Quarantine] No Spout detected. Spout GUI disabled.");
-            return false;
+            guiHandler = new TextGUIHandler(this);
 
         }
-    }
-
-    public WorldGuardPlugin getWorldGuard() {
-
-        Plugin plugin = getServer().getPluginManager().getPlugin("WorldGuard");
-
-        if (plugin != null && plugin instanceof WorldGuardPlugin) {
-
-            return (WorldGuardPlugin) plugin;
-
-        }
-
-        return null;
-
     }
 
     private void unLoadAllZones() {
@@ -253,7 +281,7 @@ public class Quarantine extends JavaPlugin {
 
     private void loadStartUpZones() {
 
-        if (!WGOn) {
+        if (regionProvider == null) {
 
             return;
 
@@ -337,20 +365,20 @@ public class Quarantine extends JavaPlugin {
         try {
 
             URL url = new URL("http://dl.dropbox.com/u/43006973/jedis-2.0.0.jar");
-            URLConnection con = url.openConnection();
-            DataInputStream dis = new DataInputStream(con.getInputStream());
-            byte[] fileData = new byte[con.getContentLength()];
+            URLConnection connection = url.openConnection();
+            DataInputStream inputStream = new DataInputStream(connection.getInputStream());
+            byte[] fileData = new byte[connection.getContentLength()];
 
             for (int x = 0; x < fileData.length; x++) {
 
-                fileData[x] = dis.readByte();
+                fileData[x] = inputStream.readByte();
 
             }
 
-            dis.close();
-            FileOutputStream fos = new FileOutputStream(new File("plugins/Quarantine/lib/jedis-2.0.0.jar"));
-            fos.write(fileData);
-            fos.close();
+            inputStream.close();
+            FileOutputStream outputStream = new FileOutputStream(new File("plugins/Quarantine/lib/jedis-2.0.0.jar"));
+            outputStream.write(fileData);
+            outputStream.close();
             return true;
 
         } catch (Exception ex) {

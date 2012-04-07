@@ -12,6 +12,7 @@ Leaderboards:
     port: 3306
     user: 'user'
     password: 'password'
+RegionProviderPlugin: WorldGuard
 Zones:
   zone1:
     max_number_of_players: 10

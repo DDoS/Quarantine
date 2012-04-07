@@ -11,24 +11,16 @@ import org.bukkit.World;
  * @author DDoS 
  * 
  */
-public class MainRegion {
+public class Region {
 
-    private final BlockLocation max;
-    private final BlockLocation min;
-    private final World world;
+    protected final BlockLocation max;
+    protected final BlockLocation min;
+    protected final World world;
 
-    public MainRegion(World world, BlockVector pos1, BlockVector pos2) {
+    public Region(World world, BlockLocation max, BlockLocation min) {
 
-        this.max = new BlockLocation(world,
-                Math.max(pos1.getBlockX(), pos2.getBlockX()),
-                Math.max(pos1.getBlockY(), pos2.getBlockY()),
-                Math.max(pos1.getBlockZ(), pos2.getBlockZ()));
-
-        this.min = new BlockLocation(world,
-                Math.min(pos1.getBlockX(), pos2.getBlockX()),
-                Math.min(pos1.getBlockY(), pos2.getBlockY()),
-                Math.min(pos1.getBlockZ(), pos2.getBlockZ()));
-        
+        this.max = max;
+        this.min = min;
         this.world = world;
 
     }

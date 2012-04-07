@@ -45,7 +45,7 @@ import me.DDoS.Quarantine.player.CallablePlayer;
 import me.DDoS.Quarantine.player.LobbyPlayer;
 import me.DDoS.Quarantine.player.QPlayer;
 import me.DDoS.Quarantine.zone.subzone.SubZone;
-import me.DDoS.Quarantine.zone.region.MainRegion;
+import me.DDoS.Quarantine.zone.region.Region;
 import me.DDoS.Quarantine.leaderboard.Leaderboard;
 import me.DDoS.Quarantine.player.inventory.Kit;
 
@@ -56,7 +56,7 @@ import me.DDoS.Quarantine.player.inventory.Kit;
 public class Zone {
 
     private final Quarantine plugin;
-    private final MainRegion region;
+    private final Region region;
     private final String zoneName;
     private Location lobby;
     private Location entrance;
@@ -74,7 +74,7 @@ public class Zone {
     private final Map<String, QPlayer> players = new HashMap<String, QPlayer>();
     private final Map<String, Integer> deadPlayerXP = new HashMap<String, Integer>();
 
-    public Zone(Quarantine plugin, MainRegion region, String zoneName, Location lobby, Location entrance,
+    public Zone(Quarantine plugin, Region region, String zoneName, Location lobby, Location entrance,
             int defaultMoney, int maxNumOfPlayers, boolean clearDrops, boolean oneTimeKeys,
             List<SubZone> subZones, Map<String, Kit> kits, Map<EntityType, Reward> mobRewards, World world, long interval) {
 

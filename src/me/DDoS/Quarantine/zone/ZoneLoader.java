@@ -2,11 +2,9 @@ package me.DDoS.Quarantine.zone;
 
 import me.DDoS.Quarantine.zone.subzone.SubZoneData;
 import me.DDoS.Quarantine.zone.subzone.SubZone;
-import me.DDoS.Quarantine.zone.region.MainRegion;
-import me.DDoS.Quarantine.zone.region.SubRegion;
+import me.DDoS.Quarantine.zone.region.Region;
+import me.DDoS.Quarantine.zone.region.SpawnRegion;
 import me.DDoS.Quarantine.zone.reward.Reward;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -15,14 +13,14 @@ import java.util.List;
 import java.util.Map;
 import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.player.inventory.Kit;
-import me.DDoS.Quarantine.util.QUtil;
+import me.DDoS.Quarantine.zone.region.provider.RegionProvider;
+import me.DDoS.Quarantine.zone.region.provider.ResidenceRegionProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
-import org.bukkit.inventory.ItemStack;
 
 /**
  *
@@ -127,7 +125,6 @@ public class ZoneLoader {
 
             String[] s = rewardToParse.split(":");
             String[] s2 = s[1].split("-");
-
             mobRewards.put(EntityType.fromName(s[0]), new Reward(Integer.parseInt(s2[0]), Integer.parseInt(s2[1]), Integer.parseInt(s2[2])));
 
         }
@@ -140,7 +137,6 @@ public class ZoneLoader {
 
             int numOfMobs = configSec3.getInt("number_of_mobs");
             List<String> mobTypes = configSec3.getStringList("mob_types");
-
             subZoneData.put(subZone, new SubZoneData(numOfMobs, mobTypes));
 
         }
@@ -159,33 +155,32 @@ public class ZoneLoader {
 
         final List<SubZone> subZones = new ArrayList<SubZone>();
 
-        WorldGuardPlugin worldGuard = plugin.getWorldGuard();
+        RegionProvider provider = plugin.getRegionProvider();
 
         for (String subZoneName : subZoneData.keySet()) {
+            
+            SpawnRegion spawnRegion;
 
-            ProtectedRegion subZoneRegion = worldGuard.getRegionManager(world).getRegion(subZoneName);
+            if (provider instanceof ResidenceRegionProvider) {
+            
+                spawnRegion = provider.getSpawnRegion(world, zoneName + ":" + subZoneName);
 
-            if (subZoneRegion != null) {
+            } else {
+                
+                spawnRegion = provider.getSpawnRegion(world, subZoneName);
+                
+            }
+            
+            if (spawnRegion != null) {
 
-                SubRegion subZone = new SubRegion(world, subZoneRegion.getMinimumPoint(), subZoneRegion.getMaximumPoint());
                 SubZoneData sZData = subZoneData.get(subZoneName);
-
-                subZones.add(new SubZone(subZone, sZData.getNumberOfMobs(), softRespawn, sZData.getMobTypes()));
+                subZones.add(new SubZone(spawnRegion, sZData.getNumberOfMobs(), softRespawn, sZData.getMobTypes()));
 
             } else {
 
                 Quarantine.log.info("[Quarantine] Couldn't load subzone: " + subZoneName);
 
             }
-        }
-
-        ProtectedRegion pRegion = worldGuard.getRegionManager(world).getRegion(zoneName);
-
-        if (pRegion == null) {
-
-            Quarantine.log.info("[Quarantine] Couldn't load main zone: " + zoneName);
-            return null;
-
         }
 
         if (subZones.isEmpty()) {
@@ -195,9 +190,16 @@ public class ZoneLoader {
 
         }
 
-        MainRegion region = new MainRegion(world, pRegion.getMinimumPoint(), pRegion.getMaximumPoint());
+        Region mainRegion = provider.getRegion(world, zoneName);
 
-        return new Zone(plugin, region, zoneName, lobby, entrance, defaultMoney, maxNumOfPlayers, clearDrops, oneTimeKeys,
+        if (mainRegion == null) {
+
+            Quarantine.log.info("[Quarantine] Couldn't load main zone: " + zoneName);
+            return null;
+
+        }
+
+        return new Zone(plugin, mainRegion, zoneName, lobby, entrance, defaultMoney, maxNumOfPlayers, clearDrops, oneTimeKeys,
                 subZones, kits, mobRewards, world, interval);
 
     }

@@ -47,9 +47,9 @@ public class AdminCommandExecutor implements CommandExecutor {
 
         if (cmd.getName().equalsIgnoreCase("qload") && args.length >= 1) {
 
-            if (!plugin.isWGOn()) {
+            if (!plugin.hasRegionProvider()) {
 
-                QUtil.tell(player, "No worldGuard detected, plugin will not work.");
+                QUtil.tell(player, "No region provider, can't load any zones.");
                 return true;
 
             }

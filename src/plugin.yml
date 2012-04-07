@@ -1,6 +1,6 @@
 name: Quarantine
 main: me.DDoS.Quarantine.Quarantine
-softdepend: [WorldGuard]
+softdepend: [WorldGuard, Residence, Regios]
 version: 0.5.1
 commands:
   qload:

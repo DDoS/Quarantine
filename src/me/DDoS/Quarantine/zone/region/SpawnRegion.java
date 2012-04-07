@@ -1,6 +1,5 @@
 package me.DDoS.Quarantine.zone.region;
 
-import com.sk89q.worldedit.BlockVector;
 import java.util.Iterator;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.zone.location.BlockLocation;
@@ -15,22 +14,11 @@ import org.bukkit.block.BlockFace;
  * @author DDoS 
  * 
  */
-public class SubRegion {
+public class SpawnRegion extends Region {
 
-    private final BlockLocation max;
-    private final BlockLocation min;
+    public SpawnRegion(World world, BlockLocation max, BlockLocation min) {
 
-    public SubRegion(World world, BlockVector pos1, BlockVector pos2) {
-
-        this.max = new BlockLocation(world,
-                Math.max(pos1.getBlockX(), pos2.getBlockX()),
-                Math.max(pos1.getBlockY(), pos2.getBlockY()),
-                Math.max(pos1.getBlockZ(), pos2.getBlockZ()));
-
-        this.min = new BlockLocation(world, 
-                Math.min(pos1.getBlockX(), pos2.getBlockX()),
-                Math.min(pos1.getBlockY(), pos2.getBlockY()),
-                Math.min(pos1.getBlockZ(), pos2.getBlockZ()));
+        super(world, max, min);
 
     }
 
