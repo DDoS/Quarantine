@@ -376,7 +376,7 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
         try {
 
             statement = connection.prepareStatement(statmenentString);
-            statement.setInt(1, pageNumber * 5);
+            statement.setInt(1, pageNumber * pageSize);
             statement.setInt(2, ((pageNumber - 1) * pageSize) + 1);
             ResultSet results = statement.executeQuery();
 

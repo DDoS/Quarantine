@@ -4,6 +4,7 @@ import java.util.Queue;
 import java.util.TimerTask;
 import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.leaderboard.Leaderboard;
+import me.DDoS.Quarantine.leaderboard.LeaderboardDB;
 import me.DDoS.Quarantine.leaderboard.ScoreUpdate;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
@@ -25,13 +26,14 @@ public class ScoreUpdateTask extends TimerTask {
     public void run() {
     
         final Queue<ScoreUpdate> queue = leaderboard.getUpdates();
-
+        final LeaderboardDB lb = leaderboard.getLeaderBoard();
+        
         try {
 
             while (!queue.isEmpty()) {
 
                 ScoreUpdate update = queue.poll();
-                leaderboard.getLeaderBoard().rank(update.getPlayer(), update.getScore());
+                lb.rank(update.getPlayer(), update.getScore());
 
             }
 
