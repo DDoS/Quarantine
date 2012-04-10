@@ -19,7 +19,7 @@ public class Kit {
 
     private final List<ItemStack> kit = new ArrayList<ItemStack>();
 
-    public Kit(List<String> itemStrings) {
+    private Kit(List<String> itemStrings) {
         
         for (String itemString : itemStrings) {
 
