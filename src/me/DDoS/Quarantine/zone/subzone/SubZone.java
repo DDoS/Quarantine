@@ -124,15 +124,6 @@ public class SubZone {
     }
 
     public void checkForDeadMobs() {
-
-        if (softRespawn) {
-            
-            if (new Random().nextBoolean()) {
-                
-                return;
-                
-            }        
-        }
         
         List<LivingEntity> flagged = new ArrayList<LivingEntity>();
 

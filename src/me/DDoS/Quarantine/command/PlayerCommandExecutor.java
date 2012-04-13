@@ -213,6 +213,16 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
         if (cmd.getName().equalsIgnoreCase("qplayers")) {
 
+            if (args.length > 0) {
+
+                if (plugin.hasZone(args[0])) {
+
+                    plugin.getGUIHandler().handlePlayerList(player, plugin.getZone(args[0]));
+                    return true;
+
+                }
+            }
+
             for (Zone zone : plugin.getZones()) {
 
                 if (zone.hasPlayer(player.getName())) {
@@ -223,18 +233,18 @@ public class PlayerCommandExecutor implements CommandExecutor {
                 }
             }
 
-            QUtil.tell(player, "You haven't entered any zone yet.");
+            QUtil.tell(player, "You have to provide a zone name if you aren't playing.");
             return true;
 
         }
-        
+
         if (cmd.getName().equalsIgnoreCase("qkit")) {
-            
+
             if (args.length < 1) {
-                
+
                 QUtil.tell(player, "You need to provide the name of the kit.");
                 return true;
-                
+
             }
 
             for (Zone zone : plugin.getZones()) {
@@ -250,7 +260,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
             return true;
 
         }
-        
+
         if (cmd.getName().equalsIgnoreCase("qkits")) {
 
             for (Zone zone : plugin.getZones()) {

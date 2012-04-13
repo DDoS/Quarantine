@@ -6,7 +6,7 @@ import me.DDoS.Quarantine.zone.Zone;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -220,11 +220,11 @@ public class LobbyPlayer extends QPlayer {
     }
 
     @Override
-    public void dieLeave(EntityDeathEvent event) {
+    public void dieLeave(PlayerDeathEvent event) {
 
         event.getDrops().clear();
-        zone.registerDeadPlayer(player.getName(), event.getDroppedExp());
         event.setDroppedExp(0);
+        event.setKeepLevel(true);
 
     }
 

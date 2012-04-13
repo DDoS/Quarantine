@@ -24,7 +24,7 @@ import org.bukkit.entity.Player;
  */
 public class Leaderboard {
 
-    public static boolean USE = false;
+    public static boolean ENABLED = false;
     //
     public static String TYPE;
     public static String HOST;
@@ -41,6 +41,7 @@ public class Leaderboard {
     private final int displayInfoTaskID;
     //
     private final Map<QPlayer, ScoreUpdate> updates = new ConcurrentHashMap<QPlayer, ScoreUpdate>();
+    //
     private final Queue<Query> queries = new ConcurrentLinkedQueue<Query>();
     //
     private final Queue<Result> results = new ConcurrentLinkedQueue<Result>();
@@ -49,7 +50,7 @@ public class Leaderboard {
 
         this.plugin = plugin;
 
-        if (TYPE.equals("redis")) {
+        if (TYPE.equals("Redis")) {
 
             lbdb = new RedisLeaderboardDB(zoneName, 5);
 

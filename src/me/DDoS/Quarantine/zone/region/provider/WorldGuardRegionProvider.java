@@ -16,6 +16,13 @@ public class WorldGuardRegionProvider implements RegionProvider {
 
     private final GlobalRegionManager regionManager;
 
+    @Override
+    public String getName() {
+        
+        return "WorldGuard";
+        
+    }
+    
     public WorldGuardRegionProvider(GlobalRegionManager regionManager) {
         
         this.regionManager = regionManager;

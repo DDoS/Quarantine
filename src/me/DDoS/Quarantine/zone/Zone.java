@@ -9,7 +9,6 @@ import java.util.Random;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
@@ -31,13 +30,11 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.LazyMetadataValue;
 
-import me.DDoS.Quarantine.zone.reward.Reward;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.player.ZonePlayer;
 import me.DDoS.Quarantine.Quarantine;
@@ -48,6 +45,7 @@ import me.DDoS.Quarantine.zone.subzone.SubZone;
 import me.DDoS.Quarantine.zone.region.Region;
 import me.DDoS.Quarantine.leaderboard.Leaderboard;
 import me.DDoS.Quarantine.player.inventory.Kit;
+import org.bukkit.event.entity.PlayerDeathEvent;
 
 /**
  *
@@ -57,44 +55,31 @@ public class Zone {
 
     private final Quarantine plugin;
     private final Region region;
-    private final String zoneName;
+    private final List<SubZone> subZones;
+    private final ZoneProperties properties;
     private Location lobby;
     private Location entrance;
-    private final long interval;
-    private final int defaultMoney;
-    private final int maxNumOfPlayers;
-    private int mobCheckTaskID = -1;
-    private final boolean clearDrops;
-    private final boolean oneTimeKeys;
     private final Map<String, Kit> kits;
-    private final List<SubZone> subZones;
     private final Map<EntityType, Reward> mobRewards;
     private final Leaderboard leaderboard;
     //
     private final Map<String, QPlayer> players = new HashMap<String, QPlayer>();
-    private final Map<String, Integer> deadPlayerXP = new HashMap<String, Integer>();
 
-    public Zone(Quarantine plugin, Region region, String zoneName, Location lobby, Location entrance,
-            int defaultMoney, int maxNumOfPlayers, boolean clearDrops, boolean oneTimeKeys,
-            List<SubZone> subZones, Map<String, Kit> kits, Map<EntityType, Reward> mobRewards, World world, long interval) {
+    public Zone(Quarantine plugin, Region region, List<SubZone> subZones, ZoneProperties properties,
+            Location lobby, Location entrance, Map<String, Kit> kits, Map<EntityType, Reward> mobRewards) {
 
         this.plugin = plugin;
         this.region = region;
-        this.zoneName = zoneName;
+        this.properties = properties;
         this.lobby = lobby;
         this.entrance = entrance;
-        this.interval = interval;
-        this.defaultMoney = defaultMoney;
-        this.maxNumOfPlayers = maxNumOfPlayers;
-        this.clearDrops = clearDrops;
-        this.oneTimeKeys = oneTimeKeys;
         this.kits = kits;
         this.subZones = subZones;
         this.mobRewards = mobRewards;
 
-        if (Leaderboard.USE) {
+        if (Leaderboard.ENABLED) {
 
-            leaderboard = new Leaderboard(plugin, zoneName);
+            leaderboard = new Leaderboard(plugin, properties.getZoneName());
 
         } else {
 
@@ -103,13 +88,13 @@ public class Zone {
         }
     }
 
-    public String getName() {
-
-        return zoneName;
-
+    public ZoneProperties getProperties() {
+        
+        return properties;
+    
     }
 
-    public void disconnectLB() {
+    public void disconnectLeaderboards() {
 
         if (leaderboard == null) {
 
@@ -121,7 +106,7 @@ public class Zone {
 
     }
 
-    public Leaderboard getLB() {
+    public Leaderboard getLeaderboards() {
 
         return leaderboard;
 
@@ -164,12 +149,6 @@ public class Zone {
 
     }
 
-    public int getDefaultMoney() {
-
-        return defaultMoney;
-
-    }
-
     public Kit getKit(String name) {
 
         return kits.get(name);
@@ -182,15 +161,9 @@ public class Zone {
 
     }
 
-    public int getNumOfPlayers() {
+    public int getNumberOfPlayers() {
 
         return players.size();
-
-    }
-
-    public int getMaxNumOfPlayers() {
-
-        return maxNumOfPlayers;
 
     }
 
@@ -258,15 +231,15 @@ public class Zone {
         return true;
 
     }
-    
+
     public boolean tellKits(Player player) {
-         
+
         if (!players.containsKey(player.getName())) {
 
             return false;
 
         }
-        
+
         String kitList = "";
         QUtil.tell(player, "Kits:");
 
@@ -288,7 +261,7 @@ public class Zone {
 
         QUtil.tell(player, kitList);
         return true;
-        
+
     }
 
     public boolean giveKit(Player player, String kitName) {
@@ -306,7 +279,8 @@ public class Zone {
 
         }
 
-        if (!plugin.getPermissions().hasPermission(player, "quarantine.kit." + zoneName + "-" + kitName)) {
+        if (!plugin.getPermissions().hasPermission(player, "quarantine.kit."
+                + properties.getZoneName() + "-" + kitName)) {
 
             QUtil.tell(player, "You don't have permission for this kit.");
 
@@ -321,7 +295,8 @@ public class Zone {
 
             }
 
-            QUtil.tell(player, "You can only request kits from the lobby, if you don't have any saved inventory.");
+            QUtil.tell(player, "You can only request kits from the lobby, "
+                    + "if you don't have any saved inventory.");
 
         }
 
@@ -376,7 +351,7 @@ public class Zone {
 
             if (subZone.removeAndSpawnNewEntity(entity)) {
 
-                if (clearDrops) {
+                if (properties.clearDrops()) {
 
                     event.getDrops().clear();
 
@@ -420,7 +395,7 @@ public class Zone {
 
     }
 
-    public boolean passPlayerDeathEvent(Player player, EntityDeathEvent event) {
+    public boolean passPlayerDeathEvent(Player player, PlayerDeathEvent event) {
 
         if (!players.containsKey(player.getName())) {
 
@@ -462,30 +437,11 @@ public class Zone {
 
     }
 
-    public boolean passPlayerRespawnEvent(PlayerRespawnEvent event, Quarantine plugin) {
-
-        if (!deadPlayerXP.containsKey(event.getPlayer().getName())) {
-
-            return false;
-
-        }
-
-        Player player = event.getPlayer();
-        event.setRespawnLocation(lobby);
-        QUtil.tell(player, "You lost.");
-        QUtil.tell(player, "You may leave the lobby by teleporting away.");
-        player.giveExp(deadPlayerXP.get(player.getName()));
-        deadPlayerXP.remove(player.getName());
-
-        return true;
-
-    }
-
     public boolean passEntityCombustByBlockEvent(Entity entity) {
 
-        if (entity.hasMetadata("quarantine." + zoneName + ".fire_damager")) {
+        if (entity.hasMetadata("quarantine." + properties.getZoneName() + ".fire_damager")) {
 
-            entity.removeMetadata("quarantine." + zoneName + ".fire_damager", plugin);
+            entity.removeMetadata("quarantine." + properties.getZoneName() + ".fire_damager", plugin);
             return true;
 
         }
@@ -498,7 +454,7 @@ public class Zone {
 
         if (players.containsKey(player.getName())) {
 
-            victim.setMetadata("quarantine." + zoneName + ".fire_damager",
+            victim.setMetadata("quarantine." + properties.getZoneName() + ".fire_damager",
                     new LazyMetadataValue(plugin, new CallablePlayer(player)));
             return true;
 
@@ -610,7 +566,7 @@ public class Zone {
 
         if (sign.getLine(0).equalsIgnoreCase("[Quarantine]") && sign.getLine(1).equalsIgnoreCase("Key Lock")) {
 
-            if (!player.useKey(sign.getLine(2), oneTimeKeys)) {
+            if (!player.useKey(sign.getLine(2), properties.oneTimeUseKeys())) {
 
                 QUtil.tell(player.getPlayer(), "You need to purchase the key '" + sign.getLine(2) + "' to open this door.");
                 return false;
@@ -718,7 +674,7 @@ public class Zone {
 
     public void joinPlayer(Player player) {
 
-        if (players.size() >= maxNumOfPlayers) {
+        if (players.size() >= properties.getMaxNumberOfPlayers()) {
 
             QUtil.tell(player, "The zone is full.");
             return;
@@ -795,7 +751,7 @@ public class Zone {
 
     public void saveLocations(FileConfiguration config) {
 
-        ConfigurationSection configSec1 = config.getConfigurationSection("Zones." + zoneName);
+        ConfigurationSection configSec1 = config.getConfigurationSection("Zones." + properties.getZoneName());
 
         configSec1.set("lobby.x", lobby.getX());
         configSec1.set("lobby.y", lobby.getY());
@@ -873,13 +829,15 @@ public class Zone {
 
     private void startMobCheckTask() {
 
-        if (mobCheckTaskID != -1) {
+        if (properties.getMobCheckTaskID() != -1) {
 
             return;
 
         }
 
-        mobCheckTaskID = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+        long interval = properties.getMobCheckTaskInterval();
+
+        properties.setMobCheckTaskID(plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
 
             @Override
             public void run() {
@@ -893,17 +851,17 @@ public class Zone {
                 Quarantine.log.info("[Quarantine] Finished checking mobs.");
 
             }
-        }, interval, interval);
+        }, interval, interval));
 
-        Quarantine.log.info("[Quarantine] Started mob check task for zone: " + zoneName);
+        Quarantine.log.info("[Quarantine] Started mob check task for zone: " + properties.getZoneName());
 
     }
 
     private void stopMobCheckTask() {
 
-        plugin.getServer().getScheduler().cancelTask(mobCheckTaskID);
-        mobCheckTaskID = -1;
-        Quarantine.log.info("[Quarantine] Stopped mob check task for zone: " + zoneName);
+        plugin.getServer().getScheduler().cancelTask(properties.getMobCheckTaskID());
+        properties.setMobCheckTaskID(-1);
+        Quarantine.log.info("[Quarantine] Stopped mob check task for zone: " + properties.getZoneName());
 
     }
 
@@ -956,6 +914,8 @@ public class Zone {
 
         if (cause == DamageCause.FIRE || cause == DamageCause.FIRE_TICK) {
 
+            String zoneName = properties.getZoneName();
+
             if (!entity.hasMetadata("quarantine." + zoneName + ".fire_damager")) {
 
                 return null;
@@ -997,12 +957,6 @@ public class Zone {
         }
 
         return null;
-
-    }
-
-    public void registerDeadPlayer(String playerName, int amount) {
-
-        deadPlayerXP.put(playerName, amount);
 
     }
 }

@@ -4,7 +4,6 @@ import me.DDoS.Quarantine.zone.subzone.SubZoneData;
 import me.DDoS.Quarantine.zone.subzone.SubZone;
 import me.DDoS.Quarantine.zone.region.Region;
 import me.DDoS.Quarantine.zone.region.SpawnRegion;
-import me.DDoS.Quarantine.zone.reward.Reward;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -29,11 +28,7 @@ import org.bukkit.entity.EntityType;
 public class ZoneLoader {
 
     private World world;
-    private int defaultMoney;
-    private int maxNumOfPlayers;
-    private int interval;
-    private boolean clearDrops;
-    private boolean oneTimeKeys;
+    private ZoneProperties properties;
     private boolean softRespawn;
     private Location lobby;
     private Location entrance;
@@ -112,13 +107,15 @@ public class ZoneLoader {
 
         }
 
-        defaultMoney = configSec1.getInt("starting_money");
-        maxNumOfPlayers = configSec1.getInt("max_number_of_players");
-        interval = configSec1.getInt("mob_check_task_interval") * 20;
-        clearDrops = configSec1.getBoolean("clear_drops");
-        oneTimeKeys = configSec1.getBoolean("one_time_use_keys");
+        int defaultMoney = configSec1.getInt("starting_money");
+        int maxNumOfPlayers = configSec1.getInt("max_number_of_players");
+        long interval = configSec1.getLong("mob_check_task_interval") * 20;
+        boolean clearDrops = configSec1.getBoolean("clear_drops");
+        boolean oneTimeKeys = configSec1.getBoolean("one_time_use_keys");
         softRespawn = configSec1.getBoolean("soft_mob_respawn");
 
+        properties = new ZoneProperties(zoneName, maxNumOfPlayers, defaultMoney, clearDrops, oneTimeKeys, interval);
+        
         kits = Kit.parseKits(configSec1.getConfigurationSection("kits"));
 
         for (String rewardToParse : configSec1.getStringList("money_rewards")) {
@@ -199,8 +196,7 @@ public class ZoneLoader {
 
         }
 
-        return new Zone(plugin, mainRegion, zoneName, lobby, entrance, defaultMoney, maxNumOfPlayers, clearDrops, oneTimeKeys,
-                subZones, kits, mobRewards, world, interval);
+        return new Zone(plugin, mainRegion, subZones, properties, lobby, entrance, kits, mobRewards);
 
     }
 }

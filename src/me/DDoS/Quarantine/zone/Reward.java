@@ -1,4 +1,4 @@
-package me.DDoS.Quarantine.zone.reward;
+package me.DDoS.Quarantine.zone;
 
 import java.util.Random;
 

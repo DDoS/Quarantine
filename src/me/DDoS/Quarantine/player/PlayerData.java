@@ -130,7 +130,7 @@ public class PlayerData {
 
         YamlConfiguration config = new YamlConfiguration();
 
-        File mainDir = new File("plugins/Quarantine/" + zone.getName() + "/PlayerData");
+        File mainDir = new File("plugins/Quarantine/" + zone.getProperties().getZoneName() + "/PlayerData");
 
         if (!mainDir.exists()) {
 
@@ -165,7 +165,7 @@ public class PlayerData {
 
         }
 
-        money = config.getInt("money", zone.getDefaultMoney());
+        money = config.getInt("money", zone.getProperties().getStartingMoney());
         health = config.getInt("health", 20);
         foodLevel = config.getInt("foodLevel", 20);
         score = config.getInt("score", 0);
@@ -214,7 +214,7 @@ public class PlayerData {
 
         YamlConfiguration config = new YamlConfiguration();
 
-        File mainDir = new File("plugins/Quarantine/" + zone.getName() + "/PlayerData");
+        File mainDir = new File("plugins/Quarantine/" + zone.getProperties().getZoneName() + "/PlayerData");
 
         if (!mainDir.exists()) {
 
@@ -286,9 +286,9 @@ public class PlayerData {
     }
 
     public void deletePlayerDataFile() {
-        
+
         new File("plugins/Quarantine/"
-                + zone.getName() + "/PlayerData/"
+                + zone.getProperties().getZoneName() + "/PlayerData/"
                 + player.getName() + ".yml").delete();
 
     }
@@ -296,14 +296,14 @@ public class PlayerData {
     protected boolean hasInventory() {
 
         return new File("plugins/Quarantine/"
-                + zone.getName() + "/PlayerInventories/"
+                + zone.getProperties().getZoneName() + "/PlayerInventories/"
                 + player.getName() + ".inv").exists();
 
     }
 
     protected boolean loadInventory() {
 
-        File mainDir = new File("plugins/Quarantine/" + zone.getName() + "/PlayerInventories");
+        File mainDir = new File("plugins/Quarantine/" + zone.getProperties().getZoneName() + "/PlayerInventories");
 
         if (!mainDir.exists()) {
 
@@ -365,7 +365,7 @@ public class PlayerData {
 
     protected boolean saveInventory() {
 
-        File mainDir = new File("plugins/Quarantine/" + zone.getName() + "/PlayerInventories");
+        File mainDir = new File("plugins/Quarantine/" + zone.getProperties().getZoneName() + "/PlayerInventories");
 
         if (!mainDir.exists()) {
 
@@ -431,7 +431,7 @@ public class PlayerData {
 
     public void deleteInventory() {
 
-        File mainDir = new File("plugins/Quarantine/" + zone.getName() + "/PlayerInventories");
+        File mainDir = new File("plugins/Quarantine/" + zone.getProperties().getZoneName() + "/PlayerInventories");
         File dir = new File(mainDir.getPath() + "/" + player.getName() + ".inv");
 
         if (dir.exists()) {
@@ -469,7 +469,7 @@ public class PlayerData {
     @Override
     public int hashCode() {
 
-        return player.hashCode() ^ zone.getName().hashCode();
+        return player.hashCode() ^ zone.getProperties().getZoneName().hashCode();
 
     }
 
@@ -495,7 +495,8 @@ public class PlayerData {
         }
 
         PlayerData p = (PlayerData) o;
-        return p.getPlayer().equals(player) && p.getZone().getName().equals(zone.getName());
+        return p.getPlayer().equals(player) && p.getZone().getProperties().
+                getZoneName().equals(zone.getProperties().getZoneName());
 
     }
 }

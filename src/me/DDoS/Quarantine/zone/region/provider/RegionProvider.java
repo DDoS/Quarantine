@@ -11,6 +11,8 @@ import org.bukkit.World;
  */
 public interface RegionProvider {
     
+    public String getName();
+    
     public Region getRegion(World world, String regionName);
     
     public SpawnRegion getSpawnRegion(World world, String regionName);

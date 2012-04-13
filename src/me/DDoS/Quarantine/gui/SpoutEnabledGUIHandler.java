@@ -86,7 +86,9 @@ public class SpoutEnabledGUIHandler extends TextGUIHandler implements GUIHandler
             Label zoneLabel = new GenericLabel();
             zoneLabel.setAnchor(WidgetAnchor.SCALE);
             zoneLabel.setWidth(100).setHeight(10);
-            zoneLabel.setText(zone.getName() + ": " + zone.getNumOfPlayers() + "/" + zone.getMaxNumOfPlayers());
+            zoneLabel.setText(zone.getProperties().getZoneName() + ": "
+                    + zone.getNumberOfPlayers() + "/"
+                    + zone.getProperties().getMaxNumberOfPlayers());
             zoneLabel.setX(100).setY(i);
             popup.attachWidget(plugin, zoneLabel);
             i += 11;

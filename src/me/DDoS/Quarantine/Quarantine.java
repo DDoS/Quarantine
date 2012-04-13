@@ -11,6 +11,7 @@ import couk.Adamki11s.Regios.Main.Regios;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Collection;
@@ -22,6 +23,8 @@ import me.DDoS.Quarantine.command.SetupCommandExecutor;
 import me.DDoS.Quarantine.gui.*;
 import me.DDoS.Quarantine.permission.Permissions;
 import me.DDoS.Quarantine.permission.PermissionsHandler;
+import me.DDoS.Quarantine.util.Metrics;
+import me.DDoS.Quarantine.util.Metrics.Graph;
 import me.DDoS.Quarantine.zone.region.provider.RegionProvider;
 import me.DDoS.Quarantine.zone.region.provider.RegiosRegionProvider;
 import me.DDoS.Quarantine.zone.region.provider.ResidenceRegionProvider;
@@ -31,6 +34,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.getspout.spoutapi.plugin.SpoutPlugin;
 
 /**
  *
@@ -87,15 +91,17 @@ public class Quarantine extends JavaPlugin {
         config = getConfig();
 
         findRegionProvider();
-        
+
         setupLeaderboards();
         setupGUIHandler();
 
         permissions = new PermissionsHandler(this).getPermissions();
 
+        getServer().getPluginManager().registerEvents(new QListener(this), this);
+
         loadStartUpZones();
 
-        getServer().getPluginManager().registerEvents(new QListener(this), this);
+        startMetrics();
 
         log.info("[Quarantine] Plugin enabled. v" + getDescription().getVersion() + ", by DDoS");
 
@@ -118,25 +124,25 @@ public class Quarantine extends JavaPlugin {
 
     public boolean hasZone(String zoneName) {
 
-        return zones.containsKey(zoneName);
+        return zones.containsKey(zoneName.toLowerCase());
 
     }
 
     public Zone getZone(String zoneName) {
 
-        return zones.get(zoneName);
+        return zones.get(zoneName.toLowerCase());
 
     }
 
     public Zone addZone(String zoneName, Zone zone) {
 
-        return zones.put(zoneName, zone);
+        return zones.put(zoneName.toLowerCase(), zone);
 
     }
 
     public void removeZone(String zoneName) {
 
-        zones.remove(zoneName);
+        zones.remove(zoneName.toLowerCase());
 
     }
 
@@ -147,9 +153,9 @@ public class Quarantine extends JavaPlugin {
     }
 
     public RegionProvider getRegionProvider() {
-        
+
         return regionProvider;
-    
+
     }
 
     public Permissions getPermissions() {
@@ -172,7 +178,7 @@ public class Quarantine extends JavaPlugin {
 
     private void findRegionProvider() {
 
-        String providerName = config.getString("RegionProviderPlugin");
+        String providerName = config.getString("Region_Provider_Plugin");
 
         if (providerName.equalsIgnoreCase("worldguard")) {
 
@@ -184,13 +190,13 @@ public class Quarantine extends JavaPlugin {
                 log.info("[Quarantine] Will be using WorldGuard as a region provider.");
 
             } else {
-                
+
                 log.info("[Quarantine] Couldn't find WorldGuard! This plugin will not work!.");
-                
+
             }
 
         } else if (providerName.equalsIgnoreCase("residence")) {
-            
+
             Plugin plugin = getServer().getPluginManager().getPlugin("Residence");
 
             if (plugin != null && plugin instanceof Residence) {
@@ -199,13 +205,13 @@ public class Quarantine extends JavaPlugin {
                 log.info("[Quarantine] Will be using Residence as a region provider.");
 
             } else {
-                
+
                 log.info("[Quarantine] Couldn't find Residence! This plugin will not work!.");
-                
+
             }
-            
+
         } else if (providerName.equalsIgnoreCase("regios")) {
-            
+
             Plugin plugin = getServer().getPluginManager().getPlugin("Regios");
 
             if (plugin != null && plugin instanceof Regios) {
@@ -214,15 +220,15 @@ public class Quarantine extends JavaPlugin {
                 log.info("[Quarantine] Will be using Regios as a region provider.");
 
             } else {
-                
+
                 log.info("[Quarantine] Couldn't find Regios! This plugin will not work!.");
-                
+
             }
-            
+
         } else {
-            
+
             log.info("[Quarantine] No region provider defined! This plugin will not work!.");
-            
+
         }
     }
 
@@ -246,7 +252,7 @@ public class Quarantine extends JavaPlugin {
 
     private void unLoadAllZones() {
 
-        for (Zone zone : zones.values()) {
+        for (Zone zone : getZones()) {
 
             unloadZone(zone);
 
@@ -275,7 +281,7 @@ public class Quarantine extends JavaPlugin {
 
     private void disconnectLB(Zone zone) {
 
-        zone.disconnectLB();
+        zone.disconnectLeaderboards();
 
     }
 
@@ -299,7 +305,7 @@ public class Quarantine extends JavaPlugin {
 
             }
 
-            zones.put(zoneToLoad, zone);
+            addZone(zoneToLoad.toLowerCase(), zone);
 
             log.info("[Quarantine] Loaded zone " + zoneToLoad + ".");
 
@@ -310,23 +316,25 @@ public class Quarantine extends JavaPlugin {
 
         if (!config.getBoolean("Leaderboards.enabled")) {
 
+            Leaderboard.TYPE = "None";
             return;
 
         }
 
-        Leaderboard.USE = true;
-        String type = config.getString("Leaderboards.type", "invalid");
+        String type = config.getString("Leaderboards.type", "none");
 
         if (type.equalsIgnoreCase("redis")) {
 
-            Leaderboard.TYPE = "redis";
+            Leaderboard.ENABLED = true;
+            Leaderboard.TYPE = "Redis";
             Leaderboard.HOST = config.getString("Leaderboards.redis_db_info.host");
             Leaderboard.PORT = config.getInt("Leaderboards.redis_db_info.port");
 
 
         } else if (type.equalsIgnoreCase("mysql")) {
 
-            Leaderboard.TYPE = "mysql";
+            Leaderboard.ENABLED = true;
+            Leaderboard.TYPE = "MySQL";
             Leaderboard.HOST = config.getString("Leaderboards.mysql_db_info.host");
             Leaderboard.DB_NAME = config.getString("Leaderboards.mysql_db_info.name");
             Leaderboard.PORT = config.getInt("Leaderboards.mysql_db_info.port");
@@ -335,7 +343,8 @@ public class Quarantine extends JavaPlugin {
 
         } else {
 
-            Leaderboard.USE = false;
+            Leaderboard.ENABLED = false;
+            Leaderboard.TYPE = "None";
 
         }
     }
@@ -385,6 +394,78 @@ public class Quarantine extends JavaPlugin {
 
             log.info("[Quarantine] Couldn't download 'jedis-2.0.0.jar' library. Error: " + ex.getMessage());
             return false;
+
+        }
+    }
+
+    private void startMetrics() {
+
+        try {
+
+            Metrics metrics = new Metrics(this);
+
+            Graph generalInfo = metrics.createGraph("General info");
+
+            generalInfo.addPlotter(new Metrics.Plotter("Number of Zones") {
+
+                @Override
+                public int getValue() {
+
+                    return zones.size();
+
+                }
+            });
+
+            generalInfo.addPlotter(new Metrics.Plotter("Number of Players") {
+
+                @Override
+                public int getValue() {
+
+                    int playerCount = 0;
+
+                    for (Zone zone : getZones()) {
+
+                        playerCount += zone.getNumberOfPlayers();
+
+                    }
+
+                    return playerCount;
+
+                }
+            });
+
+            Graph leaderboardInfo = metrics.createGraph("Leaderboard Types");
+
+            leaderboardInfo.addPlotter(new Metrics.Plotter(Leaderboard.TYPE) {
+
+                @Override
+                public int getValue() {
+
+                    return 1;
+
+                }
+            });
+
+            if (regionProvider != null) {
+
+                Graph regionProviderInfo = metrics.createGraph("Region Providers");
+
+                regionProviderInfo.addPlotter(new Metrics.Plotter(regionProvider.getName()) {
+
+                    @Override
+                    public int getValue() {
+
+                        return 1;
+
+                    }
+                });
+            }
+
+            metrics.start();
+
+        } catch (IOException ex) {
+
+            log.info("[Quarantine] Couldn't start Plugin Metrics. Error: " + ex.getMessage());
 
         }
     }

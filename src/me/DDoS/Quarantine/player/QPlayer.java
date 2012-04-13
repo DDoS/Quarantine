@@ -1,10 +1,9 @@
 package me.DDoS.Quarantine.player;
 
-import me.DDoS.Quarantine.player.inventory.Kit;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.zone.Zone;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 /**
@@ -39,7 +38,7 @@ public abstract class QPlayer extends PlayerData {
 
     public abstract boolean teleportLeave(PlayerTeleportEvent event);
 
-    public abstract void dieLeave(EntityDeathEvent event);
+    public abstract void dieLeave(PlayerDeathEvent event);
     
     public void tellKeys() {
 
@@ -73,14 +72,14 @@ public abstract class QPlayer extends PlayerData {
 
     public void tellRank() {
 
-        if (zone.getLB() == null) {
+        if (zone.getLeaderboards() == null) {
 
             QUtil.tell(player, "Leaderboards are not enabled.");
             return;
 
         }
 
-        zone.getLB().addRankQuery(player);
+        zone.getLeaderboards().addRankQuery(player);
 
     }
 
@@ -92,14 +91,14 @@ public abstract class QPlayer extends PlayerData {
 
     public void tellTopFive(int page) {
 
-        if (zone.getLB() == null) {
+        if (zone.getLeaderboards() == null) {
 
             QUtil.tell(player, "Leaderboards are not enabled.");
             return;
 
         }
 
-        zone.getLB().addTopQuery(player, page);
+        zone.getLeaderboards().addTopQuery(player, page);
         
     }
 

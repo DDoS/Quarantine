@@ -16,6 +16,13 @@ public class RegiosRegionProvider implements RegionProvider {
     private final RegiosAPI regios = new RegiosAPI();
 
     @Override
+    public String getName() {
+        
+        return "Regios";
+        
+    }
+    
+    @Override
     public Region getRegion(World world, String regionName) {
 
         couk.Adamki11s.Regios.Regions.Region region = regios.getRegion(regionName);

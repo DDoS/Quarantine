@@ -23,7 +23,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 
@@ -48,19 +47,6 @@ public class QListener implements Listener {
         for (Zone zone : plugin.getZones()) {
 
             if (zone.passPlayerTeleportEvent(event)) {
-
-                return;
-
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerRespawn(PlayerRespawnEvent event) {
-
-        for (Zone zone : plugin.getZones()) {
-
-            if (zone.passPlayerRespawnEvent(event, plugin)) {
 
                 return;
 

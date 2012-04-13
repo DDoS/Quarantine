@@ -5,7 +5,7 @@ import me.DDoS.Quarantine.util.QUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentWrapper;
-import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -66,9 +66,9 @@ public class ZonePlayer extends QPlayer {
 
         score += scoreToAdd;
 
-        if (zone.getLB() != null) {
+        if (zone.getLeaderboards() != null) {
 
-            zone.getLB().queueScoreUpdate(this);
+            zone.getLeaderboards().queueScoreUpdate(this);
 
         }
     }
@@ -195,9 +195,9 @@ public class ZonePlayer extends QPlayer {
     @Override
     public boolean commandLeave() {
 
-        if (zone.getLB() != null) {
+        if (zone.getLeaderboards() != null) {
 
-            zone.getLB().queueScoreUpdate(this);
+            zone.getLeaderboards().queueScoreUpdate(this);
 
         }
 
@@ -233,9 +233,9 @@ public class ZonePlayer extends QPlayer {
     @Override
     public void quitLeave() {
 
-        if (zone.getLB() != null) {
+        if (zone.getLeaderboards() != null) {
 
-            zone.getLB().queueScoreUpdate(this);
+            zone.getLeaderboards().queueScoreUpdate(this);
 
         }
 
@@ -270,21 +270,21 @@ public class ZonePlayer extends QPlayer {
     }
 
     @Override
-    public void dieLeave(EntityDeathEvent event) {
+    public void dieLeave(PlayerDeathEvent event) {
 
         score = 0;
 
-        if (zone.getLB() != null) {
+        if (zone.getLeaderboards() != null) {
 
-            zone.getLB().queueScoreUpdate(this);
+            zone.getLeaderboards().queueScoreUpdate(this);
 
         }
 
         deleteInventory();
         deletePlayerDataFile();
         event.getDrops().clear();
-        zone.registerDeadPlayer(player.getName(), player.getTotalExperience());
         event.setDroppedExp(0);
+        event.setKeepLevel(true);
 
     }
     

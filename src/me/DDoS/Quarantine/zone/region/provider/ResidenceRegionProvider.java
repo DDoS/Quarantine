@@ -14,6 +14,14 @@ import org.bukkit.World;
  */
 public class ResidenceRegionProvider implements RegionProvider {
 
+    
+    @Override
+    public String getName() {
+        
+        return "Residence";
+        
+    }
+    
     @Override
     public Region getRegion(World world, String regionName) {
 

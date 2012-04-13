@@ -28,9 +28,9 @@ public class TextGUIHandler implements GUIHandler {
 
         for (Zone zone : plugin.getZones()) {
 
-            QUtil.tell(player, zone.getName()
-                    + ": " + zone.getNumOfPlayers()
-                    + "/" + zone.getMaxNumOfPlayers());
+            QUtil.tell(player, zone.getProperties().getZoneName()
+                    + ": " + zone.getNumberOfPlayers()
+                    + "/" + zone.getProperties().getMaxNumberOfPlayers());
 
         }
     }
