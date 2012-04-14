@@ -34,7 +34,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.getspout.spoutapi.plugin.SpoutPlugin;
 
 /**
  *
@@ -261,26 +260,8 @@ public class Quarantine extends JavaPlugin {
 
     public void unloadZone(Zone zone) {
 
-        removePlayers(zone);
-        saveZoneLocations(zone);
-        disconnectLB(zone);
-
-    }
-
-    private void saveZoneLocations(Zone zone) {
-
-        zone.saveLocations(config);
-
-    }
-
-    private void removePlayers(Zone zone) {
-
         zone.removeAllPlayers();
-
-    }
-
-    private void disconnectLB(Zone zone) {
-
+        zone.saveLocations(config);
         zone.disconnectLeaderboards();
 
     }

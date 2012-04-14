@@ -89,9 +89,9 @@ public class Zone {
     }
 
     public ZoneProperties getProperties() {
-        
+
         return properties;
-    
+
     }
 
     public void disconnectLeaderboards() {
@@ -753,17 +753,25 @@ public class Zone {
 
         ConfigurationSection configSec1 = config.getConfigurationSection("Zones." + properties.getZoneName());
 
-        configSec1.set("lobby.x", lobby.getX());
-        configSec1.set("lobby.y", lobby.getY());
-        configSec1.set("lobby.z", lobby.getZ());
-        configSec1.set("lobby.yaw", lobby.getYaw());
-        configSec1.set("lobby.pitch", lobby.getPitch());
+        if (lobby != null) {
 
-        configSec1.set("entrance.x", entrance.getX());
-        configSec1.set("entrance.y", entrance.getY());
-        configSec1.set("entrance.z", entrance.getZ());
-        configSec1.set("entrance.yaw", entrance.getYaw());
-        configSec1.set("entrance.pitch", entrance.getPitch());
+            configSec1.set("lobby.x", lobby.getX());
+            configSec1.set("lobby.y", lobby.getY());
+            configSec1.set("lobby.z", lobby.getZ());
+            configSec1.set("lobby.yaw", lobby.getYaw());
+            configSec1.set("lobby.pitch", lobby.getPitch());
+
+        }
+
+        if (entrance != null) {
+
+            configSec1.set("entrance.x", entrance.getX());
+            configSec1.set("entrance.y", entrance.getY());
+            configSec1.set("entrance.z", entrance.getZ());
+            configSec1.set("entrance.yaw", entrance.getYaw());
+            configSec1.set("entrance.pitch", entrance.getPitch());
+
+        }
 
         try {
 
