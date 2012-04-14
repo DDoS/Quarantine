@@ -66,6 +66,14 @@ public class ZoneLoader {
         }
 
         String worldName = configSec1.getString("world");
+        
+        if (worldName == null) {
+            
+            Quarantine.log.info("[Quarantine] Couldn't load zone " + zoneName + ", invalid world name.");
+            return false;
+            
+        }
+        
         world = Bukkit.getWorld(worldName);
 
         if (world == null) {
@@ -191,7 +199,7 @@ public class ZoneLoader {
 
         if (mainRegion == null) {
 
-            Quarantine.log.info("[Quarantine] Couldn't load main zone: " + zoneName);
+            Quarantine.log.info("[Quarantine] Couldn't load main region for: " + zoneName);
             return null;
 
         }

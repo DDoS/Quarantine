@@ -294,7 +294,7 @@ public class Quarantine extends JavaPlugin {
         }
 
         for (String zoneToLoad : config.getStringList("Load_on_start")) {
-
+            
             ZoneLoader loader = new ZoneLoader();
             Zone zone = loader.loadZone(this, zoneToLoad);
 
