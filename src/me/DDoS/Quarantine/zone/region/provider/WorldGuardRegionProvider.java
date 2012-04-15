@@ -33,6 +33,13 @@ public class WorldGuardRegionProvider implements RegionProvider {
     public Region getRegion(World world, String regionName) {
         
         ProtectedRegion region = regionManager.get(world).getRegion(regionName);
+        
+        if (region == null) {
+            
+            return null;
+            
+        }
+        
         Vector vectorMax = region.getMaximumPoint();
         Vector vectorMin = region.getMinimumPoint();
         BlockLocation max = new BlockLocation(world, vectorMax.getBlockX(), vectorMax.getBlockY(), vectorMax.getBlockZ());
@@ -45,6 +52,13 @@ public class WorldGuardRegionProvider implements RegionProvider {
     public SpawnRegion getSpawnRegion(World world, String regionName) {
         
         ProtectedRegion region = regionManager.get(world).getRegion(regionName);
+        
+        if (region == null) {
+            
+            return null;
+            
+        }
+        
         Vector vectorMax = region.getMaximumPoint();
         Vector vectorMin = region.getMinimumPoint();
         BlockLocation max = new BlockLocation(world, vectorMax.getBlockX(), vectorMax.getBlockY(), vectorMax.getBlockZ());
