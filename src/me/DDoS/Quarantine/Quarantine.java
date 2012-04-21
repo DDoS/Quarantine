@@ -44,6 +44,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import couk.Adamki11s.Regios.Main.Regios;
 
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.plugin.RegisteredServiceProvider;
 
 /**
  *
@@ -384,7 +385,24 @@ public class Quarantine extends JavaPlugin {
 
         }
 
-        Economy economy = plugin.getServer().getServicesManager().getRegistration(Economy.class).getProvider();
+        RegisteredServiceProvider<Economy> economyProvider = plugin.getServer().getServicesManager().getRegistration(Economy.class);
+        
+        if (economyProvider == null) {
+            
+            log.info("[Quarantine] No economy. Economy converter disabled.");
+            return;
+            
+        }
+        
+        Economy economy = economyProvider.getProvider();
+        
+        if (economy == null) {
+            
+            log.info("[Quarantine] No economy. Economy converter disabled.");
+            return;
+            
+        }
+        
         float externalToInternalRate;
         float internalToExternalRate;
 
