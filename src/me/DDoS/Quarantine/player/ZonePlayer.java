@@ -169,14 +169,6 @@ public class ZonePlayer extends QPlayer {
 
     }
 
-    private void removeMoney(int amount) {
-
-        money -= amount;
-        QUtil.tell(player, amount + " dollar(s) have been substracted from your account balance.");
-        tellMoney();
-
-    }
-
     @Override
     public boolean join() {
 
@@ -300,6 +292,13 @@ public class ZonePlayer extends QPlayer {
         kit.giveKit(player);
         removeMoney(cost);
         QUtil.tell(player, "Kit added.");
+        
+    }
+
+    @Override
+    public PlayerType getPlayerType() {
+        
+        return PlayerType.ZONE_PLAYER;
         
     }
 }

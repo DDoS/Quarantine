@@ -1,16 +1,16 @@
 package me.DDoS.Quarantine.command;
 
-import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.permission.Permission;
-import me.DDoS.Quarantine.util.InventoryConvertor;
-import me.DDoS.Quarantine.util.QUtil;
-import me.DDoS.Quarantine.zone.Zone;
-import me.DDoS.Quarantine.zone.ZoneLoader;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.permission.Permission;
+import me.DDoS.Quarantine.util.QUtil;
+import me.DDoS.Quarantine.zone.Zone;
+import me.DDoS.Quarantine.zone.ZoneLoader;
 
 /**
  *
@@ -44,8 +44,10 @@ public class AdminCommandExecutor implements CommandExecutor {
             return true;
 
         }
+        
+        final String cmdName = cmd.getName();
 
-        if (cmd.getName().equalsIgnoreCase("qload") && args.length >= 1) {
+        if (cmdName.equalsIgnoreCase("qload") && args.length >= 1) {
 
             if (!plugin.hasRegionProvider()) {
 
@@ -77,7 +79,7 @@ public class AdminCommandExecutor implements CommandExecutor {
 
         }
 
-        if (cmd.getName().equalsIgnoreCase("qunload") && args.length >= 1) {
+        if (cmdName.equalsIgnoreCase("qunload") && args.length >= 1) {
 
             if (!plugin.hasZone(args[0])) {
 
@@ -94,7 +96,7 @@ public class AdminCommandExecutor implements CommandExecutor {
 
         }
 
-        if (cmd.getName().equalsIgnoreCase("qrespawnmobs") && args.length >= 1) {
+        if (cmdName.equalsIgnoreCase("qrespawnmobs") && args.length >= 1) {
 
             if (!plugin.hasZone(args[0])) {
 
@@ -106,15 +108,6 @@ public class AdminCommandExecutor implements CommandExecutor {
             plugin.getZone(args[0]).reloadMobs();
 
             QUtil.tell(player, "Mobs successfuly respawned.");
-            return true;
-
-        }
-
-        if (cmd.getName().equalsIgnoreCase("qconvertinv") && args.length >= 1) {
-
-            InventoryConvertor.convert(args[0]);
-            
-            QUtil.tell(player, "Inventories converted.");
             return true;
 
         }

@@ -1,14 +1,16 @@
 package me.DDoS.Quarantine.command;
 
-import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.permission.Permission;
-import me.DDoS.Quarantine.util.QUtil;
-import me.DDoS.Quarantine.zone.Zone;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.permission.Permission;
+import me.DDoS.Quarantine.player.QPlayer;
+import me.DDoS.Quarantine.util.QUtil;
+import me.DDoS.Quarantine.zone.Zone;
 
 /**
  *
@@ -43,7 +45,9 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
         }
 
-        if (cmd.getName().equalsIgnoreCase("qjoin") && args.length >= 1) {
+        final String cmdName = cmd.getName();
+
+        if (cmdName.equalsIgnoreCase("qjoin") && args.length >= 1) {
 
             if (!plugin.hasZone(args[0])) {
 
@@ -52,14 +56,11 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             }
 
-            for (Zone zone : plugin.getZones()) {
+            if (plugin.isQuarantinePlayer(player.getName())) {
 
-                if (zone.hasPlayer(player.getName())) {
+                QUtil.tell(player, "You can only be in one zone at a time.");
+                return true;
 
-                    QUtil.tell(player, "You can only be in one zone at a time.");
-                    return true;
-
-                }
             }
 
             plugin.getZone(args[0]).joinPlayer(player);
@@ -67,16 +68,15 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
         }
 
-        if (cmd.getName().equalsIgnoreCase("qenter")) {
+        if (cmdName.equalsIgnoreCase("qenter")) {
 
-            for (Zone zone : plugin.getZones()) {
+            Zone zone = plugin.getZoneByPlayer(player.getName());
 
-                if (zone.enterPlayer(player)) {
+            if (zone != null) {
 
-                    return true;
+                zone.enterPlayer(player);
+                return true;
 
-
-                }
             }
 
             QUtil.tell(player, "You need to join a zone first.");
@@ -84,15 +84,15 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
         }
 
-        if (cmd.getName().equalsIgnoreCase("qleave")) {
+        if (cmdName.equalsIgnoreCase("qleave")) {
 
-            for (Zone zone : plugin.getZones()) {
+            Zone zone = plugin.getZoneByPlayer(player.getName());
 
-                if (zone.leavePlayer(player)) {
+            if (zone != null) {
 
-                    return true;
+                zone.leavePlayer(player);
+                return true;
 
-                }
             }
 
             QUtil.tell(player, "You haven't joined any zone yet.");
@@ -100,15 +100,15 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
         }
 
-        if (cmd.getName().equalsIgnoreCase("qmoney")) {
+        if (cmdName.equalsIgnoreCase("qmoney")) {
 
-            for (Zone zone : plugin.getZones()) {
+            QPlayer qPlayer = plugin.getQuarantinePlayer(player.getName());
 
-                if (zone.tellMoney(player)) {
+            if (qPlayer != null) {
 
-                    return true;
+                qPlayer.tellMoney();
+                return true;
 
-                }
             }
 
             QUtil.tell(player, "You haven't entered any zone yet.");
@@ -116,15 +116,15 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
         }
 
-        if (cmd.getName().equalsIgnoreCase("qkeys")) {
+        if (cmdName.equalsIgnoreCase("qkeys")) {
 
-            for (Zone zone : plugin.getZones()) {
+            QPlayer qPlayer = plugin.getQuarantinePlayer(player.getName());
 
-                if (zone.tellKeys(player)) {
+            if (qPlayer != null) {
 
-                    return true;
+                qPlayer.tellKeys();
+                return true;
 
-                }
             }
 
             QUtil.tell(player, "You haven't entered any zone yet.");
@@ -132,15 +132,15 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
         }
 
-        if (cmd.getName().equalsIgnoreCase("qrank")) {
+        if (cmdName.equalsIgnoreCase("qrank")) {
 
-            for (Zone zone : plugin.getZones()) {
+            QPlayer qPlayer = plugin.getQuarantinePlayer(player.getName());
 
-                if (zone.tellRank(player)) {
+            if (qPlayer != null) {
 
-                    return true;
+                qPlayer.tellRank();
+                return true;
 
-                }
             }
 
             QUtil.tell(player, "You haven't entered any zone yet.");
@@ -148,7 +148,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
         }
 
-        if (cmd.getName().equalsIgnoreCase("qtop")) {
+        if (cmdName.equalsIgnoreCase("qtop")) {
 
             int page;
 
@@ -174,13 +174,13 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             }
 
-            for (Zone zone : plugin.getZones()) {
+            QPlayer qPlayer = plugin.getQuarantinePlayer(player.getName());
 
-                if (zone.tellTopFive(player, page)) {
+            if (qPlayer != null) {
 
-                    return true;
+                qPlayer.tellTopFive(page);
+                return true;
 
-                }
             }
 
             QUtil.tell(player, "You haven't entered any zone yet.");
@@ -188,15 +188,15 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
         }
 
-        if (cmd.getName().equalsIgnoreCase("qscore")) {
+        if (cmdName.equalsIgnoreCase("qscore")) {
 
-            for (Zone zone : plugin.getZones()) {
+            QPlayer qPlayer = plugin.getQuarantinePlayer(player.getName());
 
-                if (zone.tellScore(player)) {
+            if (qPlayer != null) {
 
-                    return true;
+                qPlayer.tellScore();
+                return true;
 
-                }
             }
 
             QUtil.tell(player, "You haven't entered any zone yet.");
@@ -204,14 +204,14 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
         }
 
-        if (cmd.getName().equalsIgnoreCase("qzones")) {
+        if (cmdName.equalsIgnoreCase("qzones")) {
 
             plugin.getGUIHandler().handleZoneList(player);
             return true;
 
         }
 
-        if (cmd.getName().equalsIgnoreCase("qplayers")) {
+        if (cmdName.equalsIgnoreCase("qplayers")) {
 
             if (args.length > 0) {
 
@@ -223,14 +223,13 @@ public class PlayerCommandExecutor implements CommandExecutor {
                 }
             }
 
-            for (Zone zone : plugin.getZones()) {
+            Zone zone = plugin.getZoneByPlayer(player.getName());
 
-                if (zone.hasPlayer(player.getName())) {
+            if (zone != null) {
 
-                    plugin.getGUIHandler().handlePlayerList(player, zone);
-                    return true;
+                plugin.getGUIHandler().handlePlayerList(player, zone);
+                return true;
 
-                }
             }
 
             QUtil.tell(player, "You have to provide a zone name if you aren't playing.");
@@ -238,7 +237,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
         }
 
-        if (cmd.getName().equalsIgnoreCase("qkit")) {
+        if (cmdName.equalsIgnoreCase("qkit")) {
 
             if (args.length < 1) {
 
@@ -247,13 +246,13 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             }
 
-            for (Zone zone : plugin.getZones()) {
+            Zone zone = plugin.getZoneByPlayer(player.getName());
 
-                if (zone.giveKit(player, args[0])) {
+            if (zone != null) {
 
-                    return true;
+                zone.giveKit(player, args[0]);
+                return true;
 
-                }
             }
 
             QUtil.tell(player, "You haven't entered any zone yet.");
@@ -261,20 +260,122 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
         }
 
-        if (cmd.getName().equalsIgnoreCase("qkits")) {
+        if (cmdName.equalsIgnoreCase("qkits")) {
 
-            for (Zone zone : plugin.getZones()) {
+            QPlayer qPlayer = plugin.getQuarantinePlayer(player.getName());
 
-                if (zone.tellKits(player)) {
+            if (qPlayer != null) {
 
-                    return true;
+                qPlayer.tellKits();
+                return true;
 
-                }
             }
 
             QUtil.tell(player, "You haven't entered any zone yet.");
             return true;
 
+        }
+
+        if (cmdName.equalsIgnoreCase("qconvertmoney")) {
+
+            if (!plugin.hasEconomyConverter()) {
+
+                QUtil.tell(player, "Money conversion is disabled.");
+                return true;
+
+            }
+
+            if (args.length < 2) {
+
+                QUtil.tell(player, "You need to provide more arguments.");
+                return true;
+
+            }
+
+            if (args[0].equalsIgnoreCase("IntToExt")) {
+
+                int amount = 0;
+
+                try {
+
+                    amount = Integer.parseInt(args[1]);
+
+                } catch (NumberFormatException nfe) {
+
+                    QUtil.tell(player, "The provided amount isn't a valid number.");
+                    return true;
+
+                }
+
+                Zone zone = plugin.getZoneByPlayer(player.getName());
+
+                if (zone != null) {
+
+                    if (plugin.getPermissions().hasPermission(player, "quarantine.convertmoney."
+                            + zone.getProperties().getZoneName() + ".inttoext")) {
+
+                        plugin.getEconomyConverter().transfertInternalToExternal(zone.getPlayer(player.getName()), amount);
+
+                    } else {
+
+                        QUtil.tell(player, "You don't have permission for this type of money conversion in this zone.");
+
+                    }
+
+                    return true;
+
+                } else {
+
+                    QUtil.tell(player, "You need to join the desired zone first.");
+
+                }
+
+                return true;
+
+            } else if (args[0].equalsIgnoreCase("ExtToInt")) {
+
+                double amount = 0;
+
+                try {
+
+                    amount = Double.parseDouble(args[1]);
+
+                } catch (NumberFormatException nfe) {
+
+                    QUtil.tell(player, "The provided amount isn't a valid number.");
+                    return true;
+
+                }
+
+                Zone zone = plugin.getZoneByPlayer(player.getName());
+
+                if (zone != null) {
+
+                    if (plugin.getPermissions().hasPermission(player, "quarantine.convertmoney."
+                            + zone.getProperties().getZoneName() + ".exttoint")) {
+
+                        plugin.getEconomyConverter().transfertExternalToInternal(zone.getPlayer(player.getName()), amount);
+
+                    } else {
+
+                        QUtil.tell(player, "You don't have permission for this type of money conversion in this zone.");
+
+                    }
+
+                    return true;
+
+                } else {
+
+                    QUtil.tell(player, "You need to join the desired zone first.");
+
+                }
+
+            } else {
+
+                QUtil.tell(player, "The first argument must be either 'IntToExt' or 'ExtToInt'.");
+                return true;
+
+            }
         }
 
         return false;

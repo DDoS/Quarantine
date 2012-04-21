@@ -242,4 +242,11 @@ public class LobbyPlayer extends QPlayer {
 
         }
     }
+    
+    @Override
+    public PlayerType getPlayerType() {
+        
+        return PlayerType.LOBBY_PLAYER;
+        
+    }
 }

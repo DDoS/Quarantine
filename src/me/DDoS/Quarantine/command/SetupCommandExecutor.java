@@ -42,7 +42,9 @@ public class SetupCommandExecutor implements CommandExecutor {
 
         }
         
-        if (cmd.getName().equalsIgnoreCase("qsetlobby") && args.length >= 1) {
+        final String cmdName = cmd.getName();
+        
+        if (cmdName.equalsIgnoreCase("qsetlobby") && args.length >= 1) {
 
             if (!plugin.hasZone(args[0])) {
 
@@ -57,7 +59,7 @@ public class SetupCommandExecutor implements CommandExecutor {
 
         }
 
-        if (cmd.getName().equalsIgnoreCase("qsetentrance") && args.length >= 1) {
+        if (cmdName.equalsIgnoreCase("qsetentrance") && args.length >= 1) {
 
             if (!plugin.hasZone(args[0])) {
 

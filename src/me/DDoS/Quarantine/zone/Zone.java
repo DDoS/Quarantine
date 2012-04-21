@@ -1,12 +1,14 @@
 package me.DDoS.Quarantine.zone;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import java.io.IOException;
+
+import java.util.Set;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -18,13 +20,11 @@ import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
-import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -33,19 +33,17 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.LazyMetadataValue;
+import org.bukkit.event.entity.PlayerDeathEvent;
 
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.player.ZonePlayer;
 import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.player.CallablePlayer;
 import me.DDoS.Quarantine.player.LobbyPlayer;
 import me.DDoS.Quarantine.player.QPlayer;
 import me.DDoS.Quarantine.zone.subzone.SubZone;
 import me.DDoS.Quarantine.zone.region.Region;
 import me.DDoS.Quarantine.leaderboard.Leaderboard;
 import me.DDoS.Quarantine.player.inventory.Kit;
-import org.bukkit.event.entity.PlayerDeathEvent;
 
 /**
  *
@@ -118,6 +116,21 @@ public class Zone {
 
     }
 
+    public boolean hasMob(LivingEntity living) {
+
+        for (SubZone subzone : subZones) {
+
+            if (subzone.hasMob(living)) {
+
+                return true;
+
+            }
+        }
+
+        return false;
+
+    }
+
     public Location getLobby() {
 
         return lobby;
@@ -155,6 +168,18 @@ public class Zone {
 
     }
 
+    public Collection<Kit> getKits() {
+
+        return kits.values();
+
+    }
+
+    public Set<String> getKitNames() {
+
+        return kits.keySet();
+
+    }
+
     public Collection<QPlayer> getPlayers() {
 
         return players.values();
@@ -167,120 +192,17 @@ public class Zone {
 
     }
 
-    public boolean tellMoney(Player player) {
-
-        if (!players.containsKey(player.getName())) {
-
-            return false;
-
-        }
-
-        players.get(player.getName()).tellMoney();
-        return true;
-
-    }
-
-    public boolean tellKeys(Player player) {
-
-        if (!players.containsKey(player.getName())) {
-
-            return false;
-
-        }
-
-        players.get(player.getName()).tellKeys();
-        return true;
-
-    }
-
-    public boolean tellRank(Player player) {
-
-        if (!players.containsKey(player.getName())) {
-
-            return false;
-
-        }
-
-        players.get(player.getName()).tellRank();
-        return true;
-
-    }
-
-    public boolean tellScore(Player player) {
-
-        if (!players.containsKey(player.getName())) {
-
-            return false;
-
-        }
-
-        players.get(player.getName()).tellScore();
-        return true;
-
-    }
-
-    public boolean tellTopFive(Player player, int page) {
-
-        if (!players.containsKey(player.getName())) {
-
-            return false;
-
-        }
-
-        players.get(player.getName()).tellTopFive(page);
-        return true;
-
-    }
-
-    public boolean tellKits(Player player) {
-
-        if (!players.containsKey(player.getName())) {
-
-            return false;
-
-        }
-
-        String kitList = "";
-        QUtil.tell(player, "Kits:");
-
-        for (String kitName : kits.keySet()) {
-
-            kitList = kitList + kitName + ", ";
-
-        }
-
-        try {
-
-            kitList = kitList.substring(0, kitList.length() - 2);
-
-        } catch (StringIndexOutOfBoundsException sioobe) {
-
-            return true;
-
-        }
-
-        QUtil.tell(player, kitList);
-        return true;
-
-    }
-
-    public boolean giveKit(Player player, String kitName) {
-
-        if (!players.containsKey(player.getName())) {
-
-            return false;
-
-        }
+    public void giveKit(Player player, String kitName) {
 
         if (!kits.containsKey(kitName)) {
 
             QUtil.tell(player, "Could not find the requested kit.");
-            return true;
+            return;
 
         }
 
         if (!plugin.getPermissions().hasPermission(player, "quarantine.kit."
-                + properties.getZoneName() + "-" + kitName)) {
+                + properties.getZoneName() + "." + kitName)) {
 
             QUtil.tell(player, "You don't have permission for this kit.");
 
@@ -291,7 +213,7 @@ public class Zone {
             if (qPlayer instanceof LobbyPlayer) {
 
                 ((LobbyPlayer) qPlayer).giveKit(kits.get(kitName));
-                return true;
+                return;
 
             }
 
@@ -299,18 +221,9 @@ public class Zone {
                     + "if you don't have any saved inventory.");
 
         }
-
-        return true;
-
     }
 
-    public boolean passPlayerTeleportEvent(PlayerTeleportEvent event) {
-
-        if (!players.containsKey(event.getPlayer().getName())) {
-
-            return false;
-
-        }
+    public void handlePlayerTeleport(PlayerTeleportEvent event) {
 
         if (players.get(event.getPlayer().getName()).teleportLeave(event)) {
 
@@ -322,34 +235,26 @@ public class Zone {
 
             }
         }
-
-        return true;
-
     }
 
-    public boolean passCreatureSpawnEvent(CreatureSpawnEvent event) {
+    public void handleCreatureSpawn(CreatureSpawnEvent event) {
 
-        if (isInZone(event.getLocation())) {
+        if (!event.getSpawnReason().equals(SpawnReason.CUSTOM)) {
 
-            if (!event.getSpawnReason().equals(SpawnReason.CUSTOM)) {
-
-                event.setCancelled(true);
-
-            }
-
-            return true;
+            event.setCancelled(true);
 
         }
-
-        return false;
-
     }
 
-    public boolean passEntityDeathEvent(Monster entity, EntityDeathEvent event) {
+    public void handleEntityDeath(EntityDeathEvent event) {
+
+        LivingEntity entity = event.getEntity();
 
         for (SubZone subZone : subZones) {
 
-            if (subZone.removeAndSpawnNewEntity(entity)) {
+            if (subZone.hasMob(entity)) {
+
+                subZone.refreshEntity(entity);
 
                 if (properties.clearDrops()) {
 
@@ -363,7 +268,7 @@ public class Zone {
 
                     if (!players.containsKey(player.getName())) {
 
-                        return true;
+                        return;
 
                     }
 
@@ -371,7 +276,7 @@ public class Zone {
 
                     if (!qPlayer.isZonePlayer()) {
 
-                        return true;
+                        return;
 
                     }
 
@@ -386,43 +291,26 @@ public class Zone {
                     }
                 }
 
-                return true;
+                return;
 
             }
         }
-
-        return false;
-
     }
 
-    public boolean passPlayerDeathEvent(Player player, PlayerDeathEvent event) {
+    public void handlePlayerDeath(PlayerDeathEvent event) {
 
-        if (!players.containsKey(player.getName())) {
-
-            return false;
-
-        }
-
-        players.get(player.getName()).dieLeave(event);
-        players.remove(player.getName());
+        String playerName = event.getEntity().getName();
+        players.get(playerName).dieLeave(event);
+        players.remove(playerName);
 
         if (players.isEmpty()) {
 
             removeAllMobs();
 
         }
-
-        return true;
-
     }
 
-    public boolean passPlayerQuitEvent(Player player) {
-
-        if (!players.containsKey(player.getName())) {
-
-            return false;
-
-        }
+    public void handlePlayerQuit(Player player) {
 
         players.get(player.getName()).quitLeave();
         players.remove(player.getName());
@@ -432,85 +320,24 @@ public class Zone {
             removeAllMobs();
 
         }
-
-        return true;
-
     }
 
-    public boolean passEntityCombustByBlockEvent(Entity entity) {
-
-        if (entity.hasMetadata("quarantine." + properties.getZoneName() + ".fire_damager")) {
-
-            entity.removeMetadata("quarantine." + properties.getZoneName() + ".fire_damager", plugin);
-            return true;
-
-        }
-
-        return false;
-
-    }
-
-    public boolean passEntityCombustByPlayerEvent(Player player, Entity victim) {
-
-        if (players.containsKey(player.getName())) {
-
-            victim.setMetadata("quarantine." + properties.getZoneName() + ".fire_damager",
-                    new LazyMetadataValue(plugin, new CallablePlayer(player)));
-            return true;
-
-        }
-
-        return false;
-
-    }
-
-    public boolean passEntityCombustEvent(EntityCombustEvent event, Monster mob) {
-
-        for (SubZone subZone : subZones) {
-
-            if (subZone.containsMob(mob)) {
-
-                event.setCancelled(true);
-                return true;
-
-            }
-        }
-
-        return false;
-
-    }
-
-    public boolean passChunkUnloadEvent(ChunkUnloadEvent event) {
-
-        if (!isInZone(event.getChunk())) {
-
-            return false;
-
-        }
+    public void handleChunkUnload(ChunkUnloadEvent event) {
 
         if (!players.isEmpty()) {
 
             event.setCancelled(true);
 
         }
-
-        return true;
-
     }
 
-    public boolean passPlayerInteractButtonEvent(PlayerInteractEvent event, Player player) {
-
-        if (!players.containsKey(player.getName())) {
-
-            return false;
-
-        }
+    public void handlePlayerInteractButton(PlayerInteractEvent event, Player player) {
 
         QPlayer qPlayer = players.get(player.getName());
 
         if (!qPlayer.isZonePlayer()) {
 
-            return true;
+            return;
 
         }
 
@@ -521,24 +348,15 @@ public class Zone {
             event.setCancelled(true);
 
         }
-
-        return true;
-
     }
 
-    public boolean passPlayerInteractSignEvent(PlayerInteractEvent event, Player player, Sign sign) {
+    public void handlePlayerInteractSign(PlayerInteractEvent event, Sign sign) {
 
-        if (!players.containsKey(player.getName())) {
-
-            return false;
-
-        }
-
-        QPlayer qPlayer = players.get(player.getName());
+        QPlayer qPlayer = players.get(event.getPlayer().getName());
 
         if (!qPlayer.isZonePlayer()) {
 
-            return true;
+            return;
 
         }
 
@@ -549,9 +367,6 @@ public class Zone {
             event.setCancelled(handleZoneSign(qzPlayer, sign));
 
         }
-
-        return true;
-
     }
 
     private boolean handleLock(ZonePlayer player, Block block) {
@@ -660,7 +475,13 @@ public class Zone {
 
     }
 
-    private QPlayer getPlayer(Player player) {
+    public QPlayer getPlayer(String playerName) {
+
+        return players.get(playerName);
+
+    }
+
+    private QPlayer getAndCreatePlayer(Player player) {
 
         if (!players.containsKey(player.getName())) {
 
@@ -681,7 +502,7 @@ public class Zone {
 
         }
 
-        QPlayer qPlayer = getPlayer(player);
+        QPlayer qPlayer = getAndCreatePlayer(player);
 
         if (qPlayer.join()) {
 
@@ -691,35 +512,22 @@ public class Zone {
         }
     }
 
-    public boolean enterPlayer(Player player) {
-
-        if (!players.containsKey(player.getName())) {
-
-            return false;
-
-        }
+    public void enterPlayer(Player player) {
 
         QPlayer qPlayer = players.get(player.getName());
 
         if (!qPlayer.enter()) {
 
-            return true;
+            return;
 
         }
 
         ZonePlayer qzPlayer = new ZonePlayer(qPlayer);
         players.put(player.getName(), qzPlayer);
-        return true;
 
     }
 
-    public boolean leavePlayer(Player player) {
-
-        if (!players.containsKey(player.getName())) {
-
-            return false;
-
-        }
+    public void leavePlayer(Player player) {
 
         if (players.get(player.getName()).commandLeave()) {
 
@@ -731,9 +539,6 @@ public class Zone {
 
             }
         }
-
-        return true;
-
     }
 
     public void removeAllPlayers() {
@@ -924,14 +729,14 @@ public class Zone {
 
             String zoneName = properties.getZoneName();
 
-            if (!entity.hasMetadata("quarantine." + zoneName + ".fire_damager")) {
+            if (!entity.hasMetadata("quarantine_fire_damager")) {
 
                 return null;
 
             }
 
-            Player player = (Player) entity.getMetadata("quarantine." + zoneName + ".fire_damager").get(0).value();
-            entity.removeMetadata("quarantine." + zoneName + ".fire_damager", plugin);
+            Player player = (Player) entity.getMetadata("quarantine_fire_damager").get(0).value();
+            entity.removeMetadata("quarantine_fire_damager", plugin);
             return player;
 
         } else if (ede instanceof EntityDamageByEntityEvent) {

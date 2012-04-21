@@ -1,39 +1,49 @@
 package me.DDoS.Quarantine;
 
-import com.bekvon.bukkit.residence.Residence;
-import me.DDoS.Quarantine.command.AdminCommandExecutor;
-import me.DDoS.Quarantine.leaderboard.Leaderboard;
-import me.DDoS.Quarantine.zone.ZoneLoader;
-import me.DDoS.Quarantine.listener.*;
-import me.DDoS.Quarantine.zone.Zone;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import couk.Adamki11s.Regios.Main.Regios;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
-import me.DDoS.Quarantine.command.PlayerCommandExecutor;
-import me.DDoS.Quarantine.command.SetupCommandExecutor;
+
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import java.net.URL;
+import java.net.URLConnection;
+
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.entity.LivingEntity;
+
+import me.DDoS.Quarantine.command.*;
+import me.DDoS.Quarantine.leaderboard.Leaderboard;
+import me.DDoS.Quarantine.zone.ZoneLoader;
+import me.DDoS.Quarantine.listener.QListener;
+import me.DDoS.Quarantine.zone.Zone;
 import me.DDoS.Quarantine.gui.*;
 import me.DDoS.Quarantine.permission.Permissions;
 import me.DDoS.Quarantine.permission.PermissionsHandler;
+import me.DDoS.Quarantine.util.EconomyConverter;
+import me.DDoS.Quarantine.zone.region.provider.*;
 import me.DDoS.Quarantine.util.Metrics;
 import me.DDoS.Quarantine.util.Metrics.Graph;
-import me.DDoS.Quarantine.zone.region.provider.RegionProvider;
-import me.DDoS.Quarantine.zone.region.provider.RegiosRegionProvider;
-import me.DDoS.Quarantine.zone.region.provider.ResidenceRegionProvider;
-import me.DDoS.Quarantine.zone.region.provider.WorldGuardRegionProvider;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
+import me.DDoS.Quarantine.util.Metrics.Plotter;
+import me.DDoS.Quarantine.player.QPlayer;
+
+import com.bekvon.bukkit.residence.Residence;
+
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+
+import couk.Adamki11s.Regios.Main.Regios;
+
+import net.milkbowl.vault.economy.Economy;
 
 /**
  *
@@ -52,6 +62,8 @@ public class Quarantine extends JavaPlugin {
     private GUIHandler guiHandler;
     //
     private RegionProvider regionProvider;
+    //
+    private EconomyConverter economyConverter;
 
     public Quarantine() {
 
@@ -69,7 +81,6 @@ public class Quarantine extends JavaPlugin {
         getCommand("qload").setExecutor(ace);
         getCommand("qunload").setExecutor(ace);
         getCommand("qrespawnmobs").setExecutor(ace);
-        getCommand("qconvertinv").setExecutor(ace);
 
         getCommand("qjoin").setExecutor(pce);
         getCommand("qenter").setExecutor(pce);
@@ -83,16 +94,20 @@ public class Quarantine extends JavaPlugin {
         getCommand("qplayers").setExecutor(pce);
         getCommand("qkit").setExecutor(pce);
         getCommand("qkits").setExecutor(pce);
+        getCommand("qconvertmoney").setExecutor(pce);
 
         getCommand("qsetlobby").setExecutor(sce);
         getCommand("qsetentrance").setExecutor(sce);
+
+        checkFiles();
 
         config = getConfig();
 
         findRegionProvider();
 
-        setupLeaderboards();
         setupGUIHandler();
+        setupEconomyConverter();
+        setupLeaderboards();
 
         permissions = new PermissionsHandler(this).getPermissions();
 
@@ -145,6 +160,96 @@ public class Quarantine extends JavaPlugin {
 
     }
 
+    public boolean isQuarantinePlayer(String playerName) {
+
+        for (Zone zone : getZones()) {
+
+            if (zone.hasPlayer(playerName)) {
+
+                return true;
+
+            }
+        }
+
+        return false;
+
+    }
+
+    public QPlayer getQuarantinePlayer(String playerName) {
+
+        for (Zone zone : getZones()) {
+
+            if (zone.hasPlayer(playerName)) {
+
+                return zone.getPlayer(playerName);
+
+            }
+        }
+
+        return null;
+
+    }
+
+    public Zone getZoneByPlayer(String playerName) {
+
+        for (Zone zone : getZones()) {
+
+            if (zone.hasPlayer(playerName)) {
+
+                return zone;
+
+            }
+        }
+
+        return null;
+
+    }
+
+    public Zone getZoneByMob(LivingEntity living) {
+
+        for (Zone zone : getZones()) {
+
+            if (zone.hasMob(living)) {
+
+                return zone;
+
+            }
+        }
+
+        return null;
+
+    }
+
+    public Zone getZoneByLocation(Location loc) {
+
+        for (Zone zone : getZones()) {
+
+            if (zone.isInZone(loc)) {
+
+                return zone;
+
+            }
+        }
+
+        return null;
+
+    }
+
+    public Zone getZoneByChunk(Chunk chunk) {
+
+        for (Zone zone : getZones()) {
+
+            if (zone.isInZone(chunk)) {
+
+                return zone;
+
+            }
+        }
+
+        return null;
+
+    }
+
     public boolean hasRegionProvider() {
 
         return regionProvider != null;
@@ -154,6 +259,18 @@ public class Quarantine extends JavaPlugin {
     public RegionProvider getRegionProvider() {
 
         return regionProvider;
+
+    }
+
+    public EconomyConverter getEconomyConverter() {
+
+        return economyConverter;
+
+    }
+    
+    public boolean hasEconomyConverter() {
+
+        return economyConverter != null;
 
     }
 
@@ -233,8 +350,7 @@ public class Quarantine extends JavaPlugin {
 
     private void setupGUIHandler() {
 
-        PluginManager pm = getServer().getPluginManager();
-        Plugin plugin = pm.getPlugin("Spout");
+        Plugin plugin = getServer().getPluginManager().getPlugin("Spout");
 
         if (plugin != null) {
 
@@ -247,6 +363,54 @@ public class Quarantine extends JavaPlugin {
             guiHandler = new TextGUIHandler(this);
 
         }
+    }
+
+    private void setupEconomyConverter() {
+
+        ConfigurationSection configSec = config.getConfigurationSection("External_Economy_Link");
+
+        if (!configSec.getBoolean("enabled")) {
+
+            return;
+
+        }
+
+        Plugin plugin = getServer().getPluginManager().getPlugin("Vault");
+
+        if (plugin == null) {
+
+            log.info("[Quarantine] No Vault detected. Economy converter disabled.");
+            return;
+
+        }
+
+        Economy economy = plugin.getServer().getServicesManager().getRegistration(Economy.class).getProvider();
+        float externalToInternalRate;
+        float internalToExternalRate;
+
+        if (configSec.getBoolean("external_to_internal.allow")) {
+
+            externalToInternalRate = (float) configSec.getDouble("external_to_internal.rate");
+
+        } else {
+
+            externalToInternalRate = -1f;
+
+        }
+
+        if (configSec.getBoolean("internal_to_external.allow")) {
+
+            internalToExternalRate = (float) configSec.getDouble("internal_to_external.rate");
+
+        } else {
+
+            internalToExternalRate = -1f;
+
+        }
+
+        economyConverter = new EconomyConverter(economy, externalToInternalRate, internalToExternalRate);
+        log.info("[Quarantine] Vault detected. Economy converter enabled.");
+
     }
 
     private void unLoadAllZones() {
@@ -275,7 +439,7 @@ public class Quarantine extends JavaPlugin {
         }
 
         for (String zoneToLoad : config.getStringList("Load_on_start")) {
-            
+
             ZoneLoader loader = new ZoneLoader();
             Zone zone = loader.loadZone(this, zoneToLoad);
 
@@ -286,7 +450,7 @@ public class Quarantine extends JavaPlugin {
 
             }
 
-            addZone(zoneToLoad.toLowerCase(), zone);
+            addZone(zoneToLoad, zone);
 
             log.info("[Quarantine] Loaded zone " + zoneToLoad + ".");
 
@@ -295,32 +459,34 @@ public class Quarantine extends JavaPlugin {
 
     private void setupLeaderboards() {
 
-        if (!config.getBoolean("Leaderboards.enabled")) {
+        ConfigurationSection configSec = config.getConfigurationSection("Leaderboards");
+
+        if (!configSec.getBoolean("enabled")) {
 
             Leaderboard.TYPE = "None";
             return;
 
         }
 
-        String type = config.getString("Leaderboards.type", "none");
+        String type = configSec.getString("type", "none");
 
         if (type.equalsIgnoreCase("redis")) {
 
             Leaderboard.ENABLED = true;
             Leaderboard.TYPE = "Redis";
-            Leaderboard.HOST = config.getString("Leaderboards.redis_db_info.host");
-            Leaderboard.PORT = config.getInt("Leaderboards.redis_db_info.port");
+            Leaderboard.HOST = configSec.getString("redis_db_info.host");
+            Leaderboard.PORT = configSec.getInt("redis_db_info.port");
 
 
         } else if (type.equalsIgnoreCase("mysql")) {
 
             Leaderboard.ENABLED = true;
             Leaderboard.TYPE = "MySQL";
-            Leaderboard.HOST = config.getString("Leaderboards.mysql_db_info.host");
-            Leaderboard.DB_NAME = config.getString("Leaderboards.mysql_db_info.name");
-            Leaderboard.PORT = config.getInt("Leaderboards.mysql_db_info.port");
-            Leaderboard.USER = config.getString("Leaderboards.mysql_db_info.user");
-            Leaderboard.PASSWORD = config.getString("Leaderboards.mysql_db_info.password");
+            Leaderboard.HOST = configSec.getString("mysql_db_info.host");
+            Leaderboard.DB_NAME = configSec.getString("mysql_db_info.name");
+            Leaderboard.PORT = configSec.getInt("mysql_db_info.port");
+            Leaderboard.USER = configSec.getString("mysql_db_info.user");
+            Leaderboard.PASSWORD = configSec.getString("mysql_db_info.password");
 
         } else {
 
@@ -330,31 +496,58 @@ public class Quarantine extends JavaPlugin {
         }
     }
 
-    private void checkLibs() {
+    private void checkFiles() {
 
-        if (!new File("plugins/Quarantine/lib").exists()) {
+        File mainDir = new File("plugins/Quarantine");
 
-            new File("plugins/Quarantine/lib").mkdir();
+        if (!mainDir.exists()) {
+
+            mainDir.mkdir();
 
         }
 
-        if (!new File("plugins/Quarantine/lib/jedis-2.0.0.jar").exists()) {
+        File configDir = new File(mainDir.getPath() + "/config.yml");
+
+        if (!configDir.exists()) {
+
+            saveDefaultConfig();
+
+        }
+    }
+
+    private void checkLibs() {
+
+        File libDir = new File("plugins/Quarantine/lib");
+
+        if (!libDir.exists()) {
+
+            libDir.mkdir();
+
+        }
+
+        File jedisFile = new File(libDir.getPath() + "/jedis-2.0.0.jar");
+
+        if (!jedisFile.exists()) {
 
             log.info("[Quarantine] Downloading 'jedis-2.0.0.jar' library.");
 
-            if (downloadJedisLib()) {
+            if (downloadFile("http://dl.dropbox.com/u/43006973/jedis-2.0.0.jar", jedisFile)) {
 
                 log.info("[Quarantine] Downloading done.");
+
+            } else {
+
+                log.info("[Quarantine] Couldn't download 'jedis-2.0.0.jar' library.");
 
             }
         }
     }
 
-    private boolean downloadJedisLib() {
+    private boolean downloadFile(String urlString, File outputFile) {
 
         try {
 
-            URL url = new URL("http://dl.dropbox.com/u/43006973/jedis-2.0.0.jar");
+            URL url = new URL(urlString);
             URLConnection connection = url.openConnection();
             DataInputStream inputStream = new DataInputStream(connection.getInputStream());
             byte[] fileData = new byte[connection.getContentLength()];
@@ -366,14 +559,13 @@ public class Quarantine extends JavaPlugin {
             }
 
             inputStream.close();
-            FileOutputStream outputStream = new FileOutputStream(new File("plugins/Quarantine/lib/jedis-2.0.0.jar"));
+            FileOutputStream outputStream = new FileOutputStream(outputFile);
             outputStream.write(fileData);
             outputStream.close();
             return true;
 
         } catch (Exception ex) {
 
-            log.info("[Quarantine] Couldn't download 'jedis-2.0.0.jar' library. Error: " + ex.getMessage());
             return false;
 
         }
@@ -387,7 +579,7 @@ public class Quarantine extends JavaPlugin {
 
             Graph generalInfo = metrics.createGraph("General info");
 
-            generalInfo.addPlotter(new Metrics.Plotter("Number of Zones") {
+            generalInfo.addPlotter(new Plotter("Number of Zones") {
 
                 @Override
                 public int getValue() {
@@ -397,7 +589,7 @@ public class Quarantine extends JavaPlugin {
                 }
             });
 
-            generalInfo.addPlotter(new Metrics.Plotter("Number of Players") {
+            generalInfo.addPlotter(new Plotter("Number of Players") {
 
                 @Override
                 public int getValue() {
@@ -417,7 +609,7 @@ public class Quarantine extends JavaPlugin {
 
             Graph leaderboardInfo = metrics.createGraph("Leaderboard Types");
 
-            leaderboardInfo.addPlotter(new Metrics.Plotter(Leaderboard.TYPE) {
+            leaderboardInfo.addPlotter(new Plotter(Leaderboard.TYPE) {
 
                 @Override
                 public int getValue() {
@@ -431,7 +623,7 @@ public class Quarantine extends JavaPlugin {
 
                 Graph regionProviderInfo = metrics.createGraph("Region Providers");
 
-                regionProviderInfo.addPlotter(new Metrics.Plotter(regionProvider.getName()) {
+                regionProviderInfo.addPlotter(new Plotter(regionProvider.getName()) {
 
                     @Override
                     public int getValue() {

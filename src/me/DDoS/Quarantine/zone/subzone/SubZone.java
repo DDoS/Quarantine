@@ -1,13 +1,15 @@
 package me.DDoS.Quarantine.zone.subzone;
 
-import me.DDoS.Quarantine.zone.location.SpawnLocation;
-import me.DDoS.Quarantine.zone.region.SpawnRegion;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+
+import me.DDoS.Quarantine.zone.location.SpawnLocation;
+import me.DDoS.Quarantine.zone.region.SpawnRegion;
 
 /**
  *
@@ -58,11 +60,11 @@ public class SubZone {
 
     public void spawnStartingMobs() {
 
-        spawnMobs(numOfMobs);
+        spawnMob(numOfMobs);
 
     }
 
-    public void spawnMobs(int numToSpawn) {
+    public void spawnMob(int quantity) {
 
         if (spawnLocs.isEmpty()) {
 
@@ -74,7 +76,7 @@ public class SubZone {
 
             Random rand = new Random();
 
-            for (int i = 0; i < numToSpawn; i++) {
+            for (int i = 0; i < quantity; i++) {
 
                 entities.add(spawnLocs.get(rand.nextInt(spawnLocs.size())).spawnCreature());
 
@@ -82,24 +84,13 @@ public class SubZone {
         }
     }
 
-    public boolean removeAndSpawnNewEntity(LivingEntity entity) {
+    public void refreshEntity(LivingEntity entity) {
 
         if (!softRespawn) {
 
-            if (entities.contains(entity)) {
-
-                entities.remove(entity);
-                entity.remove();
-                spawnMobs(1);
-                return true;
-
-            }
-
-            return false;
-
-        } else {
-
-            return entities.contains(entity);
+            entities.remove(entity);
+            entity.remove();
+            spawnMob(1);
 
         }
     }
@@ -117,14 +108,14 @@ public class SubZone {
 
     }
 
-    public boolean containsMob(LivingEntity ent) {
+    public boolean hasMob(LivingEntity ent) {
 
         return entities.contains(ent);
 
     }
 
     public void checkForDeadMobs() {
-        
+
         List<LivingEntity> flagged = new ArrayList<LivingEntity>();
 
         for (LivingEntity ent : entities) {
@@ -137,7 +128,7 @@ public class SubZone {
         }
 
         entities.removeAll(flagged);
-        spawnMobs(flagged.size());
+        spawnMob(flagged.size());
 
     }
 }

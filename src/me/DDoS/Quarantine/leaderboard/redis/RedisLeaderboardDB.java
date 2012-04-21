@@ -157,8 +157,7 @@ public class RedisLeaderboardDB implements LeaderboardDB {
 
         }
 
-        int indexForRedis = pageNumber - 1;
-        int startingOffset = indexForRedis * pageSize;
+        int startingOffset = (pageNumber - 1) * pageSize;
 
         if (startingOffset < 0) {
 

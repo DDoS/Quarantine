@@ -1,6 +1,7 @@
 package me.DDoS.Quarantine.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -36,6 +37,30 @@ public class QUtil {
         }
     }
 
+    public static String toString(Collection objects) {
+        
+        String string = "";
+
+        for (Object object : objects) {
+            
+            string = string + object.toString() + ", ";
+
+        }
+
+        try {
+
+            string = string.substring(0, string.length() - 2);
+
+        } catch (StringIndexOutOfBoundsException sioobe) {
+
+            return "";
+
+        }
+
+        return string;
+        
+    }
+    
     public static ItemStack toItemStack(String string, int amount) {
 
         String[] splits = string.split(":");

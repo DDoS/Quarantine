@@ -1,21 +1,19 @@
 package me.DDoS.Quarantine.player;
 
-import me.DDoS.Quarantine.player.error.DataError;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import me.DDoS.Quarantine.zone.Zone;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import me.DDoS.Quarantine.util.QUtil;
-import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.player.inventory.InventoryItem;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -24,6 +22,12 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+
+import me.DDoS.Quarantine.zone.Zone;
+import me.DDoS.Quarantine.util.QUtil;
+import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.player.error.DataError;
+import me.DDoS.Quarantine.player.inventory.InventoryItem;
 
 /**
  *
@@ -464,6 +468,13 @@ public class PlayerData {
 
         Quarantine.log.info("[Quarantine] Error message: " + ex.getMessage());
 
+    }
+    
+    @Override
+    public String toString() {
+       
+        return player.getDisplayName();
+        
     }
 
     @Override

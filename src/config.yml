@@ -13,6 +13,16 @@ Leaderboards:
     user: 'user'
     password: 'password'
 Region_Provider_Plugin: WorldGuard
+External_Economy_Link:
+  enabled: false
+  external_to_internal:
+    allow: true
+    # internal = external * rate
+    rate: 1
+  internal_to_external:
+    allow: false
+    # external = internal * rate
+    rate: 0.5
 Zones:
   zone1:
     max_number_of_players: 10

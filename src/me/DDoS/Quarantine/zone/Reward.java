@@ -8,11 +8,11 @@ import java.util.Random;
  */
 public class Reward {
     
+    private static final Random RANDOM = new Random();
+    //
     private final int min;
     private final int max;
     private final int score;
-    //
-    private final Random random = new Random();
     
     public Reward(int min, int max, int score) {
         
@@ -24,7 +24,7 @@ public class Reward {
     
     public int getRandomMoneyAmount() {
 
-        return random.nextInt(max - min + 1) + min;
+        return RANDOM.nextInt(max - min + 1) + min;
         
     }
     

@@ -38,36 +38,18 @@ public class TextGUIHandler implements GUIHandler {
     @Override
     public void handlePlayerList(Player player, Zone zone) {
 
-        String playerList = "";
         QUtil.tell(player, "Players:");
-
-        for (QPlayer p : zone.getPlayers()) {
-
-            playerList = playerList + p.getPlayer().getDisplayName() + ", ";
-
-        }
-
-        try {
-
-            playerList = playerList.substring(0, playerList.length() - 2);
-
-        } catch (StringIndexOutOfBoundsException sioobe) {
-
-            return;
-
-        }
-
-        QUtil.tell(player, playerList);
+        QUtil.tell(player, QUtil.toString(zone.getPlayers()));
 
     }
-    
+
     @Override
     public void handleTopResults(Player player, List<String> results) {
-       
+
         for (String result : results) {
 
             QUtil.tell(player, result);
 
-        }        
-    }   
+        }
+    }
 }

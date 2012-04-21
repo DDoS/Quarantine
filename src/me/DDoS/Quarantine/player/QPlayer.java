@@ -40,33 +40,34 @@ public abstract class QPlayer extends PlayerData {
 
     public abstract void dieLeave(PlayerDeathEvent event);
     
-    public void tellKeys() {
+    public abstract PlayerType getPlayerType();
+    
+    public void removeMoney(int amount) {
 
-        QUtil.tell(player, "Your keys: " + keysToString());
+        money -= amount;
+        QUtil.tell(player, amount + " dollar(s) have been substracted from your account balance.");
+        tellMoney();
 
     }
+    
+    public void giveMoney(int amount) {
 
-    private String keysToString() {
+        money += amount;
+        QUtil.tell(player, amount + " dollar(s) have been added to your account balance.");
+        tellMoney();
 
-        String finalString = "";
+    }
+    
+    public void tellKits() {
+        
+        QUtil.tell(player, "All available kits:");
+        QUtil.tell(player, QUtil.toString(zone.getKitNames()));
+        
+    }
+    
+    public void tellKeys() {
 
-        for (String key : keys) {
-
-            finalString = finalString + key + ", ";
-
-        }
-
-        try {
-
-            finalString = finalString.substring(0, finalString.length() - 2);
-
-        } catch (StringIndexOutOfBoundsException sioobe) {
-
-            return "";
-
-        }
-
-        return finalString;
+        QUtil.tell(player, "Your keys: " + QUtil.toString(keys));
 
     }
 

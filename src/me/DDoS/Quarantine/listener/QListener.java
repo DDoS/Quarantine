@@ -1,13 +1,9 @@
 package me.DDoS.Quarantine.listener;
 
-import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.util.QUtil;
-import me.DDoS.Quarantine.zone.Zone;
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -20,11 +16,20 @@ import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.metadata.LazyMetadataValue;
+
+import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.player.CallablePlayer;
+import me.DDoS.Quarantine.player.PlayerType;
+import me.DDoS.Quarantine.util.QUtil;
+import me.DDoS.Quarantine.zone.Zone;
 
 /**
  *
@@ -41,42 +46,39 @@ public class QListener implements Listener {
 
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
 
-        for (Zone zone : plugin.getZones()) {
+        Zone zone = plugin.getZoneByPlayer(event.getPlayer().getName());
 
-            if (zone.passPlayerTeleportEvent(event)) {
+        if (zone != null) {
 
-                return;
+            zone.handlePlayerTeleport(event);
 
-            }
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
 
-        for (Zone zone : plugin.getZones()) {
+        Zone zone = plugin.getZoneByPlayer(event.getPlayer().getName());
 
-            if (zone.passPlayerQuitEvent(event.getPlayer())) {
+        if (zone != null) {
 
-                return;
+            zone.handlePlayerQuit(event.getPlayer());
 
-            }
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerKick(PlayerKickEvent event) {
 
-        for (Zone zone : plugin.getZones()) {
+        Zone zone = plugin.getZoneByPlayer(event.getPlayer().getName());
 
-            if (zone.passPlayerQuitEvent(event.getPlayer())) {
+        if (zone != null) {
 
-                return;
+            zone.handlePlayerQuit(event.getPlayer());
 
-            }
         }
     }
 
@@ -89,22 +91,22 @@ public class QListener implements Listener {
 
         }
 
-        Player player = event.getPlayer();
+        Zone zone = plugin.getZoneByPlayer(event.getPlayer().getName());
+
+        if (zone == null) {
+
+            return;
+
+        }
 
         if (!QUtil.checkForSign(event.getClickedBlock())) {
 
-            if (event.getAction() == Action.RIGHT_CLICK_BLOCK
-                    || event.getAction() == Action.LEFT_CLICK_BLOCK
+            if ((event.getAction() == Action.RIGHT_CLICK_BLOCK
+                    || event.getAction() == Action.LEFT_CLICK_BLOCK)
                     && event.getClickedBlock().getType() == Material.STONE_BUTTON) {
 
-                for (Zone zone : plugin.getZones()) {
+                zone.handlePlayerInteractButton(event, event.getPlayer());
 
-                    if (zone.passPlayerInteractButtonEvent(event, player)) {
-
-                        return;
-
-                    }
-                }
             }
 
             return;
@@ -117,80 +119,57 @@ public class QListener implements Listener {
 
         }
 
-        Sign sign = (Sign) event.getClickedBlock().getState();
+        zone.handlePlayerInteractSign(event, (Sign) event.getClickedBlock().getState());
 
-        for (Zone zone : plugin.getZones()) {
-
-            if (zone.passPlayerInteractSignEvent(event, player, sign)) {
-
-                return;
-
-            }
-        }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onCreatureSpawn(CreatureSpawnEvent event) {
 
-        for (Zone zone : plugin.getZones()) {
+        Zone zone = plugin.getZoneByLocation(event.getLocation());
 
-            if (zone.passCreatureSpawnEvent(event)) {
+        if (zone != null) {
 
-                return;
+            zone.handleCreatureSpawn(event);
 
-            }
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerDeath(PlayerDeathEvent event) {
 
-        Player player = event.getEntity();
+        Zone zone = plugin.getZoneByPlayer(event.getEntity().getName());
 
-        for (Zone zone : plugin.getZones()) {
+        if (zone != null) {
 
-            if (zone.passPlayerDeathEvent(player, event)) {
+            zone.handlePlayerDeath(event);
 
-                return;
-
-            }
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onEntityDeath(EntityDeathEvent event) {
 
-        Entity entity = event.getEntity();
+        Zone zone = plugin.getZoneByMob(event.getEntity());
 
-        if (entity instanceof Monster) {
+        if (zone != null) {
 
-            Monster ent = (Monster) entity;
+            zone.handleEntityDeath(event);
 
-            for (Zone zone : plugin.getZones()) {
-
-                if (zone.passEntityDeathEvent(ent, event)) {
-
-                    return;
-
-                }
-            }
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityCombustByBlock(EntityCombustByBlockEvent event) {
 
-        for (Zone zone : plugin.getZones()) {
+        if (event.getEntity().hasMetadata("quarantine_fire_damager")) {
 
-            if (zone.passEntityCombustByBlockEvent(event.getEntity())) {
+            event.getEntity().removeMetadata("quarantine_fire_damager", plugin);
 
-                return;
-
-            }
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityCombustByEntity(EntityCombustByEntityEvent event) {
 
         Entity combuster = event.getCombuster();
@@ -218,19 +197,15 @@ public class QListener implements Listener {
 
         }
 
-        Entity victim = event.getEntity();
+        if (plugin.isQuarantinePlayer(player.getName())) {
 
-        for (Zone zone : plugin.getZones()) {
+            event.getEntity().setMetadata("quarantine_fire_damager",
+                    new LazyMetadataValue(plugin, new CallablePlayer(player)));
 
-            if (zone.passEntityCombustByPlayerEvent(player, victim)) {
-
-                return;
-
-            }
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onEntityCombust(EntityCombustEvent event) {
 
         if (event instanceof EntityCombustByBlockEvent
@@ -242,31 +217,76 @@ public class QListener implements Listener {
 
         Entity entity = event.getEntity();
 
-        if (entity instanceof Monster) {
+        if (entity instanceof LivingEntity) {
 
-            Monster mob = (Monster) entity;
+            if (plugin.getZoneByMob((LivingEntity) entity) != null) {
 
-            for (Zone zone : plugin.getZones()) {
+                event.setCancelled(true);
 
-                if (zone.passEntityCombustEvent(event, mob)) {
-
-                    return;
-
-                }
             }
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onChunkUnload(ChunkUnloadEvent event) {
 
-        for (Zone zone : plugin.getZones()) {
+        Zone zone = plugin.getZoneByChunk(event.getChunk());
 
-            if (zone.passChunkUnloadEvent(event)) {
+        if (zone != null) {
 
-                return;
+            zone.handleChunkUnload(event);
 
-            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
+
+        PlayerType type;
+
+        if (plugin.isQuarantinePlayer(event.getPlayer().getName())) {
+
+            type = plugin.getQuarantinePlayer(event.getPlayer().getName()).getPlayerType();
+
+        } else {
+
+            type = PlayerType.DEFAULT_PLAYER;
+
+        }
+
+        event.getItemDrop().setMetadata("quarantine_item_owner_player_type",
+                new LazyMetadataValue(plugin, type));
+
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onPlayerPickupItem(PlayerPickupItemEvent event) {
+
+        if (!event.getItem().hasMetadata("quarantine_item_owner_player_type")) {
+
+            return;
+
+        }
+
+        PlayerType pickerType = plugin.isQuarantinePlayer(event.getPlayer().getName())
+                ? plugin.getQuarantinePlayer(event.getPlayer().getName()).getPlayerType()
+                : PlayerType.DEFAULT_PLAYER;
+
+        PlayerType ownerType = (PlayerType) event.getItem().getMetadata(
+                "quarantine_item_owner_player_type").get(0).value();
+
+        if (pickerType == PlayerType.DEFAULT_PLAYER
+                && (ownerType == PlayerType.LOBBY_PLAYER
+                || ownerType == PlayerType.ZONE_PLAYER)) {
+
+            event.setCancelled(true);
+
+        } else if ((pickerType == PlayerType.LOBBY_PLAYER
+                || pickerType == PlayerType.ZONE_PLAYER)
+                && ownerType == PlayerType.DEFAULT_PLAYER) {
+
+            event.setCancelled(true);
+
         }
     }
 }
