@@ -1,7 +1,7 @@
 name: Quarantine
 main: me.DDoS.Quarantine.Quarantine
 softdepend: [WorldGuard, Residence, Regios, Vault]
-version: 0.6
+version: 0.7
 commands:
   qload:
       description: Load the desired zone.
