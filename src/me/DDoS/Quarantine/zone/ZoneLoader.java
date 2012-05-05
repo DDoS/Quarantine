@@ -1,19 +1,11 @@
 package me.DDoS.Quarantine.zone;
 
-import me.DDoS.Quarantine.zone.subzone.SubZoneData;
-import me.DDoS.Quarantine.zone.subzone.SubZone;
-import me.DDoS.Quarantine.zone.region.Region;
-import me.DDoS.Quarantine.zone.region.SpawnRegion;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.player.inventory.Kit;
-import me.DDoS.Quarantine.zone.region.provider.RegionProvider;
-import me.DDoS.Quarantine.zone.region.provider.ResidenceRegionProvider;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -21,12 +13,24 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
 
+import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.player.inventory.Kit;
+import me.DDoS.Quarantine.zone.region.provider.RegionProvider;
+import me.DDoS.Quarantine.zone.region.provider.ResidenceRegionProvider;
+import me.DDoS.Quarantine.zone.subzone.SubZoneData;
+import me.DDoS.Quarantine.zone.subzone.SubZone;
+import me.DDoS.Quarantine.zone.region.Region;
+import me.DDoS.Quarantine.zone.region.SpawnRegion;
+
 /**
  *
  * @author DDoS
  */
 public class ZoneLoader {
 
+    private final Quarantine plugin;
+    private final FileConfiguration config;
+    //
     private World world;
     private ZoneProperties properties;
     private boolean softRespawn;
@@ -36,14 +40,14 @@ public class ZoneLoader {
     private final Map<String, SubZoneData> subZoneData = new HashMap<String, SubZoneData>();
     private final Map<EntityType, Reward> mobRewards = new EnumMap<EntityType, Reward>(EntityType.class);
 
-    private boolean loadZoneData(FileConfiguration config, String zoneName) {
+    private ZoneLoader(Quarantine plugin, FileConfiguration config) {
 
-        if (!new File("plugins/Quarantine/config.yml").exists()) {
+        this.plugin = plugin;
+        this.config = config;
 
-            Quarantine.log.info("[Quarantine] Couldn't load zone " + zoneName + ", no config.");
-            return false;
+    }
 
-        }
+    public static ZoneLoader loadZoneLoader(Quarantine plugin, FileConfiguration config) {
 
         try {
 
@@ -51,12 +55,18 @@ public class ZoneLoader {
 
         } catch (Exception ex) {
 
-            Quarantine.log.info("[Quarantine] Couldn't load zone " + zoneName + ", unable to load config.");
-            return false;
+            Quarantine.log.info("[Quarantine] Couldn't get the zone loader, unable to load config.");
+            return null;
 
         }
 
-        ConfigurationSection configSec1 = config.getConfigurationSection("Zones." + zoneName);
+        return new ZoneLoader(plugin, config);
+
+    }
+
+    private boolean loadZoneData(String zoneName) {
+
+        final ConfigurationSection configSec1 = config.getConfigurationSection("Zones." + zoneName);
 
         if (configSec1 == null) {
 
@@ -65,15 +75,17 @@ public class ZoneLoader {
 
         }
 
-        String worldName = configSec1.getString("world");
+        clearLastData();
         
+        final String worldName = configSec1.getString("world");
+
         if (worldName == null) {
-            
+
             Quarantine.log.info("[Quarantine] Couldn't load zone " + zoneName + ", invalid world name.");
             return false;
-            
+
         }
-        
+
         world = Bukkit.getWorld(worldName);
 
         if (world == null) {
@@ -83,17 +95,17 @@ public class ZoneLoader {
 
         }
 
-        double x1 = configSec1.getDouble("entrance.x");
-        double y1 = configSec1.getDouble("entrance.y");
-        double z1 = configSec1.getDouble("entrance.z");
-        float yaw1 = (float) configSec1.getDouble("entrance.yaw");
-        float pitch1 = (float) configSec1.getDouble("entrance.pitch");
+        final double x1 = configSec1.getDouble("entrance.x");
+        final double y1 = configSec1.getDouble("entrance.y");
+        final double z1 = configSec1.getDouble("entrance.z");
+        final float yaw1 = (float) configSec1.getDouble("entrance.yaw");
+        final float pitch1 = (float) configSec1.getDouble("entrance.pitch");
 
-        double x2 = configSec1.getDouble("lobby.x");
-        double y2 = configSec1.getDouble("lobby.y");
-        double z2 = configSec1.getDouble("lobby.z");
-        float yaw2 = (float) configSec1.getDouble("lobby.yaw");
-        float pitch2 = (float) configSec1.getDouble("lobby.pitch");
+        final double x2 = configSec1.getDouble("lobby.x");
+        final double y2 = configSec1.getDouble("lobby.y");
+        final double z2 = configSec1.getDouble("lobby.z");
+        final float yaw2 = (float) configSec1.getDouble("lobby.yaw");
+        final float pitch2 = (float) configSec1.getDouble("lobby.pitch");
 
         if (x1 != 0 && y1 != 0 && z1 != 0 && pitch1 != 0 && yaw1 != 0) {
 
@@ -115,21 +127,23 @@ public class ZoneLoader {
 
         }
 
-        int defaultMoney = configSec1.getInt("starting_money");
-        int maxNumOfPlayers = configSec1.getInt("max_number_of_players");
-        long interval = configSec1.getLong("mob_check_task_interval") * 20;
-        boolean clearDrops = configSec1.getBoolean("clear_drops");
-        boolean oneTimeKeys = configSec1.getBoolean("one_time_use_keys");
+        final int defaultMoney = configSec1.getInt("starting_money");
+        final int maxNumOfPlayers = configSec1.getInt("max_number_of_players");
+        final long interval = configSec1.getLong("mob_check_task_interval") * 20;
+        final boolean clearDrops = configSec1.getBoolean("clear_drops");
+        final boolean oneTimeKeys = configSec1.getBoolean("one_time_use_keys");
+        final boolean clearXP = configSec1.getBoolean("clear_mob_xp");
         softRespawn = configSec1.getBoolean("soft_mob_respawn");
 
-        properties = new ZoneProperties(zoneName, maxNumOfPlayers, defaultMoney, clearDrops, oneTimeKeys, interval);
-        
-        kits = Kit.parseKits(configSec1.getConfigurationSection("kits"));
+        properties = new ZoneProperties(zoneName, maxNumOfPlayers, defaultMoney,
+                clearDrops, oneTimeKeys, clearXP, interval);
+
+        kits = Kit.loadKits(configSec1.getConfigurationSection("kits"));
 
         for (String rewardToParse : configSec1.getStringList("money_rewards")) {
 
-            String[] s = rewardToParse.split(":");
-            String[] s2 = s[1].split("-");
+            final String[] s = rewardToParse.split(":");
+            final String[] s2 = s[1].split("-");
             mobRewards.put(EntityType.fromName(s[0]), new Reward(Integer.parseInt(s2[0]), Integer.parseInt(s2[1]), Integer.parseInt(s2[2])));
 
         }
@@ -140,8 +154,8 @@ public class ZoneLoader {
 
             ConfigurationSection configSec3 = configSec2.getConfigurationSection(subZone);
 
-            int numOfMobs = configSec3.getInt("number_of_mobs");
-            List<String> mobTypes = configSec3.getStringList("mob_types");
+            final int numOfMobs = configSec3.getInt("number_of_mobs");
+            final List<String> mobTypes = configSec3.getStringList("mob_types");
             subZoneData.put(subZone, new SubZoneData(numOfMobs, mobTypes));
 
         }
@@ -150,9 +164,9 @@ public class ZoneLoader {
 
     }
 
-    public Zone loadZone(Quarantine plugin, String zoneName) {
+    public Zone loadZone(String zoneName) {
 
-        if (!loadZoneData(plugin.getConfigFile(), zoneName)) {
+        if (!loadZoneData(zoneName)) {
 
             return null;
 
@@ -160,25 +174,25 @@ public class ZoneLoader {
 
         final List<SubZone> subZones = new ArrayList<SubZone>();
 
-        RegionProvider provider = plugin.getRegionProvider();
+        final RegionProvider provider = plugin.getRegionProvider();
 
         for (String subZoneName : subZoneData.keySet()) {
-            
+
             SpawnRegion spawnRegion;
 
             if (provider instanceof ResidenceRegionProvider) {
-            
+
                 spawnRegion = provider.getSpawnRegion(world, zoneName + ":" + subZoneName);
 
             } else {
-                
+
                 spawnRegion = provider.getSpawnRegion(world, subZoneName);
-                
+
             }
-            
+
             if (spawnRegion != null) {
 
-                SubZoneData sZData = subZoneData.get(subZoneName);
+                final SubZoneData sZData = subZoneData.get(subZoneName);
                 subZones.add(new SubZone(spawnRegion, sZData.getNumberOfMobs(), softRespawn, sZData.getMobTypes()));
 
             } else {
@@ -195,7 +209,7 @@ public class ZoneLoader {
 
         }
 
-        Region mainRegion = provider.getRegion(world, zoneName);
+        final Region mainRegion = provider.getRegion(world, zoneName);
 
         if (mainRegion == null) {
 
@@ -205,6 +219,19 @@ public class ZoneLoader {
         }
 
         return new Zone(plugin, mainRegion, subZones, properties, lobby, entrance, kits, mobRewards);
+
+    }
+
+    private void clearLastData() {
+
+        world = null;
+        properties = null;
+        softRespawn = false;
+        lobby = null;
+        entrance = null;
+        kits = null;
+        subZoneData.clear();
+        mobRewards.clear();
 
     }
 }

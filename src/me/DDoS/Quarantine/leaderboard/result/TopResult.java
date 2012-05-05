@@ -1,8 +1,10 @@
 package me.DDoS.Quarantine.leaderboard.result;
 
 import java.util.List;
+
 import me.DDoS.Quarantine.gui.GUIHandler;
 import org.bukkit.entity.Player;
+
 
 /**
  *

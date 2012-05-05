@@ -3,6 +3,7 @@ package me.DDoS.Quarantine.leaderboard.query;
 import me.DDoS.Quarantine.leaderboard.Leaderboard;
 import me.DDoS.Quarantine.leaderboard.LeaderboardDB;
 import me.DDoS.Quarantine.leaderboard.result.RankResult;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 /**
@@ -27,7 +28,7 @@ public class RankQuery implements Query {
     public void execute() {
 
         String rank;
-        LeaderboardDB lb = leaderboard.getLeaderBoard();
+        LeaderboardDB lb = leaderboard.getLeaderBoardDB();
 
         if (lb.isMember(playerName)) {
 
@@ -35,7 +36,7 @@ public class RankQuery implements Query {
 
         } else {
 
-            rank = "You score has yet to be compiled. Please try again later.";
+            rank = ChatColor.YELLOW + "Your score has yet to be compiled. Please try again later.";
 
         }
 

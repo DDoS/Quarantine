@@ -66,18 +66,11 @@ public class ZonePlayer extends QPlayer {
 
         score += scoreToAdd;
 
-        if (zone.getLeaderboards() != null) {
+        if (zone.getLeaderboard() != null) {
 
-            zone.getLeaderboards().queueScoreUpdate(this);
+            zone.getLeaderboard().queueScoreUpdate(this);
 
         }
-    }
-
-    @Override
-    public boolean isZonePlayer() {
-
-        return true;
-
     }
 
     public void giveMoneyForKill(int amount) {
@@ -187,9 +180,9 @@ public class ZonePlayer extends QPlayer {
     @Override
     public boolean commandLeave() {
 
-        if (zone.getLeaderboards() != null) {
+        if (zone.getLeaderboard() != null) {
 
-            zone.getLeaderboards().queueScoreUpdate(this);
+            zone.getLeaderboard().queueScoreUpdate(this);
 
         }
 
@@ -225,9 +218,9 @@ public class ZonePlayer extends QPlayer {
     @Override
     public void quitLeave() {
 
-        if (zone.getLeaderboards() != null) {
+        if (zone.getLeaderboard() != null) {
 
-            zone.getLeaderboards().queueScoreUpdate(this);
+            zone.getLeaderboard().queueScoreUpdate(this);
 
         }
 
@@ -266,9 +259,9 @@ public class ZonePlayer extends QPlayer {
 
         score = 0;
 
-        if (zone.getLeaderboards() != null) {
+        if (zone.getLeaderboard() != null) {
 
-            zone.getLeaderboards().queueScoreUpdate(this);
+            zone.getLeaderboard().queueScoreUpdate(this);
 
         }
 
@@ -296,7 +289,7 @@ public class ZonePlayer extends QPlayer {
     }
 
     @Override
-    public PlayerType getPlayerType() {
+    public PlayerType getType() {
         
         return PlayerType.ZONE_PLAYER;
         

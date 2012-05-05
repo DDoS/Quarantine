@@ -16,6 +16,7 @@ import java.net.URLConnection;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Chunk;
@@ -44,7 +45,6 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import couk.Adamki11s.Regios.Main.Regios;
 
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.plugin.RegisteredServiceProvider;
 
 /**
  *
@@ -55,6 +55,8 @@ public class Quarantine extends JavaPlugin {
     public static final Logger log = Logger.getLogger("Minecraft");
     //
     private final Map<String, Zone> zones = new HashMap<String, Zone>();
+    //
+    private ZoneLoader zoneLoader;
     //
     private FileConfiguration config;
     //
@@ -104,6 +106,8 @@ public class Quarantine extends JavaPlugin {
 
         config = getConfig();
 
+        zoneLoader = ZoneLoader.loadZoneLoader(this, config);
+
         findRegionProvider();
 
         setupGUIHandler();
@@ -125,9 +129,21 @@ public class Quarantine extends JavaPlugin {
     @Override
     public void onDisable() {
 
-        unLoadAllZones();
+        unloadAllZones();
         zones.clear();
         log.info("[Quarantine] Plugin disabled. v" + getDescription().getVersion() + ", by DDoS");
+
+    }
+
+    public boolean hasZoneLoader() {
+
+        return zoneLoader != null;
+
+    }
+
+    public ZoneLoader getZoneLoader() {
+
+        return zoneLoader;
 
     }
 
@@ -143,7 +159,7 @@ public class Quarantine extends JavaPlugin {
 
     }
 
-    public Zone getZone(String zoneName) {
+    public Zone getZoneByName(String zoneName) {
 
         return zones.get(zoneName.toLowerCase());
 
@@ -268,7 +284,7 @@ public class Quarantine extends JavaPlugin {
         return economyConverter;
 
     }
-    
+
     public boolean hasEconomyConverter() {
 
         return economyConverter != null;
@@ -361,7 +377,7 @@ public class Quarantine extends JavaPlugin {
         } else {
 
             log.info("[Quarantine] No Spout detected. Spout GUI disabled.");
-            guiHandler = new TextGUIHandler(this);
+            guiHandler = new GUIHandler(this);
 
         }
     }
@@ -386,23 +402,23 @@ public class Quarantine extends JavaPlugin {
         }
 
         RegisteredServiceProvider<Economy> economyProvider = plugin.getServer().getServicesManager().getRegistration(Economy.class);
-        
+
         if (economyProvider == null) {
-            
+
             log.info("[Quarantine] No economy. Economy converter disabled.");
             return;
-            
+
         }
-        
+
         Economy economy = economyProvider.getProvider();
-        
+
         if (economy == null) {
-            
+
             log.info("[Quarantine] No economy. Economy converter disabled.");
             return;
-            
+
         }
-        
+
         float externalToInternalRate;
         float internalToExternalRate;
 
@@ -431,7 +447,7 @@ public class Quarantine extends JavaPlugin {
 
     }
 
-    private void unLoadAllZones() {
+    private void unloadAllZones() {
 
         for (Zone zone : getZones()) {
 
@@ -450,7 +466,7 @@ public class Quarantine extends JavaPlugin {
 
     private void loadStartUpZones() {
 
-        if (regionProvider == null) {
+        if (regionProvider == null || zoneLoader == null) {
 
             return;
 
@@ -458,8 +474,7 @@ public class Quarantine extends JavaPlugin {
 
         for (String zoneToLoad : config.getStringList("Load_on_start")) {
 
-            ZoneLoader loader = new ZoneLoader();
-            Zone zone = loader.loadZone(this, zoneToLoad);
+            Zone zone = zoneLoader.loadZone(zoneToLoad);
 
             if (zone == null) {
 
@@ -469,7 +484,6 @@ public class Quarantine extends JavaPlugin {
             }
 
             addZone(zoneToLoad, zone);
-
             log.info("[Quarantine] Loaded zone " + zoneToLoad + ".");
 
         }
@@ -481,6 +495,7 @@ public class Quarantine extends JavaPlugin {
 
         if (!configSec.getBoolean("enabled")) {
 
+            Leaderboard.ENABLED = false;
             Leaderboard.TYPE = "None";
             return;
 

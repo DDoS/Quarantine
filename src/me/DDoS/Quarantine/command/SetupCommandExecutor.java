@@ -53,7 +53,7 @@ public class SetupCommandExecutor implements CommandExecutor {
 
             }
 
-            plugin.getZone(args[0]).setLobby(player.getLocation());
+            plugin.getZoneByName(args[0]).setLobby(player.getLocation());
             QUtil.tell(player, "Lobby set.");
             return true;
 
@@ -68,7 +68,7 @@ public class SetupCommandExecutor implements CommandExecutor {
 
             }
 
-            if (plugin.getZone(args[0]).setEntrance(player.getLocation())) {
+            if (plugin.getZoneByName(args[0]).setEntrance(player.getLocation())) {
 
                 QUtil.tell(player, "Entrance set.");
 

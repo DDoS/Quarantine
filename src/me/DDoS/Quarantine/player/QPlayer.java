@@ -24,8 +24,6 @@ public abstract class QPlayer extends PlayerData {
 
     }
 
-    public abstract boolean isZonePlayer();
-
     public abstract boolean join();
 
     public abstract boolean enter();
@@ -40,7 +38,7 @@ public abstract class QPlayer extends PlayerData {
 
     public abstract void dieLeave(PlayerDeathEvent event);
     
-    public abstract PlayerType getPlayerType();
+    public abstract PlayerType getType();
     
     public void removeMoney(int amount) {
 
@@ -73,14 +71,14 @@ public abstract class QPlayer extends PlayerData {
 
     public void tellRank() {
 
-        if (zone.getLeaderboards() == null) {
+        if (zone.getLeaderboard() == null) {
 
             QUtil.tell(player, "Leaderboards are not enabled.");
             return;
 
         }
 
-        zone.getLeaderboards().addRankQuery(player);
+        zone.getLeaderboard().addRankQuery(player);
 
     }
 
@@ -92,14 +90,14 @@ public abstract class QPlayer extends PlayerData {
 
     public void tellTopFive(int page) {
 
-        if (zone.getLeaderboards() == null) {
+        if (zone.getLeaderboard() == null) {
 
             QUtil.tell(player, "Leaderboards are not enabled.");
             return;
 
         }
 
-        zone.getLeaderboards().addTopQuery(player, page);
+        zone.getLeaderboard().addTopQuery(player, zone.getPlugin().getGUIHandler(), page, 1);
         
     }
 

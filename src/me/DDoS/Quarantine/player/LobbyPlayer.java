@@ -24,13 +24,6 @@ public class LobbyPlayer extends QPlayer {
 
     }
 
-    @Override
-    public boolean isZonePlayer() {
-
-        return false;
-
-    }
-
     private boolean areInvContentsEmpty(ItemStack[] contents, ItemStack[] armor) {
 
         for (ItemStack content : contents) {
@@ -244,7 +237,7 @@ public class LobbyPlayer extends QPlayer {
     }
     
     @Override
-    public PlayerType getPlayerType() {
+    public PlayerType getType() {
         
         return PlayerType.LOBBY_PLAYER;
         

@@ -1,27 +1,27 @@
 package me.DDoS.Quarantine.gui;
 
 import java.util.List;
+
+import org.bukkit.entity.Player;
+
 import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.player.QPlayer;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.zone.Zone;
-import org.bukkit.entity.Player;
 
 /**
  *
  * @author DDoS
  */
-public class TextGUIHandler implements GUIHandler {
+public class GUIHandler {
 
     protected final Quarantine plugin;
 
-    public TextGUIHandler(Quarantine plugin) {
+    public GUIHandler(Quarantine plugin) {
 
         this.plugin = plugin;
 
     }
 
-    @Override
     public void handleZoneList(Player player) {
 
         QUtil.tell(player, "Zones:");
@@ -35,7 +35,6 @@ public class TextGUIHandler implements GUIHandler {
         }
     }
 
-    @Override
     public void handlePlayerList(Player player, Zone zone) {
 
         QUtil.tell(player, "Players:");
@@ -43,7 +42,6 @@ public class TextGUIHandler implements GUIHandler {
 
     }
 
-    @Override
     public void handleTopResults(Player player, List<String> results) {
 
         for (String result : results) {

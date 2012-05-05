@@ -1,20 +1,23 @@
 package me.DDoS.Quarantine.leaderboard.redis;
 
-import me.DDoS.Quarantine.leaderboard.LeaderData;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.leaderboard.Leaderboard;
-import me.DDoS.Quarantine.leaderboard.LeaderboardDB;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Tuple;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
+import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.leaderboard.Leaderboard;
+import me.DDoS.Quarantine.leaderboard.LeaderboardDB;
+import me.DDoS.Quarantine.leaderboard.LeaderData;
+
 public class RedisLeaderboardDB implements LeaderboardDB {
 
     private final Jedis jedis;
+    private final boolean hasConnection;
     private final String lbName;
     private final int pageSize;
 
@@ -23,20 +26,32 @@ public class RedisLeaderboardDB implements LeaderboardDB {
         this.lbName = lbName;
         this.pageSize = pageSize;
         this.jedis = new Jedis(Leaderboard.HOST, Leaderboard.PORT);
-
+        
+        boolean connected;
+        
         try {
-            
+
             jedis.connect();
-            
+            connected = true;
+            Quarantine.log.info("[Quarantine] Leaderboard connection to Redis "
+                    + "server for zone '" + lbName + "' was established.");
+
         } catch (JedisConnectionException jce) {
 
+            connected = false;
             Quarantine.log.info("[Quarantine] Couldn't connect to Redis DB. Error: " + jce.getMessage());
-            return;
 
         }
         
-        Quarantine.log.info("[Quarantine] Leaderboard connection to Redis server for zone '" + lbName + "' was established.");
-
+        hasConnection = connected;
+        
+    }
+    
+    @Override
+    public boolean hasConnection() {
+        
+        return hasConnection;
+        
     }
 
     @Override
@@ -53,17 +68,18 @@ public class RedisLeaderboardDB implements LeaderboardDB {
         }
     }
 
-    private long totalMembers() {
+    @Override
+    public int getPlayerTotal() {
 
-        long totalMembers = 0;
+        int totalMembers = 0;
 
         try {
 
-            totalMembers = jedis.zcard(lbName);
+            totalMembers = jedis.zcard(lbName).intValue();
 
         } catch (JedisConnectionException jce) {
 
-            Quarantine.log.info("[Quarantine] Couldn't get member total from Redis DB. Error: " + jce.getMessage());
+            Quarantine.log.info("[Quarantine] Couldn't get player total from Redis DB. Error: " + jce.getMessage());
 
         }
 
@@ -71,9 +87,10 @@ public class RedisLeaderboardDB implements LeaderboardDB {
 
     }
 
-    private int totalPages() {
+    @Override
+    public int getPageTotal() {
 
-        return (int) Math.ceil((float) totalMembers() / (float) pageSize);
+        return (int) Math.ceil((float) getPlayerTotal() / (float) pageSize);
 
     }
 
@@ -89,6 +106,10 @@ public class RedisLeaderboardDB implements LeaderboardDB {
             Quarantine.log.info("[Quarantine] Couldn't rank player in Redis DB. Error: " + jce.getMessage());
 
         }
+    }
+
+    @Override
+    public void sort() {
     }
 
     @Override
@@ -149,29 +170,29 @@ public class RedisLeaderboardDB implements LeaderboardDB {
     }
 
     @Override
-    public List<LeaderData> getLeaders(int pageNumber) {
+    public List<LeaderData> getLeaders(int startingPage, int numberOfPages) {
 
-        if (pageNumber > totalPages()) {
+        if (startingPage + numberOfPages > getPageTotal()) {
 
-            pageNumber = totalPages();
-
-        }
-
-        int startingOffset = (pageNumber - 1) * pageSize;
-
-        if (startingOffset < 0) {
-
-            startingOffset = 0;
+            startingPage = getPageTotal();
 
         }
 
-        int endingOffset = (startingOffset + pageSize) - 1;
+        int start = ((startingPage - 1) * pageSize);
+
+        if (start < 0) {
+
+            start = 0;
+
+        }
+
+        int end = (startingPage + numberOfPages) * pageSize - 1;
 
         Set<Tuple> rawLeaderData = null;
 
         try {
 
-            rawLeaderData = jedis.zrevrangeWithScores(lbName, startingOffset, endingOffset);
+            rawLeaderData = jedis.zrevrangeWithScores(lbName, start, end);
 
         } catch (JedisConnectionException jce) {
 

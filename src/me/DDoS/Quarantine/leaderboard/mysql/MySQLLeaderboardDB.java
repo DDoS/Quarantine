@@ -61,6 +61,13 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
 
         }
     }
+    
+    @Override
+    public boolean hasConnection() {
+        
+        return connection != null;
+        
+    }
 
     private void verifyTable() throws SQLException {
 
@@ -70,7 +77,6 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
                 + "score INT, "
                 + "rank INT, "
                 + "PRIMARY KEY (player_name))";
-
         Statement stmt = null;
 
         try {
@@ -123,7 +129,6 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
 
         String updateString = "REPLACE INTO " + tableName + " "
                 + "SET player_name = ?, score = ?";
-
         PreparedStatement update = null;
 
         try {
@@ -153,19 +158,10 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
                 }
             }
         }
-
-        try {
-
-            sortTable();
-
-        } catch (SQLException ex) {
-
-            Quarantine.log.info("[Quarantine] Couldn't close SQL statement. Error: " + ex.getMessage());
-
-        }
     }
 
-    private void sortTable() throws SQLException {
+    @Override
+    public void sort() {
 
         String setString = "SET @incr=0";
         String updateString = "UPDATE " + tableName + " SET rank=(@incr:=@incr+1) ORDER BY score DESC";
@@ -187,15 +183,23 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
 
         } finally {
 
-            if (set != null) {
+            try {
 
-                set.close();
+                if (set != null) {
 
-            }
+                    set.close();
 
-            if (update != null) {
+                }
 
-                update.close();
+                if (update != null) {
+
+                    update.close();
+
+                }
+
+            } catch (SQLException ex) {
+
+                Quarantine.log.info("[Quarantine] Couldn't close SQL statement. Error: " + ex.getMessage());
 
             }
         }
@@ -214,7 +218,6 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
 
         String statmenentString = "SELECT score FROM " + tableName + " "
                 + "WHERE player_name LIKE ?";
-
         PreparedStatement statement = null;
 
         try {
@@ -266,7 +269,6 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
 
         String statmenentString = "SELECT EXISTS(SELECT 1 FROM " + tableName + " "
                 + "WHERE player_name LIKE ?)";
-
         PreparedStatement statement = null;
 
         try {
@@ -318,7 +320,6 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
 
         String statmenentString = "SELECT rank FROM " + tableName + " "
                 + "WHERE player_name LIKE ?";
-
         PreparedStatement statement = null;
 
         try {
@@ -358,7 +359,7 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
     }
 
     @Override
-    public List<LeaderData> getLeaders(int pageNumber) {
+    public List<LeaderData> getLeaders(int startingPage, int numberOfPages) {
 
         final List<LeaderData> leaderData = new ArrayList<LeaderData>();
 
@@ -370,14 +371,13 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
 
         String statmenentString = "SELECT player_name,score,rank FROM " + tableName + " "
                 + "WHERE rank<=? AND rank>=? ORDER BY rank";
-
         PreparedStatement statement = null;
 
         try {
 
             statement = connection.prepareStatement(statmenentString);
-            statement.setInt(1, pageNumber * pageSize);
-            statement.setInt(2, ((pageNumber - 1) * pageSize) + 1);
+            statement.setInt(1, (startingPage + numberOfPages - 1) * pageSize);
+            statement.setInt(2, (((startingPage - 1) * pageSize) + 1));
             ResultSet results = statement.executeQuery();
 
             while (results.next()) {
@@ -389,7 +389,7 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
 
         } catch (SQLException ex) {
 
-            Quarantine.log.info("[Quarantine] Couldn't get to players from SQL DB. Error: " + ex.getMessage());
+            Quarantine.log.info("[Quarantine] Couldn't get top players from SQL DB. Error: " + ex.getMessage());
 
         } finally {
 
@@ -408,6 +408,58 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
         }
 
         return leaderData;
+
+    }
+
+    @Override
+    public int getPlayerTotal() {
+
+        int playerTotal = 0;
+
+        String createString =
+                "SELECT COUNT(*) FROM " + tableName;
+        Statement stmt = null;
+
+        try {
+
+            stmt = connection.createStatement();
+            ResultSet results = stmt.executeQuery(createString);
+
+            while (results.next()) {
+
+                playerTotal = results.getInt(1);
+
+            }
+
+        } catch (SQLException ex) {
+
+            Quarantine.log.info("[Quarantine] Couldn't get player total from SQL DB. Error: " + ex.getMessage());
+
+        } finally {
+
+            try {
+
+                if (stmt != null) {
+
+                    stmt.close();
+
+                }
+
+            } catch (SQLException ex) {
+
+                Quarantine.log.info("[Quarantine] Couldn't close SQL statement. Error: " + ex.getMessage());
+
+            }
+        }
+
+        return playerTotal;
+
+    }
+
+    @Override
+    public int getPageTotal() {
+
+        return (int) Math.ceil((float) getPlayerTotal() / (float) pageSize);
 
     }
 }

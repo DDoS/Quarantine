@@ -26,10 +26,12 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.metadata.LazyMetadataValue;
 
 import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.gui.SpoutEnabledGUIHandler;
 import me.DDoS.Quarantine.player.CallablePlayer;
 import me.DDoS.Quarantine.player.PlayerType;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.zone.Zone;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 
 /**
  *
@@ -119,18 +121,24 @@ public class QListener implements Listener {
 
         }
 
-        zone.handlePlayerInteractSign(event, (Sign) event.getClickedBlock().getState());
+        Sign sign = (Sign) event.getClickedBlock().getState();
+
+        if (!sign.getLine(0).equalsIgnoreCase("[Quarantine]")) {
+
+            return;
+
+        }
+
+        zone.handlePlayerInteractSign(event, sign);
 
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onCreatureSpawn(CreatureSpawnEvent event) {
 
-        Zone zone = plugin.getZoneByLocation(event.getLocation());
+        if (!event.getSpawnReason().equals(SpawnReason.CUSTOM)) {
 
-        if (zone != null) {
-
-            zone.handleCreatureSpawn(event);
+            event.setCancelled(true);
 
         }
     }
@@ -246,7 +254,7 @@ public class QListener implements Listener {
 
         if (plugin.isQuarantinePlayer(event.getPlayer().getName())) {
 
-            type = plugin.getQuarantinePlayer(event.getPlayer().getName()).getPlayerType();
+            type = plugin.getQuarantinePlayer(event.getPlayer().getName()).getType();
 
         } else {
 
@@ -269,7 +277,7 @@ public class QListener implements Listener {
         }
 
         PlayerType pickerType = plugin.isQuarantinePlayer(event.getPlayer().getName())
-                ? plugin.getQuarantinePlayer(event.getPlayer().getName()).getPlayerType()
+                ? plugin.getQuarantinePlayer(event.getPlayer().getName()).getType()
                 : PlayerType.DEFAULT_PLAYER;
 
         PlayerType ownerType = (PlayerType) event.getItem().getMetadata(

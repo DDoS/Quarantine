@@ -6,7 +6,11 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import org.getspout.spoutapi.SpoutManager;
+
 import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.gui.SpoutEnabledGUIHandler;
+import me.DDoS.Quarantine.leaderboard.Leaderboard;
 import me.DDoS.Quarantine.permission.Permission;
 import me.DDoS.Quarantine.player.QPlayer;
 import me.DDoS.Quarantine.util.QUtil;
@@ -63,7 +67,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             }
 
-            plugin.getZone(args[0]).joinPlayer(player);
+            plugin.getZoneByName(args[0]).joinPlayer(player);
             return true;
 
         }
@@ -134,21 +138,56 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
         if (cmdName.equalsIgnoreCase("qrank")) {
 
-            QPlayer qPlayer = plugin.getQuarantinePlayer(player.getName());
+            if (!Leaderboard.ENABLED) {
 
-            if (qPlayer != null) {
-
-                qPlayer.tellRank();
+                QUtil.tell(player, "Leaderboards aren't enabled.");
                 return true;
 
             }
 
-            QUtil.tell(player, "You haven't entered any zone yet.");
+            if (args.length < 1) {
+
+                QPlayer qPlayer = plugin.getQuarantinePlayer(player.getName());
+
+                if (qPlayer != null) {
+
+                    qPlayer.tellRank();
+
+                } else {
+
+                    QUtil.tell(player, "You haven't entered any zone yet.");
+
+                }
+
+                return true;
+
+            } else {
+
+                Zone zone = plugin.getZoneByName(args[0]);
+
+                if (zone != null) {
+
+                    zone.getLeaderboard().addRankQuery(player);
+
+                } else {
+
+                    QUtil.tell(player, "This zone doesn't exist or isn't loaded.");
+
+                }
+            }
+
             return true;
 
         }
 
         if (cmdName.equalsIgnoreCase("qtop")) {
+
+            if (!Leaderboard.ENABLED) {
+
+                QUtil.tell(player, "Leaderboards aren't enabled.");
+                return true;
+
+            }
 
             int page;
 
@@ -174,16 +213,53 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             }
 
-            QPlayer qPlayer = plugin.getQuarantinePlayer(player.getName());
+            if (args.length < 2) {
 
-            if (qPlayer != null) {
+                final QPlayer qPlayer = plugin.getQuarantinePlayer(player.getName());
 
-                qPlayer.tellTopFive(page);
-                return true;
+                if (qPlayer != null) {
 
+                    if (plugin.getGUIHandler() instanceof SpoutEnabledGUIHandler
+                            && SpoutManager.getPlayer(player).isSpoutCraftEnabled()) {
+
+                        ((SpoutEnabledGUIHandler) plugin.getGUIHandler()).addLeaderboardGUI(
+                                player, qPlayer.getZone().getLeaderboard(), page);
+                        return true;
+                        
+                    }
+
+                    qPlayer.tellTopFive(page);
+
+                } else {
+
+                    QUtil.tell(player, "You haven't entered any zone yet.");
+
+                }
+
+            } else {
+
+                final Zone zone = plugin.getZoneByName(args[1]);
+
+                if (zone != null) {
+
+                    if (plugin.getGUIHandler() instanceof SpoutEnabledGUIHandler
+                            && SpoutManager.getPlayer(player).isSpoutCraftEnabled()) {
+
+                        ((SpoutEnabledGUIHandler) plugin.getGUIHandler()).addLeaderboardGUI(
+                                player, zone.getLeaderboard(), page);
+                        return true;
+                        
+                    }
+
+                    zone.getLeaderboard().addTopQuery(player, plugin.getGUIHandler(), page, 1);
+
+                } else {
+
+                    QUtil.tell(player, "This zone doesn't exist or isn't loaded.");
+
+                }
             }
 
-            QUtil.tell(player, "You haven't entered any zone yet.");
             return true;
 
         }
@@ -217,10 +293,16 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
                 if (plugin.hasZone(args[0])) {
 
-                    plugin.getGUIHandler().handlePlayerList(player, plugin.getZone(args[0]));
-                    return true;
+                    plugin.getGUIHandler().handlePlayerList(player, plugin.getZoneByName(args[0]));
+
+                } else {
+
+                    QUtil.tell(player, "This zone doesn't exist or isn't loaded.");
 
                 }
+
+                return true;
+
             }
 
             Zone zone = plugin.getZoneByPlayer(player.getName());
@@ -228,11 +310,13 @@ public class PlayerCommandExecutor implements CommandExecutor {
             if (zone != null) {
 
                 plugin.getGUIHandler().handlePlayerList(player, zone);
-                return true;
+
+            } else {
+
+                QUtil.tell(player, "You have to provide a zone name if you aren't playing.");
 
             }
 
-            QUtil.tell(player, "You have to provide a zone name if you aren't playing.");
             return true;
 
         }

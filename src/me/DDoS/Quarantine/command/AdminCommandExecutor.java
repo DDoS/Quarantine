@@ -63,8 +63,14 @@ public class AdminCommandExecutor implements CommandExecutor {
 
             }
 
-            ZoneLoader loader = new ZoneLoader();
-            Zone zone = loader.loadZone(plugin, args[0]);
+            if (!plugin.hasZoneLoader()) {
+                
+                QUtil.tell(player, "Couldn't load the zone, no zone loader.");
+                return true;
+                
+            }
+            
+            Zone zone = plugin.getZoneLoader().loadZone(args[0]);
 
             if (zone == null) {
 
@@ -88,7 +94,7 @@ public class AdminCommandExecutor implements CommandExecutor {
 
             }
 
-            plugin.unloadZone(plugin.getZone(args[0]));
+            plugin.unloadZone(plugin.getZoneByName(args[0]));
             plugin.removeZone(args[0]);
 
             QUtil.tell(player, "Zone successfuly unloaded.");
@@ -105,7 +111,7 @@ public class AdminCommandExecutor implements CommandExecutor {
 
             }
 
-            plugin.getZone(args[0]).reloadMobs();
+            plugin.getZoneByName(args[0]).reloadMobs();
 
             QUtil.tell(player, "Mobs successfuly respawned.");
             return true;

@@ -1,22 +1,25 @@
 package me.DDoS.Quarantine.leaderboard;
 
+import java.util.Map;
+import java.util.Queue;
+import java.util.Timer;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import org.bukkit.entity.Player;
+
+import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.gui.GUIHandler;
+import me.DDoS.Quarantine.leaderboard.result.Result;
+import me.DDoS.Quarantine.leaderboard.mysql.MySQLLeaderboardDB;
+import me.DDoS.Quarantine.leaderboard.task.DisplayInfoTask;
+import me.DDoS.Quarantine.player.QPlayer;
 import me.DDoS.Quarantine.leaderboard.query.Query;
 import me.DDoS.Quarantine.leaderboard.query.TopQuery;
 import me.DDoS.Quarantine.leaderboard.query.RankQuery;
 import me.DDoS.Quarantine.leaderboard.task.ScoreUpdateTask;
 import me.DDoS.Quarantine.leaderboard.task.LeaderboardInfoTask;
 import me.DDoS.Quarantine.leaderboard.redis.RedisLeaderboardDB;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Timer;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.leaderboard.result.Result;
-import me.DDoS.Quarantine.leaderboard.mysql.MySQLLeaderboardDB;
-import me.DDoS.Quarantine.leaderboard.task.DisplayInfoTask;
-import me.DDoS.Quarantine.player.QPlayer;
-import org.bukkit.entity.Player;
 
 /**
  *
@@ -24,7 +27,8 @@ import org.bukkit.entity.Player;
  */
 public class Leaderboard {
 
-    public static boolean ENABLED = false;
+    public static boolean ENABLED;
+    public static final byte PAGE_SIZE = 5;
     //
     public static String TYPE;
     public static String HOST;
@@ -45,6 +49,8 @@ public class Leaderboard {
     private final Queue<Query> queries = new ConcurrentLinkedQueue<Query>();
     //
     private final Queue<Result> results = new ConcurrentLinkedQueue<Result>();
+    //
+    private volatile int numberOfPages;
 
     public Leaderboard(Quarantine plugin, String zoneName) {
 
@@ -52,11 +58,11 @@ public class Leaderboard {
 
         if (TYPE.equals("Redis")) {
 
-            lbdb = new RedisLeaderboardDB(zoneName, 5);
+            lbdb = new RedisLeaderboardDB(zoneName, PAGE_SIZE);
 
         } else {
 
-            lbdb = new MySQLLeaderboardDB(zoneName, 5);
+            lbdb = new MySQLLeaderboardDB(zoneName, PAGE_SIZE);
 
         }
 
@@ -66,7 +72,7 @@ public class Leaderboard {
 
     }
 
-    public LeaderboardDB getLeaderBoard() {
+    public LeaderboardDB getLeaderBoardDB() {
 
         return lbdb;
 
@@ -99,9 +105,9 @@ public class Leaderboard {
 
     }
 
-    public void addTopQuery(Player player, int page) {
+    public void addTopQuery(Player player, GUIHandler guiHandler, int page, int numberOfPages) {
 
-        queries.add(new TopQuery(this, player, page));
+        queries.add(new TopQuery(this, guiHandler, player, page, numberOfPages));
 
     }
 
@@ -116,18 +122,30 @@ public class Leaderboard {
         return results;
 
     }
-    
+
+    public void setNumberOfPages(int pagesTotal) {
+
+        numberOfPages = pagesTotal;
+
+    }
+
+    public int getNumberOfPages() {
+
+        return numberOfPages;
+
+    }
+
     public Quarantine getPlugin() {
-        
+
         return plugin;
-        
+
     }
 
     public void disconnect() {
 
         timer.cancel();
-        lbdb.disconnect();
         plugin.getServer().getScheduler().cancelTask(displayInfoTaskID);
+        lbdb.disconnect();
 
     }
 }

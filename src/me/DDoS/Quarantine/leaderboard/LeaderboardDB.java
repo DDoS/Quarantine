@@ -10,7 +10,15 @@ public interface LeaderboardDB {
     
     public void disconnect();
     
+    public boolean hasConnection();
+    
     public void rank(String member, int score);
+    
+    public void sort();
+    
+    public int getPlayerTotal();
+    
+    public int getPageTotal();
     
     public int getScore(String member);
     
@@ -18,6 +26,6 @@ public interface LeaderboardDB {
     
     public int getRank(String member);
     
-    public List<LeaderData> getLeaders(int pageNumber);
-    
+    public List<LeaderData> getLeaders(int startingPage, int numberOfPages);
+        
 }

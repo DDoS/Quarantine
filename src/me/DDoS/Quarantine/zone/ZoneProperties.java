@@ -17,6 +17,7 @@ public class ZoneProperties {
     //booleans
     private final boolean clearDrops;
     private final boolean oneTimeUseKeys;
+    private final boolean clearXP;
     //longs
     private final long mobCheckTaskInterval;
 
@@ -28,14 +29,18 @@ public class ZoneProperties {
     
     public ZoneProperties(String zoneName,
             int maxNumberOfPlayers, int startingMoney,
-            boolean clearDrops, boolean oneTimeUseKeys,
+            boolean clearDrops, boolean oneTimeUseKeys, boolean clearXP,
             long mobCheckTaskInterval) {
 
         this.zoneName = zoneName;
+        
         this.maxNumberOfPlayers = maxNumberOfPlayers;
         this.startingMoney = startingMoney;
+        
         this.clearDrops = clearDrops;
         this.oneTimeUseKeys = oneTimeUseKeys;
+        this.clearXP = clearXP;
+        
         this.mobCheckTaskInterval = mobCheckTaskInterval;
 
     }
@@ -56,6 +61,12 @@ public class ZoneProperties {
 
         return clearDrops;
 
+    }
+    
+    public boolean clearXP() {
+        
+        return clearXP;
+        
     }
 
     public int getMaxNumberOfPlayers() {

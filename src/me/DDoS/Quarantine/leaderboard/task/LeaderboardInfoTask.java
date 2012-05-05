@@ -22,6 +22,12 @@ public class LeaderboardInfoTask extends TimerTask {
     @Override
     public void run() {
 
+        if (!leaderboard.getLeaderBoardDB().hasConnection()) {
+            
+            return;
+            
+        }
+        
         final Queue<Query> queue = leaderboard.getInfoQueries();
 
         while (!queue.isEmpty()) {

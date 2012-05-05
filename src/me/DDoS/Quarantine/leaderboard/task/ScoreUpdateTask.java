@@ -2,11 +2,9 @@ package me.DDoS.Quarantine.leaderboard.task;
 
 import java.util.Queue;
 import java.util.TimerTask;
-import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.leaderboard.Leaderboard;
 import me.DDoS.Quarantine.leaderboard.LeaderboardDB;
 import me.DDoS.Quarantine.leaderboard.ScoreUpdate;
-import redis.clients.jedis.exceptions.JedisConnectionException;
 
 /**
  *
@@ -24,24 +22,32 @@ public class ScoreUpdateTask extends TimerTask {
 
     @Override
     public void run() {
-    
-        final Queue<ScoreUpdate> queue = leaderboard.getUpdates();
-        final LeaderboardDB lb = leaderboard.getLeaderBoard();
+
+        final LeaderboardDB lb = leaderboard.getLeaderBoardDB();
         
-        try {
+        if (!lb.hasConnection()) {
+            
+            return;
+            
+        }
+        
+        leaderboard.setNumberOfPages(lb.getPageTotal());
+        final Queue<ScoreUpdate> queue = leaderboard.getUpdates();
 
-            while (!queue.isEmpty()) {
+        if (queue.isEmpty()) {
+            
+            return;
+            
+        }
+        
+        while (!queue.isEmpty()) {
 
-                ScoreUpdate update = queue.poll();
-                lb.rank(update.getPlayer(), update.getScore());
-
-            }
-
-        } catch (JedisConnectionException e) {
-
-            Quarantine.log.info("[Quarantine] Couldn't connect to Redis server. Is it on?");
-            Quarantine.log.info("[Quarantine] Error message: " + e.getMessage());
+            ScoreUpdate update = queue.poll();
+            lb.rank(update.getPlayer(), update.getScore());
 
         }
+
+        lb.sort();
+        
     }
 }

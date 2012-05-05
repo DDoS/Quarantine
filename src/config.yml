@@ -30,6 +30,7 @@ Zones:
     mob_check_task_interval: 300
     soft_mob_respawn: false
     clear_drops: true
+    clear_mob_xp: false
     one_time_use_keys: false
     entrance:
       x: 0

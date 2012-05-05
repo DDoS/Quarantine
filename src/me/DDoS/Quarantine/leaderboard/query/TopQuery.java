@@ -3,8 +3,11 @@ package me.DDoS.Quarantine.leaderboard.query;
 import me.DDoS.Quarantine.leaderboard.LeaderData;
 import java.util.ArrayList;
 import java.util.List;
+import me.DDoS.Quarantine.gui.GUIHandler;
 import me.DDoS.Quarantine.leaderboard.Leaderboard;
+import me.DDoS.Quarantine.leaderboard.LeaderboardDB;
 import me.DDoS.Quarantine.leaderboard.result.TopResult;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 /**
@@ -13,15 +16,19 @@ import org.bukkit.entity.Player;
  */
 public class TopQuery implements Query {
 
-    private final Leaderboard leaderboard;
+    private final Leaderboard lb;
+    private final GUIHandler guiHandler;
     private final Player player;
     private final int page;
+    private final int numberOfPages;
 
-    public TopQuery(Leaderboard leaderboard, Player player, int page) {
+    public TopQuery(Leaderboard lb, GUIHandler guiHandler, Player player, int page, int numberOfPages) {
 
-        this.leaderboard = leaderboard;
+        this.lb = lb;
+        this.guiHandler = guiHandler;
         this.player = player;
         this.page = page;
+        this.numberOfPages = numberOfPages;
 
     }
 
@@ -29,22 +36,26 @@ public class TopQuery implements Query {
     public void execute() {
 
         List<String> top = new ArrayList();
-        List<LeaderData> lds = leaderboard.getLeaderBoard().getLeaders(page);
+        List<LeaderData> lds = lb.getLeaderBoardDB().getLeaders(page, numberOfPages);
 
         if (lds.isEmpty()) {
 
-            top.add("No results to list.");
+            top.add(ChatColor.YELLOW + "No results to list.");
 
         } else {
 
             for (LeaderData ld : lds) {
 
-                top.add(ld.getRank() + ": " + ld.getMember() + " | " + ld.getScore());
+                top.add(ChatColor.AQUA.toString() + ld.getRank()
+                        + ChatColor.YELLOW + " | "
+                        + ChatColor.RESET + ld.getMember()
+                        + ChatColor.YELLOW + " - " 
+                        + ChatColor.AQUA + ld.getScore());
 
             }
         }
 
-        leaderboard.addResult(new TopResult(player, leaderboard.getPlugin().getGUIHandler(), top));
+        lb.addResult(new TopResult(player, guiHandler, top));
 
     }
 }

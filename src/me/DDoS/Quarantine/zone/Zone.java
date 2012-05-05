@@ -43,6 +43,7 @@ import me.DDoS.Quarantine.player.QPlayer;
 import me.DDoS.Quarantine.zone.subzone.SubZone;
 import me.DDoS.Quarantine.zone.region.Region;
 import me.DDoS.Quarantine.leaderboard.Leaderboard;
+import me.DDoS.Quarantine.player.PlayerType;
 import me.DDoS.Quarantine.player.inventory.Kit;
 
 /**
@@ -86,6 +87,12 @@ public class Zone {
         }
     }
 
+    public Quarantine getPlugin() {
+        
+        return plugin;
+        
+    }
+    
     public ZoneProperties getProperties() {
 
         return properties;
@@ -104,7 +111,7 @@ public class Zone {
 
     }
 
-    public Leaderboard getLeaderboards() {
+    public Leaderboard getLeaderboard() {
 
         return leaderboard;
 
@@ -194,31 +201,37 @@ public class Zone {
 
     public void giveKit(Player player, String kitName) {
 
-        if (!kits.containsKey(kitName)) {
+        QPlayer qPlayer = players.get(player.getName());
 
-            QUtil.tell(player, "Could not find the requested kit.");
+        if (!(qPlayer instanceof LobbyPlayer)) {
+
+            QUtil.tell(player, "You can only request kits from the lobby, "
+                    + "if you don't have any saved inventory.");
             return;
 
         }
 
-        if (!plugin.getPermissions().hasPermission(player, "quarantine.kit."
+        giveKit((LobbyPlayer) qPlayer, kitName);
+
+    }
+
+    private void giveKit(LobbyPlayer lPlayer, String kitName) {
+
+        if (!kits.containsKey(kitName)) {
+
+            QUtil.tell(lPlayer.getPlayer(), "Could not find the requested kit.");
+            return;
+
+        }
+
+        if (!plugin.getPermissions().hasPermission(lPlayer.getPlayer(), "quarantine.kit."
                 + properties.getZoneName() + "." + kitName)) {
 
-            QUtil.tell(player, "You don't have permission for this kit.");
+            QUtil.tell(lPlayer.getPlayer(), "You don't have permission for this kit.");
 
         } else {
 
-            QPlayer qPlayer = players.get(player.getName());
-
-            if (qPlayer instanceof LobbyPlayer) {
-
-                ((LobbyPlayer) qPlayer).giveKit(kits.get(kitName));
-                return;
-
-            }
-
-            QUtil.tell(player, "You can only request kits from the lobby, "
-                    + "if you don't have any saved inventory.");
+            lPlayer.giveKit(kits.get(kitName));
 
         }
     }
@@ -234,15 +247,6 @@ public class Zone {
                 removeAllMobs();
 
             }
-        }
-    }
-
-    public void handleCreatureSpawn(CreatureSpawnEvent event) {
-
-        if (!event.getSpawnReason().equals(SpawnReason.CUSTOM)) {
-
-            event.setCancelled(true);
-
         }
     }
 
@@ -262,6 +266,12 @@ public class Zone {
 
                 }
 
+                if (properties.clearXP()) {
+
+                    event.setDroppedExp(0);
+
+                }
+
                 Player player = getKiller(event.getEntity());
 
                 if (player != null) {
@@ -274,7 +284,7 @@ public class Zone {
 
                     QPlayer qPlayer = players.get(player.getName());
 
-                    if (!qPlayer.isZonePlayer()) {
+                    if (qPlayer.getType() != PlayerType.ZONE_PLAYER) {
 
                         return;
 
@@ -335,7 +345,7 @@ public class Zone {
 
         QPlayer qPlayer = players.get(player.getName());
 
-        if (!qPlayer.isZonePlayer()) {
+        if (qPlayer.getType() != PlayerType.ZONE_PLAYER) {
 
             return;
 
@@ -353,18 +363,15 @@ public class Zone {
     public void handlePlayerInteractSign(PlayerInteractEvent event, Sign sign) {
 
         QPlayer qPlayer = players.get(event.getPlayer().getName());
+        PlayerType type = qPlayer.getType();
 
-        if (!qPlayer.isZonePlayer()) {
+        if (type == PlayerType.ZONE_PLAYER) {
 
-            return;
+            event.setCancelled(handleZoneSign((ZonePlayer) qPlayer, sign));
 
-        }
+        } else if (type == PlayerType.LOBBY_PLAYER) {
 
-        ZonePlayer qzPlayer = (ZonePlayer) qPlayer;
-
-        if (sign.getLine(0).equalsIgnoreCase("[Quarantine]")) {
-
-            event.setCancelled(handleZoneSign(qzPlayer, sign));
+            event.setCancelled(handleLobbySign((LobbyPlayer) qPlayer, sign));
 
         }
     }
@@ -391,6 +398,18 @@ public class Zone {
 
         return true;
 
+    }
+
+    private boolean handleLobbySign(LobbyPlayer lPlayer, Sign sign) {
+
+        if (sign.getLine(1).equalsIgnoreCase("Get Kit")) {
+
+            giveKit(lPlayer, sign.getLine(2));
+            return true;
+
+        }
+
+        return false;
     }
 
     private boolean handleZoneSign(ZonePlayer player, Sign sign) {

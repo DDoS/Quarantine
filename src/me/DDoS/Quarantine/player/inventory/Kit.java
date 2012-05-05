@@ -79,7 +79,7 @@ public class Kit {
         
     }
     
-    public static Map<String, Kit> parseKits(ConfigurationSection config) {
+    public static Map<String, Kit> loadKits(ConfigurationSection config) {
 
         Map<String, Kit> kits = new HashMap<String, Kit>();
         

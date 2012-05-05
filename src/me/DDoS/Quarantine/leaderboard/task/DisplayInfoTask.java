@@ -21,6 +21,12 @@ public class DisplayInfoTask implements Runnable {
     @Override
     public void run() {
         
+        if (!leaderboard.getLeaderBoardDB().hasConnection()) {
+            
+            return;
+            
+        }
+        
         final Queue<Result> queue = leaderboard.getResults();
         
         while (!queue.isEmpty()) {
