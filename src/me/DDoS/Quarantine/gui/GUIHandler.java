@@ -1,6 +1,9 @@
 package me.DDoS.Quarantine.gui;
 
 import java.util.List;
+import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.player.QPlayer;
+import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.zone.Zone;
 import org.bukkit.entity.Player;
 
@@ -8,12 +11,45 @@ import org.bukkit.entity.Player;
  *
  * @author DDoS
  */
-public interface GUIHandler {
+public class TextGUIHandler implements GUIHandler {
 
-    public void handleZoneList(Player player);
+    protected final Quarantine plugin;
 
-    public void handlePlayerList(Player player, Zone zone);
-    
-    public void handleTopResults(Player player, List<String> results);
-    
+    public TextGUIHandler(Quarantine plugin) {
+
+        this.plugin = plugin;
+
+    }
+
+    @Override
+    public void handleZoneList(Player player) {
+
+        QUtil.tell(player, "Zones:");
+
+        for (Zone zone : plugin.getZones()) {
+
+            QUtil.tell(player, zone.getProperties().getZoneName()
+                    + ": " + zone.getNumberOfPlayers()
+                    + "/" + zone.getProperties().getMaxNumberOfPlayers());
+
+        }
+    }
+
+    @Override
+    public void handlePlayerList(Player player, Zone zone) {
+
+        QUtil.tell(player, "Players:");
+        QUtil.tell(player, QUtil.toString(zone.getPlayers()));
+
+    }
+
+    @Override
+    public void handleTopResults(Player player, List<String> results) {
+
+        for (String result : results) {
+
+            QUtil.tell(player, result);
+
+        }
+    }
 }
