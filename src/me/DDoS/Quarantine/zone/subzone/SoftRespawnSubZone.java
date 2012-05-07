@@ -51,7 +51,7 @@ public class SoftRespawnSubZone extends SubZone {
 
     }
 
-    public void respawnMobs() {
+    private void respawnMobs() {
 
         if (mobsToRespawn == 0) {
             

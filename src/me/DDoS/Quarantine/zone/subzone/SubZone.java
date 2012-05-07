@@ -21,7 +21,7 @@ public class SubZone {
     protected static final Random random = new Random();
     //
     private final SpawnRegion region;
-    protected final int numOfMobs;
+    private final int numOfMobs;
     private final List<EntityType> creatureTypes;
     //
     protected final List<LivingEntity> entities = new ArrayList<LivingEntity>();
