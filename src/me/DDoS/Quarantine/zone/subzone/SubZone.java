@@ -2,6 +2,7 @@ package me.DDoS.Quarantine.zone.subzone;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -17,17 +18,17 @@ import me.DDoS.Quarantine.zone.region.SpawnRegion;
  */
 public class SubZone {
 
-    private final SpawnRegion region;
-    private final int numOfMobs;
-    private final List<EntityType> creatureTypes;
-    private final boolean softRespawn;
+    protected static final Random random = new Random();
     //
-    private final List<LivingEntity> entities = new ArrayList<LivingEntity>();
+    private final SpawnRegion region;
+    protected final int numOfMobs;
+    private final List<EntityType> creatureTypes;
+    //
+    protected final List<LivingEntity> entities = new ArrayList<LivingEntity>();
     private final List<SpawnLocation> spawnLocs = new ArrayList<SpawnLocation>();
 
-    public SubZone(SpawnRegion region, int numOfMobs, boolean softRespawn, List<EntityType> creatureTypes) {
+    public SubZone(SpawnRegion region, int numOfMobs, List<EntityType> creatureTypes) {
 
-        this.softRespawn = softRespawn;
         this.region = region;
         this.numOfMobs = numOfMobs;
         this.creatureTypes = creatureTypes;
@@ -40,7 +41,13 @@ public class SubZone {
 
     }
 
-    public void generateSpawnLocations() {
+    public boolean hasMob(LivingEntity ent) {
+
+        return entities.contains(ent);
+
+    }
+
+    private void generateSpawnLocations() {
 
         Random rand = new Random();
         Iterator<SpawnLocation> iter = region.spawnLocationIterator();
@@ -60,11 +67,11 @@ public class SubZone {
 
     public void spawnStartingMobs() {
 
-        spawnMob(numOfMobs);
+        spawnMobs(numOfMobs);
 
     }
 
-    public void spawnMob(int quantity) {
+    public void spawnMobs(int quantity) {
 
         if (spawnLocs.isEmpty()) {
 
@@ -74,29 +81,24 @@ public class SubZone {
 
         if (!spawnLocs.isEmpty()) {
 
-            Random rand = new Random();
-
             for (int i = 0; i < quantity; i++) {
 
-                entities.add(spawnLocs.get(rand.nextInt(spawnLocs.size())).spawnCreature());
+                entities.add(spawnLocs.get(random.nextInt(spawnLocs.size())).spawnCreature());
 
             }
         }
     }
 
-    public void refreshEntity(LivingEntity entity) {
+    public void refreshMob(LivingEntity entity) {
 
-        if (!softRespawn) {
+        entities.remove(entity);
+        entity.remove();
+        spawnMobs(1);
 
-            entities.remove(entity);
-            entity.remove();
-            spawnMob(1);
-
-        }
     }
 
     public void removeAllMobs() {
-
+        
         for (LivingEntity entity : entities) {
 
             entity.remove();
@@ -108,27 +110,21 @@ public class SubZone {
 
     }
 
-    public boolean hasMob(LivingEntity ent) {
-
-        return entities.contains(ent);
-
-    }
-
     public void checkForDeadMobs() {
 
-        List<LivingEntity> flagged = new ArrayList<LivingEntity>();
+        final List<LivingEntity> flagged = new LinkedList<LivingEntity>();
 
-        for (LivingEntity ent : entities) {
+        for (LivingEntity entity : entities) {
 
-            if (ent.isDead()) {
+            if (entity.isDead()) {
 
-                flagged.add(ent);
+                flagged.add(entity);
 
             }
         }
 
         entities.removeAll(flagged);
-        spawnMob(flagged.size());
+        spawnMobs(flagged.size());
 
     }
 }

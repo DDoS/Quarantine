@@ -21,6 +21,7 @@ import me.DDoS.Quarantine.zone.subzone.SubZoneData;
 import me.DDoS.Quarantine.zone.subzone.SubZone;
 import me.DDoS.Quarantine.zone.region.Region;
 import me.DDoS.Quarantine.zone.region.SpawnRegion;
+import me.DDoS.Quarantine.zone.subzone.SoftRespawnSubZone;
 
 /**
  *
@@ -76,7 +77,7 @@ public class ZoneLoader {
         }
 
         clearLastData();
-        
+
         final String worldName = configSec1.getString("world");
 
         if (worldName == null) {
@@ -193,7 +194,20 @@ public class ZoneLoader {
             if (spawnRegion != null) {
 
                 final SubZoneData sZData = subZoneData.get(subZoneName);
-                subZones.add(new SubZone(spawnRegion, sZData.getNumberOfMobs(), softRespawn, sZData.getMobTypes()));
+
+                SubZone subZone;
+
+                if (!softRespawn) {
+
+                    subZone = new SubZone(spawnRegion, sZData.getNumberOfMobs(), sZData.getMobTypes());
+
+                } else {
+
+                    subZone = new SoftRespawnSubZone(spawnRegion, sZData.getNumberOfMobs(), sZData.getMobTypes());
+
+                }
+
+                subZones.add(subZone);
 
             } else {
 

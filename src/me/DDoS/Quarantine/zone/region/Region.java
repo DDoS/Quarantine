@@ -1,6 +1,5 @@
 package me.DDoS.Quarantine.zone.region;
 
-import com.sk89q.worldedit.BlockVector;
 import me.DDoS.Quarantine.zone.location.BlockLocation;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -33,9 +32,9 @@ public class Region {
             
         }
         
-        double x = loc.getX();
-        double y = loc.getY();
-        double z = loc.getZ();
+        final double x = loc.getX();
+        final double y = loc.getY();
+        final double z = loc.getZ();
 
         return (x >= min.getX() && x <= max.getX()
                 && y >= min.getY() && y <= max.getY()
@@ -51,11 +50,11 @@ public class Region {
             
         }
         
-        int minChunkX = min.getX() >> 4;
-        int minChunkZ = min.getZ() >> 4;
+        final int minChunkX = min.getX() >> 4;
+        final int minChunkZ = min.getZ() >> 4;
         
-        int maxChunkX = max.getX() >> 4;
-        int maxChunkZ = max.getZ() >> 4;
+        final int maxChunkX = max.getX() >> 4;
+        final int maxChunkZ = max.getZ() >> 4;
         
         return (chunk.getX() >= minChunkX && chunk.getX() <= maxChunkX)
                 && (chunk.getZ() >= minChunkZ && chunk.getZ() <= maxChunkZ);

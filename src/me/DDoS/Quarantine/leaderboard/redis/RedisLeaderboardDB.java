@@ -1,7 +1,7 @@
 package me.DDoS.Quarantine.leaderboard.redis;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -26,9 +26,9 @@ public class RedisLeaderboardDB implements LeaderboardDB {
         this.lbName = lbName;
         this.pageSize = pageSize;
         this.jedis = new Jedis(Leaderboard.HOST, Leaderboard.PORT);
-        
+
         boolean connected;
-        
+
         try {
 
             jedis.connect();
@@ -42,16 +42,16 @@ public class RedisLeaderboardDB implements LeaderboardDB {
             Quarantine.log.info("[Quarantine] Couldn't connect to Redis DB. Error: " + jce.getMessage());
 
         }
-        
+
         hasConnection = connected;
-        
+
     }
-    
+
     @Override
     public boolean hasConnection() {
-        
+
         return hasConnection;
-        
+
     }
 
     @Override
@@ -174,7 +174,7 @@ public class RedisLeaderboardDB implements LeaderboardDB {
 
         if (startingPage + numberOfPages > getPageTotal()) {
 
-            startingPage = getPageTotal();
+            return new LinkedList<LeaderData>();
 
         }
 
@@ -186,7 +186,7 @@ public class RedisLeaderboardDB implements LeaderboardDB {
 
         }
 
-        int end = (startingPage + numberOfPages) * pageSize - 1;
+        int end = (startingPage + numberOfPages - 1) * pageSize - 1;
 
         Set<Tuple> rawLeaderData = null;
 
@@ -206,7 +206,7 @@ public class RedisLeaderboardDB implements LeaderboardDB {
 
     private List<LeaderData> generateLeaderData(Set<Tuple> memberData) {
 
-        List<LeaderData> leaderData = new ArrayList<LeaderData>();
+        final List<LeaderData> leaderData = new ArrayList<LeaderData>();
 
         if (memberData == null) {
 
@@ -214,16 +214,14 @@ public class RedisLeaderboardDB implements LeaderboardDB {
 
         }
 
-        Iterator<Tuple> memberDataIterator = memberData.iterator();
+        for (Tuple data : memberData) {
 
-        while (memberDataIterator.hasNext()) {
-
-            Tuple memberDataTuple = memberDataIterator.next();
-            LeaderData leaderDataItem = new LeaderData(memberDataTuple.getElement(), (int) memberDataTuple.getScore(),
-                    getRank(memberDataTuple.getElement()));
-            leaderData.add(leaderDataItem);
+            LeaderData ld = new LeaderData(data.getElement(), (int) data.getScore(),
+                    getRank(data.getElement()));
+            leaderData.add(ld);
 
         }
+
 
         return leaderData;
 

@@ -42,6 +42,8 @@ public class ZoneProperties {
         this.clearXP = clearXP;
         
         this.mobCheckTaskInterval = mobCheckTaskInterval;
+        
+        this.mobCheckTaskID = -1;
 
     }
 

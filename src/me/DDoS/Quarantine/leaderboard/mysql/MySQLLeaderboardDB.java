@@ -61,19 +61,19 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
 
         }
     }
-    
+
     @Override
     public boolean hasConnection() {
-        
+
         return connection != null;
-        
+
     }
 
     private void verifyTable() throws SQLException {
 
         String createString =
-                "CREATE TABLE IF NOT EXISTS " + tableName + " "
-                + "(player_name VARCHAR(20) NOT NULL, "
+                "CREATE TABLE IF NOT EXISTS " + tableName
+                + " (player_name VARCHAR(20) NOT NULL, "
                 + "score INT, "
                 + "rank INT, "
                 + "PRIMARY KEY (player_name))";
@@ -127,8 +127,8 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
 
         }
 
-        String updateString = "REPLACE INTO " + tableName + " "
-                + "SET player_name = ?, score = ?";
+        String updateString = "REPLACE INTO " + tableName
+                + " SET player_name = ?, score = ?";
         PreparedStatement update = null;
 
         try {
@@ -216,8 +216,8 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
 
         }
 
-        String statmenentString = "SELECT score FROM " + tableName + " "
-                + "WHERE player_name LIKE ?";
+        String statmenentString = "SELECT score FROM " + tableName
+                + " WHERE player_name LIKE ?";
         PreparedStatement statement = null;
 
         try {
@@ -267,8 +267,8 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
 
         }
 
-        String statmenentString = "SELECT EXISTS(SELECT 1 FROM " + tableName + " "
-                + "WHERE player_name LIKE ?)";
+        String statmenentString = "SELECT EXISTS(SELECT 1 FROM " + tableName
+                + " WHERE player_name LIKE ?)";
         PreparedStatement statement = null;
 
         try {
@@ -318,8 +318,8 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
 
         }
 
-        String statmenentString = "SELECT rank FROM " + tableName + " "
-                + "WHERE player_name LIKE ?";
+        String statmenentString = "SELECT rank FROM " + tableName
+                + " WHERE player_name LIKE ?";
         PreparedStatement statement = null;
 
         try {
@@ -369,8 +369,14 @@ public class MySQLLeaderboardDB implements LeaderboardDB {
 
         }
 
-        String statmenentString = "SELECT player_name,score,rank FROM " + tableName + " "
-                + "WHERE rank<=? AND rank>=? ORDER BY rank";
+        if (startingPage + numberOfPages > getPageTotal()) {
+
+            return leaderData;
+
+        }
+
+        String statmenentString = "SELECT player_name,score,rank FROM " + tableName
+                + " WHERE rank<=? AND rank>=? ORDER BY rank";
         PreparedStatement statement = null;
 
         try {

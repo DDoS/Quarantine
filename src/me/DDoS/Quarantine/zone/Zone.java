@@ -23,8 +23,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Tameable;
-import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -45,6 +43,7 @@ import me.DDoS.Quarantine.zone.region.Region;
 import me.DDoS.Quarantine.leaderboard.Leaderboard;
 import me.DDoS.Quarantine.player.PlayerType;
 import me.DDoS.Quarantine.player.inventory.Kit;
+import me.DDoS.Quarantine.zone.task.MobCheckTask;
 
 /**
  *
@@ -88,11 +87,11 @@ public class Zone {
     }
 
     public Quarantine getPlugin() {
-        
+
         return plugin;
-        
+
     }
-    
+
     public ZoneProperties getProperties() {
 
         return properties;
@@ -199,6 +198,12 @@ public class Zone {
 
     }
 
+    public List<SubZone> getSubZones() {
+
+        return subZones;
+
+    }
+
     public void giveKit(Player player, String kitName) {
 
         QPlayer qPlayer = players.get(player.getName());
@@ -258,7 +263,7 @@ public class Zone {
 
             if (subZone.hasMob(entity)) {
 
-                subZone.refreshEntity(entity);
+                subZone.refreshMob(entity);
 
                 if (properties.clearDrops()) {
 
@@ -432,20 +437,21 @@ public class Zone {
 
             }
 
+            return true;
+
         } else if (line.equalsIgnoreCase("Buy Random Item")) {
 
             Sign sign2 = getSignNextTo(sign.getBlock());
 
-            if (sign2 == null) {
+            if (sign2 != null) {
 
-                return true;
+                String[] splits = sign.getLine(2).split("-");
+                List<ItemStack> items = QUtil.parseItemList(sign2.getLines(), Integer.parseInt(splits[0]));
+                player.buyItem(items.get(new Random().nextInt(items.size())), Integer.parseInt(splits[1]));
 
             }
 
-            String[] splits = sign.getLine(2).split("-");
-            List<ItemStack> items = QUtil.parseItemList(sign2.getLines(), Integer.parseInt(splits[0]));
-
-            player.buyItem(items.get(new Random().nextInt(items.size())), Integer.parseInt(splits[1]));
+            return true;
 
         } else if (line.equalsIgnoreCase("Sell Item")) {
 
@@ -458,6 +464,8 @@ public class Zone {
 
             }
 
+            return true;
+
         } else if (line.equalsIgnoreCase("Buy Key")) {
 
             player.addKey(sign.getLine(2), Integer.parseInt(sign.getLine(3)));
@@ -467,6 +475,7 @@ public class Zone {
 
             String[] sa = sign.getLine(2).split("-");
             player.addEnchantment(Integer.parseInt(sa[0]), Integer.parseInt(sa[1]), Integer.parseInt(sa[2]));
+            return true;
 
         } else if (line.equalsIgnoreCase("Buy Kit")) {
 
@@ -489,9 +498,6 @@ public class Zone {
             return false;
 
         }
-
-        return true;
-
     }
 
     public QPlayer getPlayer(String playerName) {
@@ -500,7 +506,7 @@ public class Zone {
 
     }
 
-    private QPlayer getAndCreatePlayer(Player player) {
+    private QPlayer createAndGetPlayer(Player player) {
 
         if (!players.containsKey(player.getName())) {
 
@@ -521,7 +527,7 @@ public class Zone {
 
         }
 
-        QPlayer qPlayer = getAndCreatePlayer(player);
+        QPlayer qPlayer = createAndGetPlayer(player);
 
         if (qPlayer.join()) {
 
@@ -651,11 +657,8 @@ public class Zone {
 
         for (SubZone subZone : subZones) {
 
-            if (subZone.hasMobs()) {
+            subZone.removeAllMobs();
 
-                subZone.removeAllMobs();
-
-            }
         }
     }
 
@@ -668,23 +671,8 @@ public class Zone {
         }
 
         long interval = properties.getMobCheckTaskInterval();
-
-        properties.setMobCheckTaskID(plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
-
-            @Override
-            public void run() {
-
-                for (SubZone subZone : subZones) {
-
-                    subZone.checkForDeadMobs();
-
-                }
-
-                Quarantine.log.info("[Quarantine] Finished checking mobs.");
-
-            }
-        }, interval, interval));
-
+        properties.setMobCheckTaskID(plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin,
+                new MobCheckTask(this), interval, interval));
         Quarantine.log.info("[Quarantine] Started mob check task for zone: " + properties.getZoneName());
 
     }
