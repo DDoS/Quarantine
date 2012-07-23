@@ -1,5 +1,6 @@
 package me.DDoS.Quarantine.player;
 
+import me.DDoS.Quarantine.util.Messages;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.zone.Zone;
 import org.bukkit.entity.Player;
@@ -43,7 +44,7 @@ public abstract class QPlayer extends PlayerData {
     public void removeMoney(int amount) {
 
         money -= amount;
-        QUtil.tell(player, amount + " dollar(s) have been substracted from your account balance.");
+        QUtil.tell(player, Messages.get("MoneySubstractionSuccess", amount));
         tellMoney();
 
     }
@@ -51,21 +52,21 @@ public abstract class QPlayer extends PlayerData {
     public void giveMoney(int amount) {
 
         money += amount;
-        QUtil.tell(player, amount + " dollar(s) have been added to your account balance.");
+        QUtil.tell(player, Messages.get("MoneyAdditionSuccess", amount));
         tellMoney();
 
     }
     
     public void tellKits() {
         
-        QUtil.tell(player, "All available kits:");
+        QUtil.tell(player, Messages.get("KitListHeader"));
         QUtil.tell(player, QUtil.toString(zone.getKitNames()));
         
     }
     
     public void tellKeys() {
 
-        QUtil.tell(player, "Your keys: " + QUtil.toString(keys));
+        QUtil.tell(player, Messages.get("KeyList", QUtil.toString(keys)));
 
     }
 
@@ -73,7 +74,7 @@ public abstract class QPlayer extends PlayerData {
 
         if (zone.getLeaderboard() == null) {
 
-            QUtil.tell(player, "Leaderboards are not enabled.");
+            QUtil.tell(player, Messages.get("LeaderboardsNotEnabled"));
             return;
 
         }
@@ -84,7 +85,7 @@ public abstract class QPlayer extends PlayerData {
 
     public void tellScore() {
 
-        QUtil.tell(player, "Score: " + score);
+        QUtil.tell(player, Messages.get("Score", score));
 
     }
 
@@ -92,7 +93,7 @@ public abstract class QPlayer extends PlayerData {
 
         if (zone.getLeaderboard() == null) {
 
-            QUtil.tell(player, "Leaderboards are not enabled.");
+            QUtil.tell(player, Messages.get("LeaderboardsNotEnabled"));
             return;
 
         }
@@ -103,7 +104,7 @@ public abstract class QPlayer extends PlayerData {
 
     public void tellMoney() {
 
-        QUtil.tell(player, "You currently have " + money + " dollar(s).");
+        QUtil.tell(player, Messages.get("CurrentMoney", money));
 
     }
 }

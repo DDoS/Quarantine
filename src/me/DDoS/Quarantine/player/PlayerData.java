@@ -28,6 +28,7 @@ import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.player.error.DataError;
 import me.DDoS.Quarantine.player.inventory.InventoryItem;
+import me.DDoS.Quarantine.util.Messages;
 
 /**
  *
@@ -188,8 +189,7 @@ public class PlayerData {
             if (!zone.isInZone(lastLoc)) {
 
                 lastLoc = zone.getEntrance();
-                QUtil.tell(player, ChatColor.RED + "Your last location was outside the zone. "
-                        + "It has been reset to the entrance.");
+                QUtil.tell(player, Messages.get("LastLocationOutOfBounds"));
 
             }
 
@@ -352,8 +352,7 @@ public class PlayerData {
 
         } catch (ClassCastException cce) {
 
-            QUtil.tell(player, ChatColor.RED + "Your inventory needs to be converted. "
-                    + "Ask your admin to do it.");
+            QUtil.tell(player, Messages.get("InventoryNotConvertedError"));
             return false;
 
         } catch (Exception ex) {

@@ -5,6 +5,7 @@ import java.util.List;
 import org.bukkit.entity.Player;
 
 import me.DDoS.Quarantine.Quarantine;
+import me.DDoS.Quarantine.util.Messages;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.zone.Zone;
 
@@ -24,7 +25,7 @@ public class GUIHandler {
 
     public void handleZoneList(Player player) {
 
-        QUtil.tell(player, "Zones:");
+        QUtil.tell(player, Messages.get("ZoneListHeader"));
 
         for (Zone zone : plugin.getZones()) {
 
@@ -37,7 +38,7 @@ public class GUIHandler {
 
     public void handlePlayerList(Player player, Zone zone) {
 
-        QUtil.tell(player, "Players:");
+        QUtil.tell(player, Messages.get("PlayerListHeader"));
         QUtil.tell(player, QUtil.toString(zone.getPlayers()));
 
     }

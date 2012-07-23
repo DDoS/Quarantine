@@ -13,6 +13,7 @@ import me.DDoS.Quarantine.gui.SpoutEnabledGUIHandler;
 import me.DDoS.Quarantine.leaderboard.Leaderboard;
 import me.DDoS.Quarantine.permission.Permission;
 import me.DDoS.Quarantine.player.QPlayer;
+import me.DDoS.Quarantine.util.Messages;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.zone.Zone;
 
@@ -55,14 +56,14 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             if (!plugin.hasZone(args[0])) {
 
-                QUtil.tell(player, "This zone is not loaded or doesn't exist.");
+                QUtil.tell(player, Messages.get("ZoneNotFound"));
                 return true;
 
             }
 
             if (plugin.isQuarantinePlayer(player.getName())) {
 
-                QUtil.tell(player, "You can only be in one zone at a time.");
+                QUtil.tell(player, Messages.get("AlreadyInZoneError"));
                 return true;
 
             }
@@ -83,7 +84,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             }
 
-            QUtil.tell(player, "You need to join a zone first.");
+            QUtil.tell(player, Messages.get("NoZonesJoinedError"));
             return true;
 
         }
@@ -99,7 +100,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             }
 
-            QUtil.tell(player, "You haven't joined any zone yet.");
+            QUtil.tell(player, Messages.get("NoZonesJoinedError"));
             return true;
 
         }
@@ -115,7 +116,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             }
 
-            QUtil.tell(player, "You haven't entered any zone yet.");
+            QUtil.tell(player, Messages.get("NoZonesEnteredError"));
             return true;
 
         }
@@ -131,7 +132,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             }
 
-            QUtil.tell(player, "You haven't entered any zone yet.");
+            QUtil.tell(player, Messages.get("NoZonesEnteredError"));
             return true;
 
         }
@@ -140,7 +141,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             if (!Leaderboard.ENABLED) {
 
-                QUtil.tell(player, "Leaderboards aren't enabled.");
+                QUtil.tell(player, Messages.get("LeaderboardsNotEnabled"));
                 return true;
 
             }
@@ -155,7 +156,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
                 } else {
 
-                    QUtil.tell(player, "You haven't entered any zone yet.");
+                    QUtil.tell(player, Messages.get("NoZonesEnteredError"));
 
                 }
 
@@ -171,7 +172,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
                 } else {
 
-                    QUtil.tell(player, "This zone doesn't exist or isn't loaded.");
+                    QUtil.tell(player, Messages.get("ZoneNotFound"));
 
                 }
             }
@@ -184,7 +185,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             if (!Leaderboard.ENABLED) {
 
-                QUtil.tell(player, "Leaderboards aren't enabled.");
+                QUtil.tell(player, Messages.get("LeaderboardsNotEnabled"));
                 return true;
 
             }
@@ -197,7 +198,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             } catch (NumberFormatException nfe) {
 
-                QUtil.tell(player, "The page number provided is not an actual number.");
+                QUtil.tell(player, Messages.get("PageNumberNotANumber"));
                 return true;
 
             } catch (ArrayIndexOutOfBoundsException aioobe) {
@@ -208,7 +209,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             if (page < 1) {
 
-                QUtil.tell(player, "The page number must be greater than zero.");
+                QUtil.tell(player, Messages.get("PageNumberNotGreaterThanZero"));
                 return true;
 
             }
@@ -232,7 +233,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
                 } else {
 
-                    QUtil.tell(player, "You haven't entered any zone yet.");
+                    QUtil.tell(player, Messages.get("NoZonesEnteredError"));
 
                 }
 
@@ -255,7 +256,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
                 } else {
 
-                    QUtil.tell(player, "This zone doesn't exist or isn't loaded.");
+                    QUtil.tell(player, Messages.get("ZoneNotFound"));
 
                 }
             }
@@ -275,7 +276,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             }
 
-            QUtil.tell(player, "You haven't entered any zone yet.");
+            QUtil.tell(player, Messages.get("NoZonesEnteredError"));
             return true;
 
         }
@@ -297,7 +298,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
                 } else {
 
-                    QUtil.tell(player, "This zone doesn't exist or isn't loaded.");
+                    QUtil.tell(player, Messages.get("ZoneNotFound"));
 
                 }
 
@@ -313,7 +314,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             } else {
 
-                QUtil.tell(player, "You have to provide a zone name if you aren't playing.");
+                QUtil.tell(player, Messages.get("ZoneNameNotProvidedError"));
 
             }
 
@@ -325,7 +326,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             if (args.length < 1) {
 
-                QUtil.tell(player, "You need to provide the name of the kit.");
+                QUtil.tell(player, Messages.get("KitNameNotProvidedError"));
                 return true;
 
             }
@@ -339,7 +340,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             }
 
-            QUtil.tell(player, "You haven't entered any zone yet.");
+            QUtil.tell(player, Messages.get("NoZonesEnteredError"));
             return true;
 
         }
@@ -355,7 +356,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             }
 
-            QUtil.tell(player, "You haven't entered any zone yet.");
+            QUtil.tell(player, Messages.get("NoZonesEnteredError"));
             return true;
 
         }
@@ -364,14 +365,14 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
             if (!plugin.hasEconomyConverter()) {
 
-                QUtil.tell(player, "Money conversion is disabled.");
+                QUtil.tell(player, Messages.get("MoneyConversionNotEnabled"));
                 return true;
 
             }
 
             if (args.length < 2) {
 
-                QUtil.tell(player, "You need to provide more arguments.");
+                QUtil.tell(player, Messages.get("NotEnoughArgumentsError"));
                 return true;
 
             }
@@ -386,7 +387,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
                 } catch (NumberFormatException nfe) {
 
-                    QUtil.tell(player, "The provided amount isn't a valid number.");
+                    QUtil.tell(player, Messages.get("AmountNotANumber"));
                     return true;
 
                 }
@@ -402,7 +403,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
                     } else {
 
-                        QUtil.tell(player, "You don't have permission for this type of money conversion in this zone.");
+                        QUtil.tell(player, Messages.get("MoneyConversionNotPermitted"));
 
                     }
 
@@ -410,7 +411,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
                 } else {
 
-                    QUtil.tell(player, "You need to join the desired zone first.");
+                    QUtil.tell(player, Messages.get("NoZonesJoinedError"));
 
                 }
 
@@ -426,7 +427,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
                 } catch (NumberFormatException nfe) {
 
-                    QUtil.tell(player, "The provided amount isn't a valid number.");
+                    QUtil.tell(player, Messages.get("AmountNotANumber"));
                     return true;
 
                 }
@@ -442,7 +443,7 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
                     } else {
 
-                        QUtil.tell(player, "You don't have permission for this type of money conversion in this zone.");
+                        QUtil.tell(player, "MoneyConversionNotPermitted");
 
                     }
 
@@ -450,13 +451,13 @@ public class PlayerCommandExecutor implements CommandExecutor {
 
                 } else {
 
-                    QUtil.tell(player, "You need to join the desired zone first.");
+                    QUtil.tell(player, Messages.get("NoZonesJoinedError"));
 
                 }
 
             } else {
 
-                QUtil.tell(player, "The first argument must be either 'IntToExt' or 'ExtToInt'.");
+                QUtil.tell(player, Messages.get("MoneyConversionInvalidFirstArgument"));
                 return true;
 
             }

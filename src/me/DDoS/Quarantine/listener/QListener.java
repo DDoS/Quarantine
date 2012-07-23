@@ -29,6 +29,7 @@ import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.gui.SpoutEnabledGUIHandler;
 import me.DDoS.Quarantine.player.CallablePlayer;
 import me.DDoS.Quarantine.player.PlayerType;
+import me.DDoS.Quarantine.util.Messages;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.zone.Zone;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
@@ -123,7 +124,7 @@ public class QListener implements Listener {
 
         Sign sign = (Sign) event.getClickedBlock().getState();
 
-        if (!sign.getLine(0).equalsIgnoreCase("[Quarantine]")) {
+        if (!sign.getLine(0).equalsIgnoreCase(Messages.get("SignHeader"))) {
 
             return;
 

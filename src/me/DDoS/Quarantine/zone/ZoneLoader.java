@@ -128,16 +128,15 @@ public class ZoneLoader {
 
         }
 
-        final int defaultMoney = configSec1.getInt("starting_money");
-        final int maxNumOfPlayers = configSec1.getInt("max_number_of_players");
-        final long interval = configSec1.getLong("mob_check_task_interval") * 20;
-        final boolean clearDrops = configSec1.getBoolean("clear_drops");
-        final boolean oneTimeKeys = configSec1.getBoolean("one_time_use_keys");
-        final boolean clearXP = configSec1.getBoolean("clear_mob_xp");
-        softRespawn = configSec1.getBoolean("soft_mob_respawn");
+        properties = new ZoneProperties(zoneName);
+        properties.setStartingMoney(configSec1.getInt("starting_money"));
+        properties.setMaxNumberOfPlayers(configSec1.getInt("max_number_of_players"));
+        properties.setMobCheckTaskInterval(configSec1.getLong("mob_check_task_interval") * 20);
+        properties.clearDrops(configSec1.getBoolean("clear_drops"));
+        properties.oneTimeUseKeys(configSec1.getBoolean("one_time_use_keys"));
+        properties.clearXP(configSec1.getBoolean("clear_mob_xp"));
 
-        properties = new ZoneProperties(zoneName, maxNumOfPlayers, defaultMoney,
-                clearDrops, oneTimeKeys, clearXP, interval);
+        softRespawn = (configSec1.getBoolean("soft_mob_respawn"));
 
         kits = Kit.loadKits(configSec1.getConfigurationSection("kits"));
 

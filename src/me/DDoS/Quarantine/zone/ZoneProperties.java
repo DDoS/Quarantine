@@ -6,44 +6,64 @@ package me.DDoS.Quarantine.zone;
  */
 public class ZoneProperties {
 
-    /*
-     * Final fields
-     */
     //strings
     private final String zoneName;
     //ints
-    private final int maxNumberOfPlayers;
-    private final int startingMoney;
-    //booleans
-    private final boolean clearDrops;
-    private final boolean oneTimeUseKeys;
-    private final boolean clearXP;
-    //longs
-    private final long mobCheckTaskInterval;
-
-    /*
-     * Non-final fields
-     */
-    //ints
+    private int maxNumberOfPlayers;
+    private int startingMoney;
     private int mobCheckTaskID;
-    
-    public ZoneProperties(String zoneName,
-            int maxNumberOfPlayers, int startingMoney,
-            boolean clearDrops, boolean oneTimeUseKeys, boolean clearXP,
-            long mobCheckTaskInterval) {
+    //booleans
+    private boolean clearDrops;
+    private boolean oneTimeUseKeys;
+    private boolean clearXP;
+    //longs
+    private long mobCheckTaskInterval;
+
+    public ZoneProperties(String zoneName) {
 
         this.zoneName = zoneName;
-        
-        this.maxNumberOfPlayers = maxNumberOfPlayers;
-        this.startingMoney = startingMoney;
-        
+
+    }
+
+    public void clearDrops(boolean clearDrops) {
+
         this.clearDrops = clearDrops;
-        this.oneTimeUseKeys = oneTimeUseKeys;
+
+    }
+
+    public void clearXP(boolean clearXP) {
+
         this.clearXP = clearXP;
-        
+
+    }
+
+    public void setMaxNumberOfPlayers(int maxNumberOfPlayers) {
+
+        this.maxNumberOfPlayers = maxNumberOfPlayers;
+
+    }
+
+    public void setMobCheckTaskInterval(long mobCheckTaskInterval) {
+
         this.mobCheckTaskInterval = mobCheckTaskInterval;
-        
-        this.mobCheckTaskID = -1;
+
+    }
+
+    public void oneTimeUseKeys(boolean oneTimeUseKeys) {
+
+        this.oneTimeUseKeys = oneTimeUseKeys;
+
+    }
+
+    public void setStartingMoney(int startingMoney) {
+
+        this.startingMoney = startingMoney;
+
+    }
+    
+    public void setMobCheckTaskID(int mobCheckTaskID) {
+
+        this.mobCheckTaskID = mobCheckTaskID;
 
     }
 
@@ -64,11 +84,11 @@ public class ZoneProperties {
         return clearDrops;
 
     }
-    
+
     public boolean clearXP() {
-        
+
         return clearXP;
-        
+
     }
 
     public int getMaxNumberOfPlayers() {
@@ -90,14 +110,8 @@ public class ZoneProperties {
     }
 
     public int getMobCheckTaskID() {
-     
-        return mobCheckTaskID;
-    
-    }
 
-    public void setMobCheckTaskID(int mobCheckTaskID) {
-    
-        this.mobCheckTaskID = mobCheckTaskID;
-    
+        return mobCheckTaskID;
+
     }
 }

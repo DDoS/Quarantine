@@ -8,9 +8,9 @@ import org.bukkit.entity.Player;
 
 import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.permission.Permission;
+import me.DDoS.Quarantine.util.Messages;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.zone.Zone;
-import me.DDoS.Quarantine.zone.ZoneLoader;
 
 /**
  *
@@ -51,21 +51,21 @@ public class AdminCommandExecutor implements CommandExecutor {
 
             if (!plugin.hasRegionProvider()) {
 
-                QUtil.tell(player, "No region provider, can't load any zones.");
+                QUtil.tell(player, Messages.get("NoRegionProvider"));
                 return true;
 
             }
 
             if (plugin.hasZone(args[0])) {
 
-                QUtil.tell(player, "This zone is already loaded.");
+                QUtil.tell(player, Messages.get("ZoneAlreadyLoaded"));
                 return true;
 
             }
 
             if (!plugin.hasZoneLoader()) {
                 
-                QUtil.tell(player, "Couldn't load the zone, no zone loader.");
+                QUtil.tell(player, Messages.get("NoZoneLoader"));
                 return true;
                 
             }
@@ -74,13 +74,13 @@ public class AdminCommandExecutor implements CommandExecutor {
 
             if (zone == null) {
 
-                QUtil.tell(player, "Couldn't load the zone. Please see the console.");
+                QUtil.tell(player, Messages.get("ZoneLoadError"));
                 return true;
 
             }
 
             plugin.addZone(args[0], zone);
-            QUtil.tell(player, "Zone loaded.");
+            QUtil.tell(player, Messages.get("ZoneLoadSuccess"));
             return true;
 
         }
@@ -89,7 +89,7 @@ public class AdminCommandExecutor implements CommandExecutor {
 
             if (!plugin.hasZone(args[0])) {
 
-                QUtil.tell(player, "This zone is not loaded or does not exist.");
+                QUtil.tell(player, Messages.get("ZoneNotFound"));
                 return true;
 
             }
@@ -97,7 +97,7 @@ public class AdminCommandExecutor implements CommandExecutor {
             plugin.unloadZone(plugin.getZoneByName(args[0]));
             plugin.removeZone(args[0]);
 
-            QUtil.tell(player, "Zone successfuly unloaded.");
+            QUtil.tell(player, Messages.get("ZoneUnloadSuccess"));
             return true;
 
         }
@@ -106,14 +106,14 @@ public class AdminCommandExecutor implements CommandExecutor {
 
             if (!plugin.hasZone(args[0])) {
 
-                QUtil.tell(player, "This zone is not loaded or doesn't exist.");
+                QUtil.tell(player, Messages.get("ZoneNotFound"));
                 return true;
 
             }
 
             plugin.getZoneByName(args[0]).reloadMobs();
 
-            QUtil.tell(player, "Mobs successfuly respawned.");
+            QUtil.tell(player, Messages.get("MobRespawnSuccess"));
             return true;
 
         }

@@ -1,6 +1,7 @@
 package me.DDoS.Quarantine.player;
 
 import me.DDoS.Quarantine.player.inventory.Kit;
+import me.DDoS.Quarantine.util.Messages;
 import me.DDoS.Quarantine.util.QUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
@@ -30,20 +31,19 @@ public class ZonePlayer extends QPlayer {
 
             if (cost > money) {
 
-                QUtil.tell(player, "You don't have enough money for this key.");
+                QUtil.tell(player, Messages.get("InsufficientFundsForKey"));
                 return;
 
             }
 
             removeMoney(cost);
             keys.add(key);
-            QUtil.tell(player, "Key '" + key + "' was added to your key chain.");
+            QUtil.tell(player, Messages.get("KeyPurchaseSuccess", key));
             return;
 
         }
 
-        QUtil.tell(player, "You already own this key.");
-        return;
+        QUtil.tell(player, Messages.get("KeyAlreadyOwned"));
 
     }
 
@@ -54,7 +54,7 @@ public class ZonePlayer extends QPlayer {
         if (success && oneTime) {
 
             keys.remove(key);
-            QUtil.tell(player, "The key broke as you unlocked the door.");
+            QUtil.tell(player, Messages.get("KeyOneTimeUse"));
 
         }
 
@@ -81,9 +81,7 @@ public class ZonePlayer extends QPlayer {
 
         if (moneyReceivedCount >= 5) {
 
-            QUtil.tell(player, "You received " + moneyReceived
-                    + " dollars from the last "
-                    + moneyReceivedCount + " mobs.");
+            QUtil.tell(player, Messages.get("MoneyReceivedFromMobs", moneyReceived, moneyReceivedCount));
             moneyReceived = 0;
             moneyReceivedCount = 0;
 
@@ -94,12 +92,12 @@ public class ZonePlayer extends QPlayer {
 
         if (cost > money) {
 
-            QUtil.tell(player, "You don't have enough money to buy this item.");
+            QUtil.tell(player, Messages.get("InsufficientFundsForItem"));
             return;
 
         }
 
-        QUtil.tell(player, "The item was added to your inventory.");
+        QUtil.tell(player, Messages.get("ItemAddedToInventory"));
         removeMoney(cost);
         player.getInventory().addItem(item);
         player.updateInventory();
@@ -110,13 +108,13 @@ public class ZonePlayer extends QPlayer {
 
         if (!player.getInventory().contains(item)) {
 
-            QUtil.tell(player, "You don't have any items of this type to sell: " + item.getType().name().toLowerCase());
+            QUtil.tell(player, Messages.get("ItemForSaleNotFound", item.getType().name().toLowerCase()));
             return;
 
         }
 
-        QUtil.tell(player, "The item was removed from your inventory.");
-        QUtil.tell(player, "You received " + cost + " dollar(s).");
+        QUtil.tell(player, Messages.get("ItemRemovedFromInventory"));
+        QUtil.tell(player, Messages.get("MoneyReceived", cost));
         money += cost;
         player.getInventory().removeItem(item);
         player.updateInventory();
@@ -127,14 +125,14 @@ public class ZonePlayer extends QPlayer {
 
         if (Enchantment.getById(ID) == null) {
 
-            QUtil.tell(player, "Invalid enchantment ID");
+            QUtil.tell(player, Messages.get("InvalidEnchantmentID"));
             return;
 
         }
 
         if (cost > money) {
 
-            QUtil.tell(player, "You don't have enough money to buy this enchantment.");
+            QUtil.tell(player, Messages.get("InsufficientFundsForEnchantment"));
             return;
 
         }
@@ -144,28 +142,28 @@ public class ZonePlayer extends QPlayer {
 
         if (!enchantment.canEnchantItem(item)) {
 
-            QUtil.tell(player, "This enchantment can not be applied to this item.");
+            QUtil.tell(player, Messages.get("EnchantmentUnappliable"));
             return;
 
         }
 
         if (item.containsEnchantment(enchantment)) {
 
-            QUtil.tell(player, "This enchantment has already been applied.");
+            QUtil.tell(player, Messages.get("EnchantmentAlreadyApplied"));
             return;
 
         }
 
         item.addEnchantment(enchantment, level);
         removeMoney(cost);
-        QUtil.tell(player, "Enchantment added.");
+        QUtil.tell(player, Messages.get("EnchantmentAddedSuccess"));
 
     }
 
     @Override
     public boolean join() {
 
-        QUtil.tell(player, "You are already playing.");
+        QUtil.tell(player, Messages.get("AlreadyInZoneError"));
         return false;
 
     }
@@ -188,13 +186,13 @@ public class ZonePlayer extends QPlayer {
 
         if (!saveData(true)) {
 
-            QUtil.tell(player, ChatColor.RED + "Couldn't save your data.");
+            QUtil.tell(player, Messages.get("DataSaveError"));
 
         }
 
         if (!saveInventory()) {
 
-            QUtil.tell(player, ChatColor.RED + "Couldn't save your inventory.");
+            QUtil.tell(player, Messages.get("InventorySaveError"));
 
         }
 
@@ -202,7 +200,7 @@ public class ZonePlayer extends QPlayer {
         player.teleport(zone.getLobby());
         player.setHealth(preGameHealth);
         player.setFoodLevel(preGameFoodLevel);
-        QUtil.tell(player, "Thank you for playing.");
+        QUtil.tell(player, Messages.get("Thanks"));
         return true;
 
     }
@@ -210,7 +208,7 @@ public class ZonePlayer extends QPlayer {
     @Override
     public void forceLeave() {
 
-        QUtil.tell(player, ChatColor.RED + "This zone is being unloaded.");
+        QUtil.tell(player, Messages.get("ZoneUnloadNotice"));
         commandLeave();
 
     }
@@ -249,7 +247,7 @@ public class ZonePlayer extends QPlayer {
         }
 
         event.setCancelled(true);
-        QUtil.tell(player, "Use '/qleave' to leave the zone.");
+        QUtil.tell(player, Messages.get("LeaveZoneHelp"));
         return false;
 
     }
@@ -277,14 +275,14 @@ public class ZonePlayer extends QPlayer {
         
         if (cost > money) {
 
-            QUtil.tell(player, "You don't have enough money to buy this kit.");
+            QUtil.tell(player, Messages.get("InsufficientFundsForKit"));
             return;
 
         }
         
         kit.giveKit(player);
         removeMoney(cost);
-        QUtil.tell(player, "Kit added.");
+        QUtil.tell(player, Messages.get("KitAddedSuccess"));
         
     }
 

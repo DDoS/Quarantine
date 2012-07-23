@@ -2,6 +2,7 @@ package me.DDoS.Quarantine.command;
 
 import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.permission.Permission;
+import me.DDoS.Quarantine.util.Messages;
 import me.DDoS.Quarantine.util.QUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -48,13 +49,13 @@ public class SetupCommandExecutor implements CommandExecutor {
 
             if (!plugin.hasZone(args[0])) {
 
-                QUtil.tell(player, "This zone is not loaded or doesn't exist.");
+                QUtil.tell(player, Messages.get("ZoneNotFound"));
                 return true;
 
             }
 
             plugin.getZoneByName(args[0]).setLobby(player.getLocation());
-            QUtil.tell(player, "Lobby set.");
+            QUtil.tell(player, Messages.get("LobbySetSuccess"));
             return true;
 
         }
@@ -63,18 +64,18 @@ public class SetupCommandExecutor implements CommandExecutor {
 
             if (!plugin.hasZone(args[0])) {
 
-                QUtil.tell(player, "This zone is not loaded or doesn't exist.");
+                QUtil.tell(player, Messages.get("ZoneNotFound"));
                 return true;
 
             }
 
             if (plugin.getZoneByName(args[0]).setEntrance(player.getLocation())) {
 
-                QUtil.tell(player, "Entrance set.");
+                QUtil.tell(player, Messages.get("EntranceSetSuccess"));
 
             } else {
 
-                QUtil.tell(player, "The entrance needs to be inside the zone.");
+                QUtil.tell(player, Messages.get("EntranceOutOfBounds"));
 
             }
 

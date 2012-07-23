@@ -10,87 +10,84 @@ import net.milkbowl.vault.economy.EconomyResponse;
  */
 public class EconomyConverter {
 
-    private final Economy economy;
-    //
-    private final float externalToInternalRate;
-    private final float internalToExternalRate;
+	private final Economy economy;
+	//
+	private final float externalToInternalRate;
+	private final float internalToExternalRate;
 
-    public EconomyConverter(Economy economy, float externalToInternalRate, float internalToExternalRate) {
+	public EconomyConverter(Economy economy, float externalToInternalRate, float internalToExternalRate) {
 
-        this.economy = economy;
-        this.externalToInternalRate = externalToInternalRate;
-        this.internalToExternalRate = internalToExternalRate;
+		this.economy = economy;
+		this.externalToInternalRate = externalToInternalRate;
+		this.internalToExternalRate = internalToExternalRate;
 
-    }
+	}
 
-    public void transfertExternalToInternal(QPlayer player, double externalAmount) {
+	public void transfertExternalToInternal(QPlayer player, double externalAmount) {
 
-        if (externalToInternalRate == -1f) {
+		if (externalToInternalRate == -1f) {
 
-            QUtil.tell(player.getPlayer(), "External to internal economy transfers aren't allowed.");
-            return;
+			QUtil.tell(player.getPlayer(), Messages.get("ExtToIntNotAllowed"));
+			return;
 
-        }
+		}
 
-        EconomyResponse response = economy.withdrawPlayer(player.getPlayer().getName(), externalAmount);
+		EconomyResponse response = economy.withdrawPlayer(player.getPlayer().getName(), externalAmount);
 
-        if (response.transactionSuccess()) {
+		if (response.transactionSuccess()) {
 
-            int internalAmount = convertExternalToInternal(externalAmount);
-            player.giveMoney(internalAmount);
-            QUtil.tell(player.getPlayer(), "The amount has been withdrawned from your account and converted to "
-                    + internalAmount + " Quarantine dollar(s).");
+			int internalAmount = convertExternalToInternal(externalAmount);
+			player.giveMoney(internalAmount);
+			QUtil.tell(player.getPlayer(), Messages.get("ExtWithdrawSuccess", internalAmount));
 
-        } else {
+		} else {
 
-            QUtil.tell(player.getPlayer(), "Transaction error: " + response.errorMessage);
+			QUtil.tell(player.getPlayer(), Messages.get("TransactionError", response.errorMessage));
 
-        }
-    }
+		}
+	}
 
-    public void transfertInternalToExternal(QPlayer player, int internalAmount) {
+	public void transfertInternalToExternal(QPlayer player, int internalAmount) {
 
-        if (internalToExternalRate == -1f) {
+		if (internalToExternalRate == -1f) {
 
-            QUtil.tell(player.getPlayer(), "Internal to external economy transfers aren't allowed.");
-            return;
-            
-        }
+			QUtil.tell(player.getPlayer(), Messages.get("IntToExtNotAllowed"));
+			return;
 
-        if (player.getMoney() < internalAmount) {
+		}
 
-            QUtil.tell(player.getPlayer(), "You don't have the requested amount.");
-            return;
+		if (player.getMoney() < internalAmount) {
 
-        }
+			QUtil.tell(player.getPlayer(), Messages.get("InsufficientFunds"));
+			return;
 
-        double externalAmount = convertInternalToExternal(internalAmount);
-        EconomyResponse response = economy.depositPlayer(player.getPlayer().getName(), externalAmount);
+		}
 
-        if (response.transactionSuccess()) {
+		double externalAmount = convertInternalToExternal(internalAmount);
+		EconomyResponse response = economy.depositPlayer(player.getPlayer().getName(), externalAmount);
 
-            player.removeMoney(internalAmount);
-            QUtil.tell(player.getPlayer(), "The amount has been converted to "
-                    + externalAmount + " "
-                    + (externalAmount > 1 ? economy.currencyNamePlural() : economy.currencyNameSingular())
-                    + ", and deposited to your account.");
+		if (response.transactionSuccess()) {
 
-        } else {
+			player.removeMoney(internalAmount);
+			QUtil.tell(player.getPlayer(), Messages.get("IntWithdrawSuccess",
+					Double.toString(externalAmount), externalAmount > 1 ? economy.currencyNamePlural() : economy.currencyNameSingular()));
 
-            QUtil.tell(player.getPlayer(), "Transaction error: " + response.errorMessage);
+		} else {
 
-        }
-    }
+			QUtil.tell(player.getPlayer(), Messages.get("TransactionError", response.errorMessage));
 
-    private int convertExternalToInternal(double external) {
+		}
+	}
 
-        return (int) Math.round(external * externalToInternalRate);
+	private int convertExternalToInternal(double external) {
 
-    }
+		return (int) Math.round(external * externalToInternalRate);
 
-    private double convertInternalToExternal(int internal) {
+	}
 
-        return internal * internalToExternalRate;
+	private double convertInternalToExternal(int internal) {
 
-    }
+		return internal * internalToExternalRate;
+
+	}
 }

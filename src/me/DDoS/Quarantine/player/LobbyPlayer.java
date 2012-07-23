@@ -1,9 +1,9 @@
 package me.DDoS.Quarantine.player;
 
 import me.DDoS.Quarantine.player.inventory.Kit;
+import me.DDoS.Quarantine.util.Messages;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.zone.Zone;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -52,14 +52,14 @@ public class LobbyPlayer extends QPlayer {
 
         if (zone.getLobby() == null) {
 
-            QUtil.tell(player, "No valid lobby.");
+            QUtil.tell(player, Messages.get("NoValidLobby"));
             return false;
 
         }
 
         if (zone.getEntrance() == null) {
 
-            QUtil.tell(player, "No valid entrance.");
+            QUtil.tell(player, Messages.get("NoValidEntrance"));
             return false;
 
         }
@@ -67,27 +67,27 @@ public class LobbyPlayer extends QPlayer {
         if (!areInvContentsEmpty(player.getInventory().getContents(),
                 player.getInventory().getArmorContents())) {
 
-            QUtil.tell(player, "You need to empty your inventory first.");
+            QUtil.tell(player, Messages.get("InventoryNotEmpty"));
             return false;
 
         }
 
         if (!loadData()) {
 
-            QUtil.tell(player, ChatColor.RED + "Couldn't load your data.");
+            QUtil.tell(player, Messages.get("DataLoadError"));
             return false;
 
         }
 
         if (!hasInventory()) {
 
-            QUtil.tell(player, "Please select a starter kit using /qkit (kit name).");
+            QUtil.tell(player, Messages.get("SelectAKitNotice"));
 
         } else {
 
             if (!loadInventory()) {
 
-                QUtil.tell(player, ChatColor.RED + "Couldn't restore your inventory.");
+                QUtil.tell(player, Messages.get("InventoryLoadError"));
                 return false;
 
             } else {
@@ -97,9 +97,9 @@ public class LobbyPlayer extends QPlayer {
             }
         }
 
-        QUtil.tell(player, "Welcome to the lobby. To leave, teleport out.");
+        QUtil.tell(player, Messages.get("LobbyWelcome"));
         player.teleport(zone.getLobby());
-        QUtil.tell(player, "To enter the zone, use /qenter.");
+        QUtil.tell(player, Messages.get("EnterHelp"));
         return true;
 
     }
@@ -109,7 +109,7 @@ public class LobbyPlayer extends QPlayer {
 
         if (!hasInventory) {
 
-            QUtil.tell(player, "Please select a starter kit using /qkit (kit name).");
+            QUtil.tell(player, Messages.get("SelectAKitNotice"));
             return false;
 
         }
@@ -117,7 +117,7 @@ public class LobbyPlayer extends QPlayer {
         player.setHealth(health);
         player.setFoodLevel(foodLevel);
         player.teleport(lastLoc);
-        QUtil.tell(player, "Have a nice stay!");
+        QUtil.tell(player, Messages.get("Entry"));
         return true;
 
     }
@@ -125,7 +125,7 @@ public class LobbyPlayer extends QPlayer {
     @Override
     public boolean commandLeave() {
 
-        QUtil.tell(player, "To leave, please teleport away.");
+        QUtil.tell(player, Messages.get("LeaveLobby"));
         return false;
 
     }
@@ -133,11 +133,11 @@ public class LobbyPlayer extends QPlayer {
     @Override
     public void forceLeave() {
 
-        QUtil.tell(player, ChatColor.RED + "This zone is being unloaded.");
+        QUtil.tell(player, Messages.get("ZoneUnloadNotice"));
 
         if (!saveData(false)) {
 
-            QUtil.tell(player, ChatColor.RED + "Couldn't save your data.");
+            QUtil.tell(player, Messages.get("DataSaveError"));
 
         }
 
@@ -145,7 +145,7 @@ public class LobbyPlayer extends QPlayer {
 
             if (!saveInventory()) {
 
-                QUtil.tell(player, ChatColor.RED + "Couldn't save your inventory.");
+                QUtil.tell(player, Messages.get("InventorySaveError"));
 
             }
         }
@@ -153,7 +153,7 @@ public class LobbyPlayer extends QPlayer {
         clearInventory();
         player.setHealth(preGameHealth);
         player.setFoodLevel(preGameFoodLevel);
-        QUtil.tell(player, "Thank you for playing.");
+        QUtil.tell(player, Messages.get("Thanks"));
 
     }
 
@@ -191,7 +191,7 @@ public class LobbyPlayer extends QPlayer {
 
         if (!saveData(false)) {
 
-            QUtil.tell(player, ChatColor.RED + "Couldn't save your data.");
+            QUtil.tell(player, Messages.get("DataSaveError"));
 
         }
 
@@ -199,7 +199,7 @@ public class LobbyPlayer extends QPlayer {
 
             if (!saveInventory()) {
 
-                QUtil.tell(player, ChatColor.RED + "Couldn't save your inventory.");
+                QUtil.tell(player, Messages.get("InventorySaveError"));
 
             }
         }
@@ -207,7 +207,7 @@ public class LobbyPlayer extends QPlayer {
         clearInventory();
         player.setHealth(preGameHealth);
         player.setFoodLevel(preGameFoodLevel);
-        QUtil.tell(player, "Thank you for playing.");
+        QUtil.tell(player, Messages.get("Thanks"));
         return true;
 
     }
@@ -227,11 +227,11 @@ public class LobbyPlayer extends QPlayer {
 
             kit.giveKit(player);
             hasInventory = true;
-            QUtil.tell(player, "Here's your kit.");
+            QUtil.tell(player, Messages.get("KitReceived"));
 
         } else {
 
-            QUtil.tell(player, "You already have an inventory.");
+            QUtil.tell(player, Messages.get("InventoryAlreadyPresent"));
 
         }
     }

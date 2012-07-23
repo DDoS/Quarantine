@@ -1,10 +1,10 @@
 package me.DDoS.Quarantine.zone.region.provider;
 
 import couk.Adamki11s.Regios.API.RegiosAPI;
-import couk.Adamki11s.Regios.Regions.RegionLocation;
 import me.DDoS.Quarantine.zone.location.BlockLocation;
 import me.DDoS.Quarantine.zone.region.Region;
 import me.DDoS.Quarantine.zone.region.SpawnRegion;
+import org.bukkit.Location;
 import org.bukkit.World;
 
 /**
@@ -33,8 +33,8 @@ public class RegiosRegionProvider implements RegionProvider {
         
         }
 
-        RegionLocation L1 = region.getL1();
-        RegionLocation L2 = region.getL2();
+        Location L1 = region.getL1();
+        Location L2 = region.getL2();
         
         BlockLocation max = new BlockLocation(world,
                 (int) Math.max(L1.getX(), L2.getX()),
@@ -61,8 +61,8 @@ public class RegiosRegionProvider implements RegionProvider {
         
         }
         
-        RegionLocation L1 = region.getL1();
-        RegionLocation L2 = region.getL2();
+        Location L1 = region.getL1();
+        Location L2 = region.getL2();
         
         BlockLocation max = new BlockLocation(world,
                 (int) Math.max(L1.getX(), L2.getX()),

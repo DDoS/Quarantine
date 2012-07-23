@@ -43,6 +43,7 @@ import com.bekvon.bukkit.residence.Residence;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 import couk.Adamki11s.Regios.Main.Regios;
+import me.DDoS.Quarantine.util.Messages;
 
 import net.milkbowl.vault.economy.Economy;
 
@@ -121,7 +122,9 @@ public class Quarantine extends JavaPlugin {
         loadStartUpZones();
 
         startMetrics();
-
+		
+		Messages.load(this);
+		
         log.info("[Quarantine] Plugin enabled. v" + getDescription().getVersion() + ", by DDoS");
 
     }

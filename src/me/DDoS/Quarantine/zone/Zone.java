@@ -43,6 +43,7 @@ import me.DDoS.Quarantine.zone.region.Region;
 import me.DDoS.Quarantine.leaderboard.Leaderboard;
 import me.DDoS.Quarantine.player.PlayerType;
 import me.DDoS.Quarantine.player.inventory.Kit;
+import me.DDoS.Quarantine.util.Messages;
 import me.DDoS.Quarantine.zone.task.MobCheckTask;
 
 /**
@@ -210,8 +211,7 @@ public class Zone {
 
         if (!(qPlayer instanceof LobbyPlayer)) {
 
-            QUtil.tell(player, "You can only request kits from the lobby, "
-                    + "if you don't have any saved inventory.");
+            QUtil.tell(player, Messages.get("NotInLobbyKitRequest"));
             return;
 
         }
@@ -224,7 +224,7 @@ public class Zone {
 
         if (!kits.containsKey(kitName)) {
 
-            QUtil.tell(lPlayer.getPlayer(), "Could not find the requested kit.");
+            QUtil.tell(lPlayer.getPlayer(), Messages.get("KitNotFoundError"));
             return;
 
         }
@@ -232,7 +232,7 @@ public class Zone {
         if (!plugin.getPermissions().hasPermission(lPlayer.getPlayer(), "quarantine.kit."
                 + properties.getZoneName() + "." + kitName)) {
 
-            QUtil.tell(lPlayer.getPlayer(), "You don't have permission for this kit.");
+            QUtil.tell(lPlayer.getPlayer(), Messages.get("KitNotPermitted"));
 
         } else {
 
@@ -356,7 +356,7 @@ public class Zone {
 
         }
 
-        ZonePlayer qzPlayer = (ZonePlayer) qPlayer;
+       ZonePlayer qzPlayer = (ZonePlayer) qPlayer;
 
         if (!handleLock(qzPlayer, event.getClickedBlock())) {
 
@@ -395,7 +395,7 @@ public class Zone {
 
             if (!player.useKey(sign.getLine(2), properties.oneTimeUseKeys())) {
 
-                QUtil.tell(player.getPlayer(), "You need to purchase the key '" + sign.getLine(2) + "' to open this door.");
+                QUtil.tell(player.getPlayer(), Messages.get("KeyNeeded", sign.getLine(2)));
                 return false;
 
             }
@@ -433,7 +433,7 @@ public class Zone {
 
             } else {
 
-                QUtil.tell(player.getPlayer(), "Invalid sign or ID.");
+                QUtil.tell(player.getPlayer(), Messages.get("InvalidItemID"));
 
             }
 
@@ -483,7 +483,7 @@ public class Zone {
 
             if (!kits.containsKey(kitName)) {
 
-                QUtil.tell(player.getPlayer(), "Invalid kit name.");
+                QUtil.tell(player.getPlayer(), Messages.get("InvalidKitName"));
 
             } else {
 
@@ -522,7 +522,7 @@ public class Zone {
 
         if (players.size() >= properties.getMaxNumberOfPlayers()) {
 
-            QUtil.tell(player, "The zone is full.");
+            QUtil.tell(player, Messages.get("ZoneFull"));
             return;
 
         }
