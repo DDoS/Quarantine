@@ -31,7 +31,9 @@ Zones:
     soft_mob_respawn: false
     clear_drops: true
     clear_mob_xp: false
+    keep_xp_on_respawn: true
     one_time_use_keys: false
+    keep_money_on_death: false
     entrance:
       x: 0
       y: 0

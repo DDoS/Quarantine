@@ -13,9 +13,9 @@ import java.util.Set;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -29,6 +29,7 @@ import me.DDoS.Quarantine.Quarantine;
 import me.DDoS.Quarantine.player.error.DataError;
 import me.DDoS.Quarantine.player.inventory.InventoryItem;
 import me.DDoS.Quarantine.util.Messages;
+import org.bukkit.configuration.file.FileConfiguration;
 
 /**
  *
@@ -36,477 +37,488 @@ import me.DDoS.Quarantine.util.Messages;
  */
 public class PlayerData {
 
-    protected final Player player;
-    protected final Zone zone;
-    protected int money;
-    protected int health;
-    protected int foodLevel;
-    protected final int preGameHealth;
-    protected final int preGameFoodLevel;
-    protected Location lastLoc;
-    protected int score;
-    protected Set<String> keys;
+	protected final Player player;
+	protected final Zone zone;
+	protected int money;
+	protected int health;
+	protected int foodLevel;
+	protected final int preGameHealth;
+	protected final int preGameFoodLevel;
+	protected Location lastLoc;
+	protected int score;
+	protected Set<String> keys;
 
-    protected PlayerData(Player player, Zone zone) {
+	protected PlayerData(Player player, Zone zone) {
 
-        this.player = player;
-        this.zone = zone;
-        this.preGameHealth = player.getHealth();
-        this.preGameFoodLevel = player.getFoodLevel();
+		this.player = player;
+		this.zone = zone;
+		this.preGameHealth = player.getHealth();
+		this.preGameFoodLevel = player.getFoodLevel();
 
-    }
+	}
 
-    protected PlayerData(PlayerData player) {
+	protected PlayerData(PlayerData player) {
 
-        this.player = player.getPlayer();
-        this.zone = player.getZone();
-        this.money = player.getMoney();
-        this.health = player.getHealth();
-        this.foodLevel = player.getFoodLevel();
-        this.preGameHealth = player.getPreGameHealth();
-        this.preGameFoodLevel = player.getPreGameFoodLevel();
-        this.lastLoc = player.getLastLoc();
-        this.score = player.getScore();
-        this.keys = player.getKeys();
+		this.player = player.getPlayer();
+		this.zone = player.getZone();
+		this.money = player.getMoney();
+		this.health = player.getHealth();
+		this.foodLevel = player.getFoodLevel();
+		this.preGameHealth = player.getPreGameHealth();
+		this.preGameFoodLevel = player.getPreGameFoodLevel();
+		this.lastLoc = player.getLastLoc();
+		this.score = player.getScore();
+		this.keys = player.getKeys();
 
-    }
+	}
 
-    public Player getPlayer() {
+	public Player getPlayer() {
 
-        return player;
+		return player;
 
-    }
+	}
 
-    public Zone getZone() {
+	public Zone getZone() {
 
-        return zone;
+		return zone;
 
-    }
+	}
 
-    public int getHealth() {
+	public int getHealth() {
 
-        return health;
+		return health;
 
-    }
+	}
 
-    public int getFoodLevel() {
+	public int getFoodLevel() {
 
-        return foodLevel;
+		return foodLevel;
 
-    }
+	}
 
-    public Set<String> getKeys() {
+	public Set<String> getKeys() {
 
-        return keys;
+		return keys;
 
-    }
+	}
 
-    public Location getLastLoc() {
+	public Location getLastLoc() {
 
-        return lastLoc;
+		return lastLoc;
 
-    }
+	}
 
-    public int getMoney() {
+	public int getMoney() {
 
-        return money;
+		return money;
 
-    }
+	}
 
-    public int getPreGameHealth() {
+	public int getPreGameHealth() {
 
-        return preGameHealth;
+		return preGameHealth;
 
-    }
+	}
 
-    public int getPreGameFoodLevel() {
+	public int getPreGameFoodLevel() {
 
-        return preGameFoodLevel;
+		return preGameFoodLevel;
 
-    }
+	}
 
-    public int getScore() {
+	public int getScore() {
 
-        return score;
+		return score;
 
-    }
+	}
 
-    public boolean loadData() {
+	public boolean loadData() {
 
-        YamlConfiguration config = new YamlConfiguration();
+		FileConfiguration config = getLoadedConfig();
 
-        File mainDir = new File("plugins/Quarantine/" + zone.getProperties().getZoneName() + "/PlayerData");
+		if (config == null) {
 
-        if (!mainDir.exists()) {
+			return false;
 
-            mainDir.mkdirs();
+		}
 
-        }
+		money = config.getInt("money", zone.getProperties().getStartingMoney());
+		health = config.getInt("health", 20);
+		foodLevel = config.getInt("foodLevel", 20);
+		score = config.getInt("score", 0);
 
-        File dir = new File(mainDir.getPath() + "/" + player.getName() + ".yml");
+		if (zone.getEntrance() != null) {
 
-        if (!dir.exists()) {
+			Location entrance = zone.getEntrance();
+			World world = Bukkit.getWorld(config.getString("lastLoc.World", entrance.getWorld().getName()));
+			double x = config.getDouble("lastLoc.X", entrance.getX());
+			double y = config.getDouble("lastLoc.Y", entrance.getY());
+			double z = config.getDouble("lastLoc.Z", entrance.getZ());
+			float yaw = (float) config.getDouble("lastLoc.Yaw", entrance.getYaw());
+			float pitch = (float) config.getDouble("lastLoc.Pitch", entrance.getPitch());
 
-            try {
+			lastLoc = new Location(world, x, y, z, yaw, pitch);
 
-                dir.createNewFile();
+			if (!zone.isInZone(lastLoc)) {
 
-            } catch (IOException ex) {
+				lastLoc = zone.getEntrance();
+				QUtil.tell(player, Messages.get("LastLocationOutOfBounds"));
 
-                logError(DataError.DATA_LOAD, ex);
-                return false;
+			}
 
-            }
-        }
+		} else {
 
-        try {
+			lastLoc = null;
 
-            config.load(dir);
+		}
 
-        } catch (Exception ex) {
+		List<String> keyList = config.getStringList("keys");
 
-            logError(DataError.DATA_LOAD, ex);
-            return false;
+		if (keyList != null) {
 
-        }
+			keys = Sets.newHashSet(keyList);
 
-        money = config.getInt("money", zone.getProperties().getStartingMoney());
-        health = config.getInt("health", 20);
-        foodLevel = config.getInt("foodLevel", 20);
-        score = config.getInt("score", 0);
+		} else {
 
-        if (zone.getEntrance() != null) {
+			keys = new HashSet<String>();
 
-            World world = Bukkit.getWorld(config.getString("lastLoc.World", zone.getEntrance().getWorld().getName()));
-            double x = config.getDouble("lastLoc.X", zone.getEntrance().getX());
-            double y = config.getDouble("lastLoc.Y", zone.getEntrance().getY());
-            double z = config.getDouble("lastLoc.Z", zone.getEntrance().getZ());
-            float yaw = (float) config.getDouble("lastLoc.Yaw", zone.getEntrance().getYaw());
-            float pitch = (float) config.getDouble("lastLoc.Pitch", zone.getEntrance().getPitch());
+		}
 
-            lastLoc = new Location(world, x, y, z, yaw, pitch);
+		return true;
+	}
 
-            if (!zone.isInZone(lastLoc)) {
+	public boolean saveData(boolean lastLoc) {
 
-                lastLoc = zone.getEntrance();
-                QUtil.tell(player, Messages.get("LastLocationOutOfBounds"));
+		FileConfiguration config = getLoadedConfig();
 
-            }
+		if (config == null) {
 
-        } else {
+			return false;
 
-            lastLoc = null;
+		}
 
-        }
+		health = player.getHealth();
+		foodLevel = player.getFoodLevel();
 
-        List<String> keyList = config.getStringList("keys");
+		config.set("money", money);
+		config.set("health", health);
+		config.set("foodLevel", foodLevel);
+		config.set("score", score);
+		config.set("keys", Lists.newArrayList(keys));
 
-        if (keyList != null) {
+		if (lastLoc) {
 
-            keys = Sets.newHashSet(keyList);
+			Location loc = player.getLocation();
+			config.set("lastLoc.World", loc.getWorld().getName());
+			config.set("lastLoc.X", loc.getX());
+			config.set("lastLoc.Y", loc.getY());
+			config.set("lastLoc.Z", loc.getZ());
+			config.set("lastLoc.Yaw", loc.getYaw());
+			config.set("lastLoc.Pitch", loc.getPitch());
 
-        } else {
+		}
 
-            keys = new HashSet<String>();
+		return saveConfig(config);
 
-        }
+	}
 
-        return true;
-    }
+	public boolean setData(int money, int health, int foodLevel, int score, List<String> keys, Location lastLoc) {
 
-    public boolean saveData(boolean lastLoc) {
+		FileConfiguration config = getLoadedConfig();
 
-        YamlConfiguration config = new YamlConfiguration();
+		if (config == null) {
 
-        File mainDir = new File("plugins/Quarantine/" + zone.getProperties().getZoneName() + "/PlayerData");
+			return false;
 
-        if (!mainDir.exists()) {
+		}
 
-            mainDir.mkdirs();
+		config.set("money", money);
+		config.set("health", health);
+		config.set("foodLevel", foodLevel);
+		config.set("score", score);
+		config.set("keys", keys);
+		config.set("lastLoc.World", lastLoc.getWorld().getName());
+		config.set("lastLoc.X", lastLoc.getX());
+		config.set("lastLoc.Y", lastLoc.getY());
+		config.set("lastLoc.Z", lastLoc.getZ());
+		config.set("lastLoc.Yaw", lastLoc.getYaw());
+		config.set("lastLoc.Pitch", lastLoc.getPitch());
 
-        }
+		return saveConfig(config);
 
-        File dir = new File(mainDir.getPath() + "/" + player.getName() + ".yml");
+	}
 
-        if (!dir.exists()) {
+	public boolean resetData() {
 
-            try {
+		return setData(0, 20, 20, 0, new ArrayList<String>(), zone.getEntrance());
 
-                dir.createNewFile();
+	}
 
-            } catch (IOException ex) {
+	private FileConfiguration getLoadedConfig() {
 
-                logError(DataError.DATA_SAVE, ex);
-                return false;
+		YamlConfiguration config = new YamlConfiguration();
 
-            }
-        }
+		File dir = new File(zone.getPlayerDataDir() + "/" + player.getName() + ".yml");
 
-        try {
+		if (!dir.exists()) {
 
-            config.load(dir);
+			try {
 
-        } catch (Exception ex) {
+				dir.createNewFile();
 
-            logError(DataError.DATA_SAVE, ex);
-            return false;
+			} catch (IOException ex) {
 
-        }
+				logError(DataError.DATA_SAVE, ex);
+				return null;
 
-        health = player.getHealth();
-        foodLevel = player.getFoodLevel();
+			}
+		}
 
-        config.set("money", money);
-        config.set("health", health);
-        config.set("foodLevel", foodLevel);
-        config.set("score", score);
-        config.set("keys", Lists.newArrayList(keys));
+		try {
 
-        if (lastLoc) {
+			config.load(dir);
 
-            Location loc = player.getLocation();
-            config.set("lastLoc.World", loc.getWorld().getName());
-            config.set("lastLoc.X", loc.getX());
-            config.set("lastLoc.Y", loc.getY());
-            config.set("lastLoc.Z", loc.getZ());
-            config.set("lastLoc.Yaw", loc.getYaw());
-            config.set("lastLoc.Pitch", loc.getPitch());
+		} catch (Exception ex) {
 
-        }
+			logError(DataError.DATA_SAVE, ex);
+			return null;
 
-        try {
+		}
 
-            config.save(dir);
+		return config;
 
-        } catch (IOException ex) {
+	}
 
-            logError(DataError.DATA_SAVE, ex);
-            return false;
+	private boolean saveConfig(FileConfiguration config) {
 
-        }
+		File dir = new File(zone.getPlayerDataDir() + "/" + player.getName() + ".yml");
 
-        return true;
+		if (!dir.exists()) {
 
-    }
+			try {
 
-    public void deletePlayerDataFile() {
+				dir.createNewFile();
 
-        new File("plugins/Quarantine/"
-                + zone.getProperties().getZoneName() + "/PlayerData/"
-                + player.getName() + ".yml").delete();
+			} catch (IOException ex) {
 
-    }
+				logError(DataError.DATA_SAVE, ex);
+				return false;
 
-    protected boolean hasInventory() {
+			}
+		}
 
-        return new File("plugins/Quarantine/"
-                + zone.getProperties().getZoneName() + "/PlayerInventories/"
-                + player.getName() + ".inv").exists();
+		try {
 
-    }
+			config.save(dir);
 
-    protected boolean loadInventory() {
+		} catch (IOException ex) {
 
-        File mainDir = new File("plugins/Quarantine/" + zone.getProperties().getZoneName() + "/PlayerInventories");
+			logError(DataError.DATA_SAVE, ex);
+			return false;
 
-        if (!mainDir.exists()) {
+		}
 
-            mainDir.mkdirs();
+		return true;
 
-        }
+	}
 
-        File invFile = new File(mainDir.getPath() + "/" + player.getName() + ".inv");
+	public void deletePlayerDataFile() {
 
-        try {
+		new File(zone.getPlayerDataDir() + "/" + player.getName() + ".yml").delete();
 
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(invFile));
-            InventoryItem[] fromFile = (InventoryItem[]) ois.readObject();
-            ois.close();
+	}
 
-            ItemStack[] armor = new ItemStack[4];
-            ItemStack[] items = new ItemStack[fromFile.length - 4];
+	protected boolean hasInventory() {
 
-            for (int i = 0; i < 4; i++) {
+		return new File(zone.getPlayerInvDir() + "/" + player.getName() + ".inv").exists();
 
-                armor[i] = fromFile[i].getItem();
+	}
 
-            }
+	protected boolean loadInventory() {
 
-            for (int i = 4; i < fromFile.length; i++) {
+		File invFile = new File(zone.getPlayerInvDir() + "/" + player.getName() + ".inv");
 
-                items[i - 4] = fromFile[i].getItem();
+		try {
 
-            }
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(invFile));
+			InventoryItem[] fromFile = (InventoryItem[]) ois.readObject();
+			ois.close();
 
-            PlayerInventory inv = player.getInventory();
-            inv.setArmorContents(armor);
+			ItemStack[] armor = new ItemStack[4];
+			ItemStack[] items = new ItemStack[fromFile.length - 4];
 
-            for (ItemStack stack : items) {
+			for (int i = 0; i < 4; i++) {
 
-                if (stack != null) {
+				armor[i] = fromFile[i].getItem();
 
-                    inv.addItem(stack);
+			}
 
-                }
-            }
+			for (int i = 4; i < fromFile.length; i++) {
 
-        } catch (ClassCastException cce) {
+				items[i - 4] = fromFile[i].getItem();
 
-            QUtil.tell(player, Messages.get("InventoryNotConvertedError"));
-            return false;
+			}
 
-        } catch (Exception ex) {
+			PlayerInventory inv = player.getInventory();
+			inv.setArmorContents(armor);
 
-            logError(DataError.INV_LOAD, ex);
-            return false;
+			for (ItemStack stack : items) {
 
-        }
+				if (stack != null) {
 
-        return true;
+					inv.addItem(stack);
 
-    }
+				}
+			}
 
-    protected boolean saveInventory() {
+		} catch (ClassCastException cce) {
 
-        File mainDir = new File("plugins/Quarantine/" + zone.getProperties().getZoneName() + "/PlayerInventories");
+			QUtil.tell(player, Messages.get("InventoryNotConvertedError"));
+			return false;
 
-        if (!mainDir.exists()) {
+		} catch (Exception ex) {
 
-            mainDir.mkdirs();
+			logError(DataError.INV_LOAD, ex);
+			return false;
 
-        }
+		}
 
-        File invFile = new File(mainDir.getPath() + "/" + player.getName() + ".inv");
+		return true;
 
-        try {
+	}
 
-            if (invFile.exists()) {
+	protected boolean saveInventory() {
 
-                invFile.delete();
+		File invFile = new File(zone.getPlayerInvDir() + "/" + player.getName() + ".inv");
 
-            }
+		try {
 
-            invFile.createNewFile();
+			if (invFile.exists()) {
 
-            ItemStack[] armor = player.getInventory().getArmorContents();
-            ItemStack[] items = player.getInventory().getContents();
-            InventoryItem[] inv = new InventoryItem[armor.length + items.length];
+				invFile.delete();
 
-            for (int i = 0; i < armor.length; i++) {
+			}
 
-                inv[i] = new InventoryItem(armor[i]);
+			invFile.createNewFile();
 
-            }
+			ItemStack[] armor = player.getInventory().getArmorContents();
+			ItemStack[] items = player.getInventory().getContents();
+			InventoryItem[] inv = new InventoryItem[armor.length + items.length];
 
-            for (int i = 0; i < items.length; i++) {
+			for (int i = 0; i < armor.length; i++) {
 
-                inv[armor.length + i] = new InventoryItem(items[i]);
+				inv[i] = new InventoryItem(armor[i]);
 
-            }
+			}
 
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(invFile));
-            oos.writeObject(inv);
-            oos.flush();
-            oos.close();
+			for (int i = 0; i < items.length; i++) {
 
-        } catch (Exception ex) {
+				inv[armor.length + i] = new InventoryItem(items[i]);
 
-            logError(DataError.INV_SAVE, ex);
-            return false;
+			}
 
-        }
+			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(invFile));
+			oos.writeObject(inv);
+			oos.flush();
+			oos.close();
 
-        clearInventory();
-        return true;
+		} catch (Exception ex) {
 
-    }
+			logError(DataError.INV_SAVE, ex);
+			return false;
 
-    public void clearInventory() {
+		}
 
-        PlayerInventory inv = player.getInventory();
-        inv.clear();
-        inv.setHelmet(null);
-        inv.setChestplate(null);
-        inv.setLeggings(null);
-        inv.setBoots(null);
+		clearInventory();
+		return true;
 
-    }
+	}
 
-    public void deleteInventory() {
+	public void clearInventory() {
 
-        File mainDir = new File("plugins/Quarantine/" + zone.getProperties().getZoneName() + "/PlayerInventories");
-        File dir = new File(mainDir.getPath() + "/" + player.getName() + ".inv");
+		PlayerInventory inv = player.getInventory();
+		inv.clear();
+		inv.setHelmet(null);
+		inv.setChestplate(null);
+		inv.setLeggings(null);
+		inv.setBoots(null);
 
-        if (dir.exists()) {
+	}
 
-            dir.delete();
+	public void deleteInventory() {
 
-        }
-    }
+		File dir = new File(zone.getPlayerInvDir() + "/" + player.getName() + ".inv");
 
-    private void logError(DataError error, Exception ex) {
+		if (dir.exists()) {
 
-        switch (error) {
+			dir.delete();
 
-            case DATA_LOAD:
-                Quarantine.log.info("[Quarantine] Couldn't load data for player: " + player.getName());
-                break;
+		}
+	}
 
-            case DATA_SAVE:
-                Quarantine.log.info("[Quarantine] Couldn't save data for player: " + player.getName());
-                break;
+	private void logError(DataError error, Exception ex) {
 
-            case INV_LOAD:
-                Quarantine.log.info("[Quarantine] Couldn't restore inventory for player: " + player.getName());
-                break;
+		switch (error) {
 
-            case INV_SAVE:
-                Quarantine.log.info("[Quarantine] Couldn't store inventory for player: " + player.getName());
+			case DATA_LOAD:
+				Quarantine.log.info("[Quarantine] Couldn't load data for player: " + player.getName());
+				break;
 
-        }
+			case DATA_SAVE:
+				Quarantine.log.info("[Quarantine] Couldn't save data for player: " + player.getName());
+				break;
 
-        Quarantine.log.info("[Quarantine] Error message: " + ex.getMessage());
+			case INV_LOAD:
+				Quarantine.log.info("[Quarantine] Couldn't restore inventory for player: " + player.getName());
+				break;
 
-    }
-    
-    @Override
-    public String toString() {
-       
-        return player.getDisplayName();
-        
-    }
+			case INV_SAVE:
+				Quarantine.log.info("[Quarantine] Couldn't store inventory for player: " + player.getName());
 
-    @Override
-    public int hashCode() {
+		}
 
-        return player.hashCode() ^ zone.getProperties().getZoneName().hashCode();
+		Quarantine.log.info("[Quarantine] Error message: " + ex.getMessage());
 
-    }
+	}
 
-    @Override
-    public boolean equals(Object o) {
+	@Override
+	public String toString() {
 
-        if (o == null) {
+		return player.getDisplayName();
 
-            return false;
+	}
 
-        }
+	@Override
+	public int hashCode() {
 
-        if (o == this) {
+		return player.hashCode() ^ zone.getProperties().getZoneName().hashCode();
 
-            return true;
+	}
 
-        }
+	@Override
+	public boolean equals(Object o) {
 
-        if (!(o instanceof PlayerData)) {
+		if (o == null) {
 
-            return false;
+			return false;
 
-        }
+		}
 
-        PlayerData p = (PlayerData) o;
-        return p.getPlayer().equals(player) && p.getZone().getProperties().
-                getZoneName().equals(zone.getProperties().getZoneName());
+		if (o == this) {
 
-    }
+			return true;
+
+		}
+
+		if (!(o instanceof PlayerData)) {
+
+			return false;
+
+		}
+
+		PlayerData p = (PlayerData) o;
+		return p.getPlayer().equals(player) && p.getZone().getProperties().
+				getZoneName().equals(zone.getProperties().getZoneName());
+
+	}
 }

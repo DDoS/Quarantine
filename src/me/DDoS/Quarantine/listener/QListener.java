@@ -23,16 +23,15 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.metadata.LazyMetadataValue;
 
 import me.DDoS.Quarantine.Quarantine;
-import me.DDoS.Quarantine.gui.SpoutEnabledGUIHandler;
 import me.DDoS.Quarantine.player.CallablePlayer;
 import me.DDoS.Quarantine.player.PlayerType;
 import me.DDoS.Quarantine.util.Messages;
 import me.DDoS.Quarantine.util.QUtil;
 import me.DDoS.Quarantine.zone.Zone;
-import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 
 /**
  *

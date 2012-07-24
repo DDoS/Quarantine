@@ -132,9 +132,11 @@ public class ZoneLoader {
         properties.setStartingMoney(configSec1.getInt("starting_money"));
         properties.setMaxNumberOfPlayers(configSec1.getInt("max_number_of_players"));
         properties.setMobCheckTaskInterval(configSec1.getLong("mob_check_task_interval") * 20);
-        properties.clearDrops(configSec1.getBoolean("clear_drops"));
-        properties.oneTimeUseKeys(configSec1.getBoolean("one_time_use_keys"));
-        properties.clearXP(configSec1.getBoolean("clear_mob_xp"));
+        properties.setClearMobDrops(configSec1.getBoolean("clear_drops"));
+        properties.setOneTimeUseKeys(configSec1.getBoolean("one_time_use_keys"));
+        properties.setClearMobXP(configSec1.getBoolean("clear_mob_xp"));
+		properties.setKeepXPOnRespawn(configSec1.getBoolean("keep_xp_on_respawn"));
+		properties.setKeepMoneyOnDeath(configSec1.getBoolean("keep_money_on_death"));
 
         softRespawn = (configSec1.getBoolean("soft_mob_respawn"));
 

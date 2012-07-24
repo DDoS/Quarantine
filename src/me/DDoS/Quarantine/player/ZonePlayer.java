@@ -1,5 +1,6 @@
 package me.DDoS.Quarantine.player;
 
+import java.util.ArrayList;
 import me.DDoS.Quarantine.player.inventory.Kit;
 import me.DDoS.Quarantine.util.Messages;
 import me.DDoS.Quarantine.util.QUtil;
@@ -16,280 +17,301 @@ import org.bukkit.inventory.ItemStack;
  */
 public class ZonePlayer extends QPlayer {
 
-    private byte moneyReceivedCount = 0;
-    private int moneyReceived = 0;
+	private byte moneyReceivedCount = 0;
+	private int moneyReceived = 0;
 
-    public ZonePlayer(PlayerData player) {
+	public ZonePlayer(PlayerData player) {
 
-        super(player);
+		super(player);
 
-    }
+	}
 
-    public void addKey(String key, int cost) {
+	public void addKey(String key, int cost) {
 
-        if (!keys.contains(key)) {
+		if (!keys.contains(key)) {
 
-            if (cost > money) {
+			if (cost > money) {
 
-                QUtil.tell(player, Messages.get("InsufficientFundsForKey"));
-                return;
+				QUtil.tell(player, Messages.get("InsufficientFundsForKey"));
+				return;
 
-            }
+			}
 
-            removeMoney(cost);
-            keys.add(key);
-            QUtil.tell(player, Messages.get("KeyPurchaseSuccess", key));
-            return;
+			removeMoney(cost);
+			keys.add(key);
+			QUtil.tell(player, Messages.get("KeyPurchaseSuccess", key));
+			return;
 
-        }
+		}
 
-        QUtil.tell(player, Messages.get("KeyAlreadyOwned"));
+		QUtil.tell(player, Messages.get("KeyAlreadyOwned"));
 
-    }
+	}
 
-    public boolean useKey(String key, boolean oneTime) {
+	public boolean useKey(String key, boolean oneTime) {
 
-        boolean success = keys.contains(key);
+		boolean success = keys.contains(key);
 
-        if (success && oneTime) {
+		if (success && oneTime) {
 
-            keys.remove(key);
-            QUtil.tell(player, Messages.get("KeyOneTimeUse"));
+			keys.remove(key);
+			QUtil.tell(player, Messages.get("KeyOneTimeUse"));
 
-        }
+		}
 
-        return success;
+		return success;
 
-    }
+	}
 
-    public void addScore(int scoreToAdd) {
+	public void addScore(int scoreToAdd) {
 
-        score += scoreToAdd;
+		score += scoreToAdd;
 
-        if (zone.getLeaderboard() != null) {
+		if (zone.getLeaderboard() != null) {
 
-            zone.getLeaderboard().queueScoreUpdate(this);
+			zone.getLeaderboard().queueScoreUpdate(this);
 
-        }
-    }
+		}
+	}
 
-    public void giveMoneyForKill(int amount) {
+	public void giveMoneyForKill(int amount) {
 
-        money += amount;
-        moneyReceived += amount;
-        moneyReceivedCount++;
+		money += amount;
+		moneyReceived += amount;
+		moneyReceivedCount++;
 
-        if (moneyReceivedCount >= 5) {
+		if (moneyReceivedCount >= 5) {
 
-            QUtil.tell(player, Messages.get("MoneyReceivedFromMobs", moneyReceived, moneyReceivedCount));
-            moneyReceived = 0;
-            moneyReceivedCount = 0;
+			QUtil.tell(player, Messages.get("MoneyReceivedFromMobs", moneyReceived, moneyReceivedCount));
+			moneyReceived = 0;
+			moneyReceivedCount = 0;
 
-        }
-    }
+		}
+	}
 
-    public void buyItem(ItemStack item, int cost) {
+	public void buyItem(ItemStack item, int cost) {
 
-        if (cost > money) {
+		if (cost > money) {
 
-            QUtil.tell(player, Messages.get("InsufficientFundsForItem"));
-            return;
+			QUtil.tell(player, Messages.get("InsufficientFundsForItem"));
+			return;
 
-        }
+		}
 
-        QUtil.tell(player, Messages.get("ItemAddedToInventory"));
-        removeMoney(cost);
-        player.getInventory().addItem(item);
-        player.updateInventory();
+		QUtil.tell(player, Messages.get("ItemAddedToInventory"));
+		removeMoney(cost);
+		player.getInventory().addItem(item);
+		player.updateInventory();
 
-    }
+	}
 
-    public void sellItem(ItemStack item, int cost) {
+	public void sellItem(ItemStack item, int cost) {
 
-        if (!player.getInventory().contains(item)) {
+		if (!player.getInventory().contains(item)) {
 
-            QUtil.tell(player, Messages.get("ItemForSaleNotFound", item.getType().name().toLowerCase()));
-            return;
+			QUtil.tell(player, Messages.get("ItemForSaleNotFound", item.getType().name().toLowerCase()));
+			return;
 
-        }
+		}
 
-        QUtil.tell(player, Messages.get("ItemRemovedFromInventory"));
-        QUtil.tell(player, Messages.get("MoneyReceived", cost));
-        money += cost;
-        player.getInventory().removeItem(item);
-        player.updateInventory();
+		QUtil.tell(player, Messages.get("ItemRemovedFromInventory"));
+		QUtil.tell(player, Messages.get("MoneyReceived", cost));
+		money += cost;
+		player.getInventory().removeItem(item);
+		player.updateInventory();
 
-    }
+	}
 
-    public void addEnchantment(int ID, int level, int cost) {
+	public void addEnchantment(int ID, int level, int cost) {
 
-        if (Enchantment.getById(ID) == null) {
+		if (Enchantment.getById(ID) == null) {
 
-            QUtil.tell(player, Messages.get("InvalidEnchantmentID"));
-            return;
+			QUtil.tell(player, Messages.get("InvalidEnchantmentID"));
+			return;
 
-        }
+		}
 
-        if (cost > money) {
+		if (cost > money) {
 
-            QUtil.tell(player, Messages.get("InsufficientFundsForEnchantment"));
-            return;
+			QUtil.tell(player, Messages.get("InsufficientFundsForEnchantment"));
+			return;
 
-        }
+		}
 
-        ItemStack item = player.getItemInHand();
-        Enchantment enchantment = new EnchantmentWrapper(ID);
+		ItemStack item = player.getItemInHand();
+		Enchantment enchantment = new EnchantmentWrapper(ID);
 
-        if (!enchantment.canEnchantItem(item)) {
+		if (!enchantment.canEnchantItem(item)) {
 
-            QUtil.tell(player, Messages.get("EnchantmentUnappliable"));
-            return;
+			QUtil.tell(player, Messages.get("EnchantmentUnappliable"));
+			return;
 
-        }
+		}
 
-        if (item.containsEnchantment(enchantment)) {
+		if (item.containsEnchantment(enchantment)) {
 
-            QUtil.tell(player, Messages.get("EnchantmentAlreadyApplied"));
-            return;
+			QUtil.tell(player, Messages.get("EnchantmentAlreadyApplied"));
+			return;
 
-        }
+		}
 
-        item.addEnchantment(enchantment, level);
-        removeMoney(cost);
-        QUtil.tell(player, Messages.get("EnchantmentAddedSuccess"));
+		item.addEnchantment(enchantment, level);
+		removeMoney(cost);
+		QUtil.tell(player, Messages.get("EnchantmentAddedSuccess"));
 
-    }
+	}
 
-    @Override
-    public boolean join() {
+	@Override
+	public boolean join() {
 
-        QUtil.tell(player, Messages.get("AlreadyInZoneError"));
-        return false;
+		QUtil.tell(player, Messages.get("AlreadyInZoneError"));
+		return false;
 
-    }
+	}
 
-    @Override
-    public boolean enter() {
+	@Override
+	public boolean enter() {
 
-        return join();
+		return join();
 
-    }
+	}
 
-    @Override
-    public boolean commandLeave() {
+	@Override
+	public boolean commandLeave() {
 
-        if (zone.getLeaderboard() != null) {
+		if (zone.getLeaderboard() != null) {
 
-            zone.getLeaderboard().queueScoreUpdate(this);
+			zone.getLeaderboard().queueScoreUpdate(this);
 
-        }
+		}
 
-        if (!saveData(true)) {
+		if (!saveData(true)) {
 
-            QUtil.tell(player, Messages.get("DataSaveError"));
+			QUtil.tell(player, Messages.get("DataSaveError"));
 
-        }
+		}
 
-        if (!saveInventory()) {
+		if (!saveInventory()) {
 
-            QUtil.tell(player, Messages.get("InventorySaveError"));
+			QUtil.tell(player, Messages.get("InventorySaveError"));
 
-        }
+		}
 
-        clearInventory();
-        player.teleport(zone.getLobby());
-        player.setHealth(preGameHealth);
-        player.setFoodLevel(preGameFoodLevel);
-        QUtil.tell(player, Messages.get("Thanks"));
-        return true;
+		clearInventory();
+		player.teleport(zone.getLobby());
+		player.setHealth(preGameHealth);
+		player.setFoodLevel(preGameFoodLevel);
+		QUtil.tell(player, Messages.get("Thanks"));
+		return true;
 
-    }
+	}
 
-    @Override
-    public void forceLeave() {
+	@Override
+	public void forceLeave() {
 
-        QUtil.tell(player, Messages.get("ZoneUnloadNotice"));
-        commandLeave();
+		QUtil.tell(player, Messages.get("ZoneUnloadNotice"));
+		commandLeave();
 
-    }
+	}
 
-    @Override
-    public void quitLeave() {
+	@Override
+	public void quitLeave() {
 
-        if (zone.getLeaderboard() != null) {
+		if (zone.getLeaderboard() != null) {
 
-            zone.getLeaderboard().queueScoreUpdate(this);
+			zone.getLeaderboard().queueScoreUpdate(this);
 
-        }
+		}
 
-        saveData(true);
-        saveInventory();
-        clearInventory();
-        player.teleport(zone.getLobby());
-        player.setHealth(preGameHealth);
-        player.setFoodLevel(preGameFoodLevel);
+		saveData(true);
+		saveInventory();
+		clearInventory();
+		player.teleport(zone.getLobby());
+		player.setHealth(preGameHealth);
+		player.setFoodLevel(preGameFoodLevel);
 
-    }
+	}
 
-    @Override
-    public boolean teleportLeave(PlayerTeleportEvent event) {
+	@Override
+	public boolean teleportLeave(PlayerTeleportEvent event) {
 
-        if (event.getTo().equals(zone.getLobby())) {
+		if (event.getTo().equals(zone.getLobby())) {
 
-            return false;
+			return false;
 
-        }
+		}
 
-        if (zone.isInZone(event.getTo())) {
+		if (zone.isInZone(event.getTo())) {
 
-            return false;
+			return false;
 
-        }
+		}
 
-        event.setCancelled(true);
-        QUtil.tell(player, Messages.get("LeaveZoneHelp"));
-        return false;
+		event.setCancelled(true);
+		QUtil.tell(player, Messages.get("LeaveZoneHelp"));
+		return false;
 
-    }
+	}
 
-    @Override
-    public void dieLeave(PlayerDeathEvent event) {
+	@Override
+	public void dieLeave(PlayerDeathEvent event) {
 
-        score = 0;
+		score = 0;
 
-        if (zone.getLeaderboard() != null) {
+		if (zone.getLeaderboard() != null) {
 
-            zone.getLeaderboard().queueScoreUpdate(this);
+			zone.getLeaderboard().queueScoreUpdate(this);
 
-        }
+		}
 
-        deleteInventory();
-        deletePlayerDataFile();
-        event.getDrops().clear();
-        event.setDroppedExp(0);
-        event.setKeepLevel(true);
+		deleteInventory();
 
-    }
-    
-    public void buyKit(Kit kit, int cost) {  
-        
-        if (cost > money) {
+		if (zone.getProperties().keepMoneyOnDeath()) {
+			
+			int lastMoney = money;
+			deletePlayerDataFile();
+			
+			if (!setData(lastMoney, 20, 20, 0, new ArrayList<String>(), zone.getEntrance())) {
+				
+				QUtil.tell(player, Messages.get("DataSaveError"));
+				
+			}
+			
+		} else {
+			
+			deletePlayerDataFile();
+			
+		}
 
-            QUtil.tell(player, Messages.get("InsufficientFundsForKit"));
-            return;
+		event.getDrops().clear();
+		event.setDroppedExp(0);
 
-        }
-        
-        kit.giveKit(player);
-        removeMoney(cost);
-        QUtil.tell(player, Messages.get("KitAddedSuccess"));
-        
-    }
+		if (zone.getProperties().keepXPOnRespawn()) {
 
-    @Override
-    public PlayerType getType() {
-        
-        return PlayerType.ZONE_PLAYER;
-        
-    }
+			event.setKeepLevel(true);
+
+		}
+	}
+
+	public void buyKit(Kit kit, int cost) {
+
+		if (cost > money) {
+
+			QUtil.tell(player, Messages.get("InsufficientFundsForKit"));
+			return;
+
+		}
+
+		kit.giveKit(player);
+		removeMoney(cost);
+		QUtil.tell(player, Messages.get("KitAddedSuccess"));
+
+	}
+
+	@Override
+	public PlayerType getType() {
+
+		return PlayerType.ZONE_PLAYER;
+
+	}
 }
